@@ -191,7 +191,7 @@ public class WebHookExecutor implements Runnable
     }
     catch (Exception ex)
     {
-      logger.error("error during webhook execution for {}", url);
+      logger.error("error during webhook execution for ".concat(url), ex);
     }
   }
 
