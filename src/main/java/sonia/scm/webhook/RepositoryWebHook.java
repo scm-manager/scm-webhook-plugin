@@ -76,6 +76,7 @@ public class RepositoryWebHook extends PostReceiveRepositoryHook
   public RepositoryWebHook(Provider<HttpClient> httpClientProvider)
   {
     this.httpClientProvider = httpClientProvider;
+    this.urlParser = new JexlUrlParser();
   }
 
   //~--- methods --------------------------------------------------------------
@@ -132,8 +133,8 @@ public class RepositoryWebHook extends PostReceiveRepositoryHook
     {
 
       // async ??
-      new WebHookExecutor(httpClientProvider.get(), webHook, repository,
-                          changesets).run();
+      new WebHookExecutor(httpClientProvider.get(), urlParser, webHook,
+                          repository, changesets).run();
     }
   }
 
@@ -141,4 +142,7 @@ public class RepositoryWebHook extends PostReceiveRepositoryHook
 
   /** Field description */
   private Provider<HttpClient> httpClientProvider;
+
+  /** Field description */
+  private UrlParser urlParser;
 }

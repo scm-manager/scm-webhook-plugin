@@ -44,6 +44,8 @@ import sonia.scm.repository.Repository;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -66,15 +68,17 @@ public class WebHookExecutor implements Runnable
    *
    *
    * @param httpClient
+   * @param urlParser
    * @param webHook
    * @param repository
    * @param changesets
    */
-  public WebHookExecutor(HttpClient httpClient, WebHook webHook,
-                         Repository repository,
+  public WebHookExecutor(HttpClient httpClient, UrlParser urlParser,
+                         WebHook webHook, Repository repository,
                          Collection<Changeset> changesets)
   {
     this.httpClient = httpClient;
+    this.urlParser = urlParser;
     this.webHook = webHook;
     this.repository = repository;
     this.changesets = changesets;
@@ -124,6 +128,23 @@ public class WebHookExecutor implements Runnable
    * Method description
    *
    *
+   * @param repository
+   *
+   * @return
+   */
+  private Map<String, Object> createBaseEnvironment(Repository repository)
+  {
+    Map<String, Object> env = new HashMap<String, Object>();
+
+    env.put("repository", repository);
+
+    return env;
+  }
+
+  /**
+   * Method description
+   *
+   *
    * @param urlPattern
    * @param repository
    * @param changeset
@@ -133,9 +154,11 @@ public class WebHookExecutor implements Runnable
   private String createUrl(String urlPattern, Repository repository,
                            Changeset changeset)
   {
+    Map<String, Object> env = createBaseEnvironment(repository);
 
-    // TODO implement
-    return urlPattern;
+    env.put("changeset", changeset);
+
+    return urlParser.parse(urlPattern, env);
   }
 
   /**
@@ -151,9 +174,10 @@ public class WebHookExecutor implements Runnable
   private String createUrl(String urlPattern, Repository repository,
                            Collection<Changeset> changesets)
   {
+    Map<String, Object> env = createBaseEnvironment(repository);
 
-    // TODO implement
-    return urlPattern;
+    // TODO add the first and the last changeset to environment
+    return urlParser.parse(urlPattern, env);
   }
 
   /**
@@ -205,6 +229,9 @@ public class WebHookExecutor implements Runnable
 
   /** Field description */
   private Repository repository;
+
+  /** Field description */
+  private UrlParser urlParser;
 
   /** Field description */
   private WebHook webHook;
