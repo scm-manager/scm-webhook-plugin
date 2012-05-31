@@ -45,6 +45,7 @@ import sonia.scm.repository.Repository;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -175,8 +176,18 @@ public class WebHookExecutor implements Runnable
                            Collection<Changeset> changesets)
   {
     Map<String, Object> env = createBaseEnvironment(repository);
+    Iterator<Changeset> it = changesets.iterator();
+    Changeset changeset = it.next();
 
-    // TODO add the first and the last changeset to environment
+    env.put("first", changeset);
+
+    while (it.hasNext())
+    {
+      changeset = it.next();
+    }
+
+    env.put("last", changeset);
+
     return urlParser.parse(urlPattern, env);
   }
 
