@@ -33,9 +33,13 @@ package sonia.scm.webhook;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import sonia.scm.net.HttpClient;
 import sonia.scm.plugin.ext.Extension;
 import sonia.scm.repository.Changeset;
 import sonia.scm.repository.PostReceiveRepositoryHook;
@@ -59,6 +63,20 @@ public class RepositoryWebHook extends PostReceiveRepositoryHook
    */
   private static final Logger logger =
     LoggerFactory.getLogger(RepositoryWebHook.class);
+
+  //~--- constructors ---------------------------------------------------------
+
+  /**
+   * Constructs ...
+   *
+   *
+   * @param httpClientProvider
+   */
+  @Inject
+  public RepositoryWebHook(Provider<HttpClient> httpClientProvider)
+  {
+    this.httpClientProvider = httpClientProvider;
+  }
 
   //~--- methods --------------------------------------------------------------
 
@@ -114,7 +132,13 @@ public class RepositoryWebHook extends PostReceiveRepositoryHook
     {
 
       // async ??
-      new WebHookExecutor(webHook, repository, changesets).run();
+      new WebHookExecutor(httpClientProvider.get(), webHook, repository,
+                          changesets).run();
     }
   }
+
+  //~--- fields ---------------------------------------------------------------
+
+  /** Field description */
+  private Provider<HttpClient> httpClientProvider;
 }

@@ -36,6 +36,8 @@ package sonia.scm.webhook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import sonia.scm.net.HttpClient;
+import sonia.scm.net.HttpResponse;
 import sonia.scm.repository.Changeset;
 import sonia.scm.repository.Repository;
 
@@ -62,13 +64,17 @@ public class WebHookExecutor implements Runnable
    * Constructs ...
    *
    *
+   *
+   * @param httpClient
    * @param webHook
    * @param repository
    * @param changesets
    */
-  public WebHookExecutor(WebHook webHook, Repository repository,
+  public WebHookExecutor(HttpClient httpClient, WebHook webHook,
+                         Repository repository,
                          Collection<Changeset> changesets)
   {
+    this.httpClient = httpClient;
     this.webHook = webHook;
     this.repository = repository;
     this.changesets = changesets;
@@ -156,13 +162,38 @@ public class WebHookExecutor implements Runnable
       logger.info("execute webhook for url {}", url);
     }
 
-    // TODO implement
+    // TODO implement data
+    try
+    {
+      HttpResponse response = httpClient.get(url);
+      int statusCode = response.getStatusCode();
+
+      if ((statusCode >= 200) && (statusCode < 300))
+      {
+        if (logger.isInfoEnabled())
+        {
+          logger.info("webhook {} ended successfully with status code {}", url,
+                      statusCode);
+        }
+      }
+      else if (logger.isWarnEnabled())
+      {
+        logger.warn("webhook {} failed with statusCode {}", url, statusCode);
+      }
+    }
+    catch (Exception ex)
+    {
+      logger.error("error during webhook execution for {}", url);
+    }
   }
 
   //~--- fields ---------------------------------------------------------------
 
   /** Field description */
   private Collection<Changeset> changesets;
+
+  /** Field description */
+  private HttpClient httpClient;
 
   /** Field description */
   private Repository repository;
