@@ -42,7 +42,7 @@
   </packages>
 
   <resources>
-    <script>/sonia/scm/scm.webhook.js</script>
+    <script>/sonia/scm/webhook/sonia.webhook.js</script>
   </resources>
 
 </plugin>
