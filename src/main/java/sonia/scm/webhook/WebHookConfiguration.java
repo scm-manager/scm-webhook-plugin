@@ -138,7 +138,7 @@ public class WebHookConfiguration implements Iterable<WebHook>
    */
   private void parseWebHookProperty(String webHookString)
   {
-    String[] webHookConfigs = webHookString.split("|");
+    String[] webHookConfigs = webHookString.split("\\|");
 
     for (String webHookConfig : webHookConfigs)
     {
