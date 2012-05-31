@@ -179,14 +179,14 @@ public class WebHookExecutor implements Runnable
     Iterator<Changeset> it = changesets.iterator();
     Changeset changeset = it.next();
 
-    env.put("first", changeset);
+    env.put("last", changeset);
 
     while (it.hasNext())
     {
       changeset = it.next();
     }
 
-    env.put("last", changeset);
+    env.put("first", changeset);
 
     return urlParser.parse(urlPattern, env);
   }
