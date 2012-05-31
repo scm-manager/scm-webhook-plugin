@@ -99,6 +99,10 @@ public class WebHookExecutor implements Runnable
         {
           execute(url, c);
         }
+        else
+        {
+          execute(url, null);
+        }
       }
     }
     else
@@ -108,6 +112,10 @@ public class WebHookExecutor implements Runnable
       if (webHook.isSendCommitData())
       {
         execute(url, new Changesets(changesets));
+      }
+      else
+      {
+        execute(url, null);
       }
     }
   }
