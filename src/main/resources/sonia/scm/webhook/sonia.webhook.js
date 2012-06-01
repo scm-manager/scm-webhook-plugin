@@ -45,7 +45,12 @@ Sonia.webhook.ConfigPanel = Ext.extend(Sonia.repository.PropertiesFormPanel, {
   removeTest: 'Remove',
   
   // help
-  webhookGridHelpText: '',
+  webhookGridHelpText: 'Add and remove WebHooks for your repositories. \n\
+    The "Url Pattern" column specifies the url of the remote website. \n\
+    You can use patterns like ${repository.name} for the url.\n\
+    If you enable the "Execute on every commit" checkbox, then is the specified \n\
+    url triggert for each commit in a push. \n\
+    If the checkbox is disabled the url is triggert once in a push.',
   
   // icons
   addIcon: 'resources/images/add.gif',
