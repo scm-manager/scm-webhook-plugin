@@ -51,9 +51,6 @@ Sonia.webhook.ConfigPanel = Ext.extend(Sonia.repository.PropertiesFormPanel, {
   addIcon: 'resources/images/add.gif',
   removeIcon: 'resources/images/delete.gif',
   
-  // templates
-  checkboxTemplate: '<input type="checkbox" disabled="true" {0}/>',
-  
   initComponent: function(){
     this.webhookStore = new Ext.data.ArrayStore({
       root: 'webhooks',
