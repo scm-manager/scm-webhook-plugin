@@ -14,7 +14,7 @@
   <packaging>jar</packaging>
   <version>1.0-SNAPSHOT</version>
   <name>${project.artifactId}</name>
-  <description>WebHooks for SCM-Manager</description>
+  <description>Notify a remote webserver whenever a repository is pushed to.</description>
 
   <dependencies>
 
