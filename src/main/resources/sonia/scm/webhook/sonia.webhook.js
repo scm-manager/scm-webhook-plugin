@@ -61,8 +61,8 @@ Sonia.webhook.ConfigPanel = Ext.extend(Sonia.repository.PropertiesFormPanel, {
       root: 'webhooks',
       fields: [
         {name: 'urlPattern'},
-        {name: 'executeOnEveryCommit'},
-        {name: 'sendCommitData'}
+        {name: 'executeOnEveryCommit', type: 'boolean'},
+        {name: 'sendCommitData', type: 'boolean'}
       ]
     });
     
@@ -184,18 +184,10 @@ Sonia.webhook.ConfigPanel = Ext.extend(Sonia.repository.PropertiesFormPanel, {
       if ( pa.length > 0 && pa[0].length > 0 ){
         var Webhook = store.recordType;
         var w = new Webhook({
-          urlPattern: pa[0].trim()
+          urlPattern: pa[0].trim(),
+          executeOnEveryCommit: pa[1] == 'true',
+          sendCommitData: pa[2] == 'true'
         });
-        if (pa[1]){
-          w.executeOnEveryCommit = pa[1];
-        } else {
-          w.executeOnEveryCommit = false;
-        }
-        if (pa[2]){
-          w.sendCommitData = pa[2];
-        } else {
-          w.sendCommitData = false;
-        }
         if (debug){
           console.debug('add webhook: ');
           console.debug( w );
