@@ -75,8 +75,7 @@ public class WebHookExecutor implements Runnable
    * @param changesets
    */
   public WebHookExecutor(HttpClient httpClient, UrlParser urlParser,
-                         WebHook webHook, Repository repository,
-                         Collection<Changeset> changesets)
+    WebHook webHook, Repository repository, Collection<Changeset> changesets)
   {
     this.httpClient = httpClient;
     this.urlParser = urlParser;
@@ -153,11 +152,12 @@ public class WebHookExecutor implements Runnable
    * @return
    */
   private String createUrl(String urlPattern, Repository repository,
-                           Changeset changeset)
+    Changeset changeset)
   {
     Map<String, Object> env = createBaseEnvironment(repository);
 
     env.put("changeset", changeset);
+    env.put("commit", changeset);
 
     return urlParser.parse(urlPattern, env);
   }
@@ -173,7 +173,7 @@ public class WebHookExecutor implements Runnable
    * @return
    */
   private String createUrl(String urlPattern, Repository repository,
-                           Collection<Changeset> changesets)
+    Collection<Changeset> changesets)
   {
     Map<String, Object> env = createBaseEnvironment(repository);
     Iterator<Changeset> it = changesets.iterator();
@@ -216,7 +216,7 @@ public class WebHookExecutor implements Runnable
         if (logger.isInfoEnabled())
         {
           logger.info("webhook {} ended successfully with status code {}", url,
-                      statusCode);
+            statusCode);
         }
       }
       else if (logger.isWarnEnabled())
