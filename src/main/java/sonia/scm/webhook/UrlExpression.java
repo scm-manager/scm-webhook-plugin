@@ -31,20 +31,24 @@
 
 package sonia.scm.webhook;
 
+//~--- JDK imports ------------------------------------------------------------
+
+import java.util.Map;
+
 /**
  *
  * @author Sebastian Sdorra
  */
-public interface UrlParser
+public interface UrlExpression
 {
 
   /**
    * Method description
    *
    *
-   * @param urlPattern
+   * @param environment
    *
    * @return
    */
-  public UrlExpression parse(String urlPattern);
+  public String evaluate(Map<String, Object> environment);
 }

@@ -80,7 +80,7 @@ public class WebHookExecutor implements Runnable
     WebHook webHook, Repository repository, Collection<Changeset> changesets)
   {
     this.httpClient = httpClient;
-    this.urlParser = urlParser;
+    this.expression = urlParser.parse(webHook.getUrlPattern());
     this.webHook = webHook;
     this.repository = repository;
     this.changesets = changesets;
@@ -99,7 +99,7 @@ public class WebHookExecutor implements Runnable
     {
       for (Changeset c : changesets)
       {
-        String url = createUrl(webHook.getUrlPattern(), repository, c);
+        String url = createUrl(repository, c);
 
         if (webHook.isSendCommitData())
         {
@@ -113,7 +113,7 @@ public class WebHookExecutor implements Runnable
     }
     else
     {
-      String url = createUrl(webHook.getUrlPattern(), repository, changesets);
+      String url = createUrl(repository, changesets);
 
       if (webHook.isSendCommitData())
       {
@@ -147,14 +147,12 @@ public class WebHookExecutor implements Runnable
    * Method description
    *
    *
-   * @param urlPattern
    * @param repository
    * @param changeset
    *
    * @return
    */
-  private String createUrl(String urlPattern, Repository repository,
-    Changeset changeset)
+  private String createUrl(Repository repository, Changeset changeset)
   {
     Map<String, Object> env = createBaseEnvironment(repository);
 
@@ -163,20 +161,19 @@ public class WebHookExecutor implements Runnable
     env.put("changeset", iec);
     env.put("commit", iec);
 
-    return urlParser.parse(urlPattern, env);
+    return expression.evaluate(env);
   }
 
   /**
    * Method description
    *
    *
-   * @param urlPattern
    * @param repository
    * @param changesets
    *
    * @return
    */
-  private String createUrl(String urlPattern, Repository repository,
+  private String createUrl(Repository repository,
     Collection<Changeset> changesets)
   {
     Map<String, Object> env = createBaseEnvironment(repository);
@@ -192,7 +189,7 @@ public class WebHookExecutor implements Runnable
 
     env.put("first", new ImmutableEncodedChangeset(changeset));
 
-    return urlParser.parse(urlPattern, env);
+    return expression.evaluate(env);
   }
 
   /**
@@ -240,13 +237,13 @@ public class WebHookExecutor implements Runnable
   private Collection<Changeset> changesets;
 
   /** Field description */
+  private UrlExpression expression;
+
+  /** Field description */
   private HttpClient httpClient;
 
   /** Field description */
   private Repository repository;
-
-  /** Field description */
-  private UrlParser urlParser;
 
   /** Field description */
   private WebHook webHook;

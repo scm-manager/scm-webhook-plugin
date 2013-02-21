@@ -29,22 +29,64 @@
 
 
 
-package sonia.scm.webhook;
+package sonia.scm.webhook.jexl;
+
+//~--- non-JDK imports --------------------------------------------------------
+
+import org.apache.commons.jexl2.MapContext;
+import org.apache.commons.jexl2.UnifiedJEXL.Expression;
+
+import sonia.scm.util.Util;
+import sonia.scm.webhook.UrlExpression;
+
+//~--- JDK imports ------------------------------------------------------------
+
+import java.util.Map;
 
 /**
  *
  * @author Sebastian Sdorra
  */
-public interface UrlParser
+public class JexlUrlExpression implements UrlExpression
 {
+
+  /**
+   * Constructs ...
+   *
+   *
+   * @param expression
+   */
+  public JexlUrlExpression(Expression expression)
+  {
+    this.expression = expression;
+  }
+
+  //~--- methods --------------------------------------------------------------
 
   /**
    * Method description
    *
    *
-   * @param urlPattern
+   * @param environment
    *
    * @return
    */
-  public UrlExpression parse(String urlPattern);
+  @Override
+  public String evaluate(Map<String, Object> environment)
+  {
+    String url = Util.EMPTY_STRING;
+    Object result = expression.evaluate(new MapContext(environment));
+
+    if (result != null)
+    {
+      url = result.toString();
+    }
+
+    return url;
+  }
+
+  //~--- fields ---------------------------------------------------------------
+
+  /** Field description */
+  private Expression expression;
 }

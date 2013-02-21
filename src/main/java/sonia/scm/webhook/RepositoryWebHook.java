@@ -33,6 +33,7 @@ package sonia.scm.webhook;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import sonia.scm.webhook.jexl.JexlUrlParser;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 

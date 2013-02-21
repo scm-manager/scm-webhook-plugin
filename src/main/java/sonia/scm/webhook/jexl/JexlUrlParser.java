@@ -29,18 +29,15 @@
 
 
 
-package sonia.scm.webhook;
+package sonia.scm.webhook.jexl;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.commons.jexl2.JexlEngine;
-import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.jexl2.UnifiedJEXL;
-import org.apache.commons.jexl2.UnifiedJEXL.Expression;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import java.util.Map;
+import sonia.scm.webhook.UrlExpression;
+import sonia.scm.webhook.UrlParser;
 
 /**
  *
@@ -54,28 +51,17 @@ public class JexlUrlParser implements UrlParser
    *
    *
    * @param urlPattern
-   * @param environment
    *
    * @return
    */
   @Override
-  public String parse(String urlPattern, Map<String, Object> environment)
+  public UrlExpression parse(String urlPattern)
   {
-    String url = urlPattern;
-    UnifiedJEXL uel = new UnifiedJEXL(engine);
-    Expression expression = uel.parse(urlPattern);
-    Object result = expression.evaluate(new MapContext(environment));
-
-    if (result != null)
-    {
-      url = result.toString();
-    }
-
-    return url;
+    return new JexlUrlExpression(uel.parse(urlPattern));
   }
 
   //~--- fields ---------------------------------------------------------------
 
   /** Field description */
-  private JexlEngine engine = new JexlEngine();
+  private UnifiedJEXL uel = new UnifiedJEXL(new JexlEngine());
 }
