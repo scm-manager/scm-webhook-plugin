@@ -95,6 +95,7 @@ public class WebHookExecutor implements Runnable
   @Override
   public void run()
   {
+    logger.debug("execute webhook: {}", webHook);
     if (webHook.isExecuteOnEveryCommit())
     {
       for (Changeset c : changesets)

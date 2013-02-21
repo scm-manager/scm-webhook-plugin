@@ -36,6 +36,9 @@ package sonia.scm.webhook.jexl;
 import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.jexl2.UnifiedJEXL.Expression;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import sonia.scm.util.Util;
 import sonia.scm.webhook.UrlExpression;
 
@@ -49,6 +52,14 @@ import java.util.Map;
  */
 public class JexlUrlExpression implements UrlExpression
 {
+
+  /**
+   * the logger for JexlUrlExpression
+   */
+  private static final Logger logger =
+    LoggerFactory.getLogger(JexlUrlExpression.class);
+
+  //~--- constructors ---------------------------------------------------------
 
   /**
    * Constructs ...
@@ -81,6 +92,8 @@ public class JexlUrlExpression implements UrlExpression
     {
       url = result.toString();
     }
+
+    logger.trace("result of expression evaluation: {}", url);
 
     return url;
   }

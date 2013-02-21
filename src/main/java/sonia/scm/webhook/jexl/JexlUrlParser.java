@@ -36,6 +36,9 @@ package sonia.scm.webhook.jexl;
 import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.UnifiedJEXL;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import sonia.scm.webhook.UrlExpression;
 import sonia.scm.webhook.UrlParser;
 
@@ -45,6 +48,14 @@ import sonia.scm.webhook.UrlParser;
  */
 public class JexlUrlParser implements UrlParser
 {
+
+  /**
+   * the logger for JexlUrlParser
+   */
+  private static final Logger logger =
+    LoggerFactory.getLogger(JexlUrlParser.class);
+
+  //~--- methods --------------------------------------------------------------
 
   /**
    * Method description
@@ -57,6 +68,8 @@ public class JexlUrlParser implements UrlParser
   @Override
   public UrlExpression parse(String urlPattern)
   {
+    logger.trace("try to parse url pattern: {}", urlPattern);
+
     return new JexlUrlExpression(uel.parse(urlPattern));
   }
 

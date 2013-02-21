@@ -31,6 +31,10 @@
 
 package sonia.scm.webhook;
 
+//~--- non-JDK imports --------------------------------------------------------
+
+import com.google.common.base.Objects;
+
 /**
  *
  * @author Sebastian Sdorra
@@ -58,11 +62,71 @@ public class WebHook
    * @param sendCommitData
    */
   public WebHook(String urlPattern, boolean executeOnEveryCommit,
-                 boolean sendCommitData)
+    boolean sendCommitData)
   {
     this.urlPattern = urlPattern;
     this.executeOnEveryCommit = executeOnEveryCommit;
     this.sendCommitData = sendCommitData;
+  }
+
+  //~--- methods --------------------------------------------------------------
+
+  /**
+   * Method description
+   *
+   *
+   * @param obj
+   *
+   * @return
+   */
+  @Override
+  public boolean equals(Object obj)
+  {
+    if (obj == null)
+    {
+      return false;
+    }
+
+    if (getClass() != obj.getClass())
+    {
+      return false;
+    }
+
+    final WebHook other = (WebHook) obj;
+
+    return Objects.equal(urlPattern, other.urlPattern)
+      && Objects.equal(sendCommitData, other.sendCommitData)
+      && Objects.equal(executeOnEveryCommit, other.executeOnEveryCommit);
+  }
+
+  /**
+   * Method description
+   *
+   *
+   * @return
+   */
+  @Override
+  public int hashCode()
+  {
+    return Objects.hashCode(urlPattern, sendCommitData, executeOnEveryCommit);
+  }
+
+  /**
+   * Method description
+   *
+   *
+   * @return
+   */
+  @Override
+  public String toString()
+  {
+    //J-
+    return Objects.toStringHelper(this)
+                  .add("urlPattern", urlPattern)
+                  .add("sendCommitData", sendCommitData)
+                  .add("executeOnEveryCommit", executeOnEveryCommit)
+                  .toString();
+    //J+
   }
 
   //~--- get methods ----------------------------------------------------------
