@@ -83,19 +83,6 @@ public class Changesets
     return changesets;
   }
 
-  //~--- set methods ----------------------------------------------------------
-
-  /**
-   * Method description
-   *
-   *
-   * @param changesets
-   */
-  public void setChangesets(Collection<Changeset> changesets)
-  {
-    this.changesets = changesets;
-  }
-
   //~--- fields ---------------------------------------------------------------
 
   /** Field description */
