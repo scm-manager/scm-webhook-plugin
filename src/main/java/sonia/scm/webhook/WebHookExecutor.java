@@ -40,6 +40,8 @@ import sonia.scm.net.HttpClient;
 import sonia.scm.net.HttpResponse;
 import sonia.scm.repository.Changeset;
 import sonia.scm.repository.Repository;
+import sonia.scm.webhook.data.ImmutableEncodedChangeset;
+import sonia.scm.webhook.data.ImmutableEscapedRepository;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -136,7 +138,7 @@ public class WebHookExecutor implements Runnable
   {
     Map<String, Object> env = new HashMap<String, Object>();
 
-    env.put("repository", repository);
+    env.put("repository", new ImmutableEscapedRepository(repository));
 
     return env;
   }
@@ -156,8 +158,10 @@ public class WebHookExecutor implements Runnable
   {
     Map<String, Object> env = createBaseEnvironment(repository);
 
-    env.put("changeset", changeset);
-    env.put("commit", changeset);
+    ImmutableEncodedChangeset iec = new ImmutableEncodedChangeset(changeset);
+
+    env.put("changeset", iec);
+    env.put("commit", iec);
 
     return urlParser.parse(urlPattern, env);
   }
@@ -179,14 +183,14 @@ public class WebHookExecutor implements Runnable
     Iterator<Changeset> it = changesets.iterator();
     Changeset changeset = it.next();
 
-    env.put("last", changeset);
+    env.put("last", new ImmutableEncodedChangeset(changeset));
 
     while (it.hasNext())
     {
       changeset = it.next();
     }
 
-    env.put("first", changeset);
+    env.put("first", new ImmutableEncodedChangeset(changeset));
 
     return urlParser.parse(urlPattern, env);
   }

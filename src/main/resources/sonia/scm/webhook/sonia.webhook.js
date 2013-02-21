@@ -145,7 +145,7 @@ Sonia.webhook.ConfigPanel = Ext.extend(Sonia.repository.PropertiesFormPanel, {
         }]
 
       }]
-    }
+    };
     Ext.apply(this, Ext.apply(this.initialConfig, config));
     Sonia.webhook.ConfigPanel.superclass.initComponent.apply(this, arguments);
   },
@@ -170,7 +170,7 @@ Sonia.webhook.ConfigPanel = Ext.extend(Sonia.repository.PropertiesFormPanel, {
       repository.properties = [];
     }
     Ext.each(repository.properties, function(prop){
-      if ( prop.key == 'webhooks' ){
+      if ( prop.key === 'webhooks' ){
         var value = prop.value;
         this.parseWebhooks(store, value);
       }
@@ -185,8 +185,8 @@ Sonia.webhook.ConfigPanel = Ext.extend(Sonia.repository.PropertiesFormPanel, {
         var Webhook = store.recordType;
         var w = new Webhook({
           urlPattern: pa[0].trim(),
-          executeOnEveryCommit: pa[1] == 'true',
-          sendCommitData: pa[2] == 'true'
+          executeOnEveryCommit: pa[1] === 'true',
+          sendCommitData: pa[2] === 'true'
         });
         if (debug){
           console.debug('add webhook: ');
@@ -204,7 +204,7 @@ Sonia.webhook.ConfigPanel = Ext.extend(Sonia.repository.PropertiesFormPanel, {
     
     // delete old sub repositories
     Ext.each(repository.properties, function(prop, index){
-      if ( prop.key == 'webhooks' ){
+      if ( prop.key === 'webhooks' ){
         delete repository.properties[index];
       }
     });
