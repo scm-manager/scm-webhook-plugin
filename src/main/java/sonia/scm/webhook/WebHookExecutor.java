@@ -42,7 +42,7 @@ import sonia.scm.net.HttpResponse;
 import sonia.scm.repository.Changeset;
 import sonia.scm.repository.Repository;
 import sonia.scm.webhook.data.ImmutableEncodedChangeset;
-import sonia.scm.webhook.data.ImmutableEscapedRepository;
+import sonia.scm.webhook.data.ImmutableEncodedRepository;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -140,7 +140,7 @@ public class WebHookExecutor implements Runnable
   {
     Map<String, Object> env = new HashMap<String, Object>();
 
-    env.put("repository", new ImmutableEscapedRepository(repository));
+    env.put("repository", new ImmutableEncodedRepository(repository));
 
     return env;
   }

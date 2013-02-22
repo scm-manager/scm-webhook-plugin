@@ -30,15 +30,12 @@
  */
 
 
+
 package sonia.scm.webhook.data;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sonia.scm.repository.Changeset;
-
-//~--- JDK imports ------------------------------------------------------------
-
-import java.util.List;
 
 /**
  *
@@ -77,9 +74,9 @@ public final class ImmutableEncodedChangeset
    *
    * @return
    */
-  public List<String> getBranches()
+  public EncodedStringList getBranches()
   {
-    return Encoder.encode(changeset.getBranches());
+    return new EncodedStringList(changeset.getBranches());
   }
 
   /**
@@ -132,9 +129,9 @@ public final class ImmutableEncodedChangeset
    *
    * @return
    */
-  public List<String> getParents()
+  public EncodedStringList getParents()
   {
-    return changeset.getParents();
+    return new EncodedStringList(changeset.getParents());
   }
 
   /**
@@ -143,9 +140,9 @@ public final class ImmutableEncodedChangeset
    *
    * @return
    */
-  public List<String> getTags()
+  public EncodedStringList getTags()
   {
-    return Encoder.encode(changeset.getTags());
+    return new EncodedStringList(changeset.getTags());
   }
 
   //~--- fields ---------------------------------------------------------------

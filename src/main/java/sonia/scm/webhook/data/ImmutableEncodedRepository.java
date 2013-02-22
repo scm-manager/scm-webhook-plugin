@@ -40,7 +40,7 @@ import sonia.scm.repository.Repository;
  *
  * @author Sebastian Sdorra
  */
-public final class ImmutableEscapedRepository
+public final class ImmutableEncodedRepository
 {
 
   /**
@@ -49,7 +49,7 @@ public final class ImmutableEscapedRepository
    *
    * @param repository
    */
-  public ImmutableEscapedRepository(Repository repository)
+  public ImmutableEncodedRepository(Repository repository)
   {
     this.repository = repository;
   }

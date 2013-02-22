@@ -30,15 +30,12 @@
  */
 
 
+
 package sonia.scm.webhook.data;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sonia.scm.repository.Modifications;
-
-//~--- JDK imports ------------------------------------------------------------
-
-import java.util.List;
 
 /**
  *
@@ -58,6 +55,26 @@ public final class ImmutableEncodedModifications
     this.modifications = modifications;
   }
 
+  //~--- methods --------------------------------------------------------------
+
+  /**
+   * Method description
+   *
+   *
+   * @return
+   */
+  @Override
+  public String toString()
+  {
+    StringBuilder out = new StringBuilder();
+
+    out.append("A:").append(getAdded());
+    out.append(";M:").append(getModified());
+    out.append(";R:").append(getRemoved());
+
+    return out.toString();
+  }
+
   //~--- get methods ----------------------------------------------------------
 
   /**
@@ -66,9 +83,9 @@ public final class ImmutableEncodedModifications
    *
    * @return
    */
-  public List<String> getAdded()
+  public EncodedStringList getAdded()
   {
-    return Encoder.encode(modifications.getAdded());
+    return new EncodedStringList(modifications.getAdded());
   }
 
   /**
@@ -77,9 +94,9 @@ public final class ImmutableEncodedModifications
    *
    * @return
    */
-  public List<String> getModified()
+  public EncodedStringList getModified()
   {
-    return Encoder.encode(modifications.getModified());
+    return new EncodedStringList(modifications.getModified());
   }
 
   /**
@@ -88,9 +105,9 @@ public final class ImmutableEncodedModifications
    *
    * @return
    */
-  public List<String> getRemoved()
+  public EncodedStringList getRemoved()
   {
-    return Encoder.encode(modifications.getRemoved());
+    return new EncodedStringList(modifications.getRemoved());
   }
 
   //~--- fields ---------------------------------------------------------------
