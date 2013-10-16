@@ -93,7 +93,7 @@ public class WebHookConfiguration implements Iterable<WebHook>
    */
   public WebHookConfiguration(Set<WebHook> webhooks)
   {
-    this.webhooks = webhooks;
+    this.webhooks.addAll(webhooks);
   }
 
   //~--- methods --------------------------------------------------------------
@@ -107,7 +107,7 @@ public class WebHookConfiguration implements Iterable<WebHook>
   @Override
   public Iterator<WebHook> iterator()
   {
-    return getWebHooks().iterator();
+    return webhooks.iterator();
   }
 
   /**
@@ -122,8 +122,8 @@ public class WebHookConfiguration implements Iterable<WebHook>
   {
     Set<WebHook> allHooks = new HashSet<WebHook>();
 
-    allHooks.addAll(getWebHooks());
-    allHooks.addAll(otherConfiguration.getWebHooks());
+    allHooks.addAll(webhooks);
+    allHooks.addAll(otherConfiguration.webhooks);
 
     return new WebHookConfiguration(allHooks);
   }
@@ -138,7 +138,7 @@ public class WebHookConfiguration implements Iterable<WebHook>
    */
   public boolean isWebHookAvailable()
   {
-    return !getWebHooks().isEmpty();
+    return !webhooks.isEmpty();
   }
 
   //~--- methods --------------------------------------------------------------
@@ -169,7 +169,7 @@ public class WebHookConfiguration implements Iterable<WebHook>
         }
       }
 
-      getWebHooks().add(new WebHook(urlPattern, executeOnEveryCommit,
+      webhooks.add(new WebHook(urlPattern, executeOnEveryCommit,
         sendCommitData));
     }
   }
@@ -192,25 +192,7 @@ public class WebHookConfiguration implements Iterable<WebHook>
 
   //~--- get methods ----------------------------------------------------------
 
-  /**
-   * Method description
-   *
-   *
-   * @return
-   */
-  private Set<WebHook> getWebHooks()
-  {
-    if (webhooks == null)
-    {
-      webhooks = new HashSet<WebHook>();
-    }
-
-    return webhooks;
-  }
-
-  //~--- fields ---------------------------------------------------------------
-
   /** Field description */
   @XmlElement(name = "webhook")
-  private Set<WebHook> webhooks;
+  private Set<WebHook> webhooks = new HashSet<WebHook>();
 }
