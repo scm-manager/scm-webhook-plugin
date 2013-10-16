@@ -44,6 +44,8 @@
 
   <resources>
     <script>/sonia/scm/webhook/sonia.webhook.js</script>
+    <script>/sonia/scm/webhook/sonia.webhook.globalpanel.js</script>
+    <script>/sonia/scm/webhook/sonia.webhook.repositorypanel.js</script>
   </resources>
 
 </plugin>
