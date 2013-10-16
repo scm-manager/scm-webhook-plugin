@@ -30,11 +30,11 @@
  */
 
 
+
 package sonia.scm.webhook;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sonia.scm.webhook.jexl.JexlUrlParser;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
@@ -47,6 +47,7 @@ import sonia.scm.repository.Changeset;
 import sonia.scm.repository.PostReceiveRepositoryHook;
 import sonia.scm.repository.Repository;
 import sonia.scm.repository.RepositoryHookEvent;
+import sonia.scm.webhook.jexl.JexlUrlParser;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -73,12 +74,15 @@ public class RepositoryWebHook extends PostReceiveRepositoryHook
    *
    *
    * @param httpClientProvider
+   * @param context
    */
   @Inject
-  public RepositoryWebHook(Provider<HttpClient> httpClientProvider)
+  public RepositoryWebHook(Provider<HttpClient> httpClientProvider,
+    WebHookContext context)
   {
     this.httpClientProvider = httpClientProvider;
     this.urlParser = new JexlUrlParser();
+    this.context = context;
   }
 
   //~--- methods --------------------------------------------------------------
@@ -96,7 +100,7 @@ public class RepositoryWebHook extends PostReceiveRepositoryHook
 
     if (repository != null)
     {
-      WebHookConfiguration configuration = new WebHookConfiguration(repository);
+      WebHookConfiguration configuration = context.getConfiguration(repository);
 
       if (configuration.isWebHookAvailable())
       {
@@ -105,7 +109,7 @@ public class RepositoryWebHook extends PostReceiveRepositoryHook
       else if (logger.isDebugEnabled())
       {
         logger.debug("no webhook defined for repository {}",
-                     repository.getName());
+          repository.getName());
       }
     }
     else if (logger.isErrorEnabled())
@@ -123,8 +127,7 @@ public class RepositoryWebHook extends PostReceiveRepositoryHook
    * @param changesets
    */
   private void executeWebHooks(WebHookConfiguration configuration,
-                               Repository repository,
-                               Collection<Changeset> changesets)
+    Repository repository, Collection<Changeset> changesets)
   {
     if (logger.isDebugEnabled())
     {
@@ -136,15 +139,18 @@ public class RepositoryWebHook extends PostReceiveRepositoryHook
 
       // async ??
       new WebHookExecutor(httpClientProvider.get(), urlParser, webHook,
-                          repository, changesets).run();
+        repository, changesets).run();
     }
   }
 
   //~--- fields ---------------------------------------------------------------
 
   /** Field description */
-  private Provider<HttpClient> httpClientProvider;
+  private final WebHookContext context;
 
   /** Field description */
-  private UrlParser urlParser;
+  private final Provider<HttpClient> httpClientProvider;
+
+  /** Field description */
+  private final UrlParser urlParser;
 }

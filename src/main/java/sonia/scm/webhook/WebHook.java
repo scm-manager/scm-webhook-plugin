@@ -30,18 +30,33 @@
  */
 
 
+
 package sonia.scm.webhook;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import com.google.common.base.Objects;
 
+//~--- JDK imports ------------------------------------------------------------
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  *
  * @author Sebastian Sdorra
  */
+@XmlRootElement(name = "webhook")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class WebHook
 {
+
+  /**
+   * Constructs ...
+   *
+   */
+  WebHook() {}
 
   /**
    * Constructs ...

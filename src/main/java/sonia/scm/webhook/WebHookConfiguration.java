@@ -30,6 +30,7 @@
  */
 
 
+
 package sonia.scm.webhook;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -43,10 +44,17 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  *
  * @author Sebastian Sdorra
  */
+@XmlRootElement(name = "webhooks")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class WebHookConfiguration implements Iterable<WebHook>
 {
 
@@ -54,6 +62,12 @@ public class WebHookConfiguration implements Iterable<WebHook>
   public static final String PROPERTY_WEBHOOKS = "webhooks";
 
   //~--- constructors ---------------------------------------------------------
+
+  /**
+   * Constructs ...
+   *
+   */
+  public WebHookConfiguration() {}
 
   /**
    * Constructs ...
@@ -71,6 +85,17 @@ public class WebHookConfiguration implements Iterable<WebHook>
     }
   }
 
+  /**
+   * Constructs ...
+   *
+   *
+   * @param webhooks
+   */
+  public WebHookConfiguration(Set<WebHook> webhooks)
+  {
+    this.webhooks = webhooks;
+  }
+
   //~--- methods --------------------------------------------------------------
 
   /**
@@ -82,7 +107,25 @@ public class WebHookConfiguration implements Iterable<WebHook>
   @Override
   public Iterator<WebHook> iterator()
   {
-    return webhooks.iterator();
+    return getWebHooks().iterator();
+  }
+
+  /**
+   * Method description
+   *
+   *
+   * @param otherConfiguration
+   *
+   * @return
+   */
+  public WebHookConfiguration merge(WebHookConfiguration otherConfiguration)
+  {
+    Set<WebHook> allHooks = new HashSet<WebHook>();
+
+    allHooks.addAll(getWebHooks());
+    allHooks.addAll(otherConfiguration.getWebHooks());
+
+    return new WebHookConfiguration(allHooks);
   }
 
   //~--- get methods ----------------------------------------------------------
@@ -95,7 +138,7 @@ public class WebHookConfiguration implements Iterable<WebHook>
    */
   public boolean isWebHookAvailable()
   {
-    return !webhooks.isEmpty();
+    return !getWebHooks().isEmpty();
   }
 
   //~--- methods --------------------------------------------------------------
@@ -126,8 +169,8 @@ public class WebHookConfiguration implements Iterable<WebHook>
         }
       }
 
-      webhooks.add(new WebHook(urlPattern, executeOnEveryCommit,
-                               sendCommitData));
+      getWebHooks().add(new WebHook(urlPattern, executeOnEveryCommit,
+        sendCommitData));
     }
   }
 
@@ -147,8 +190,27 @@ public class WebHookConfiguration implements Iterable<WebHook>
     }
   }
 
+  //~--- get methods ----------------------------------------------------------
+
+  /**
+   * Method description
+   *
+   *
+   * @return
+   */
+  private Set<WebHook> getWebHooks()
+  {
+    if (webhooks == null)
+    {
+      webhooks = new HashSet<WebHook>();
+    }
+
+    return webhooks;
+  }
+
   //~--- fields ---------------------------------------------------------------
 
   /** Field description */
-  private Set<WebHook> webhooks = new HashSet<WebHook>();
+  @XmlElement(name = "webhook")
+  private Set<WebHook> webhooks;
 }
