@@ -194,5 +194,5 @@ public class WebHookConfiguration implements Iterable<WebHook>
 
   /** Field description */
   @XmlElement(name = "webhook")
-  private Set<WebHook> webhooks = new HashSet<WebHook>();
+  private final Set<WebHook> webhooks = new HashSet<WebHook>();
 }

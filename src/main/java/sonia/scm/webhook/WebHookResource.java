@@ -35,8 +35,10 @@ package sonia.scm.webhook;
 
 import com.google.inject.Inject;
 
-import sonia.scm.util.SecurityUtil;
-import sonia.scm.web.security.WebSecurityContext;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
+
+import sonia.scm.security.Role;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -59,14 +61,14 @@ public class WebHookResource
    * Constructs ...
    *
    *
-   * @param securityContext
    * @param context
    */
   @Inject
-  public WebHookResource(WebSecurityContext securityContext,
-    WebHookContext context)
+  public WebHookResource(WebHookContext context)
   {
-    SecurityUtil.assertIsAdmin(securityContext);
+    Subject subject = SecurityUtils.getSubject();
+
+    subject.checkRole(Role.ADMIN);
     this.context = context;
   }
 
