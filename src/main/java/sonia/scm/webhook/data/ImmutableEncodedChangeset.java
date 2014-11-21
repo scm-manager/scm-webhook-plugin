@@ -148,5 +148,5 @@ public final class ImmutableEncodedChangeset
   //~--- fields ---------------------------------------------------------------
 
   /** Field description */
-  private Changeset changeset;
+  private final Changeset changeset;
 }

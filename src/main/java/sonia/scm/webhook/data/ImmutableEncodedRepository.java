@@ -158,5 +158,5 @@ public final class ImmutableEncodedRepository
   //~--- fields ---------------------------------------------------------------
 
   /** Field description */
-  private Repository repository;
+  private final Repository repository;
 }

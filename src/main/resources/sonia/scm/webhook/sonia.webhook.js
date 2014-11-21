@@ -49,7 +49,9 @@ Sonia.webhook.I18n = {
     You can use patterns like ${repository.name} for the url.\n\
     If you enable the "Execute on every commit" checkbox, then is the specified \n\
     url triggert for each commit in a push. \n\
-    If the checkbox is disabled the url is triggert once in a push.',
+    If the checkbox is disabled the url is triggert once in a push. \n\
+    If the "Send commit data" checkbox is enabled, the plugin will execute the \n\
+    WebHook as POST request with commit data as json.',
   
   // icons
   addIcon: 'resources/images/add.gif',
@@ -73,12 +75,12 @@ Sonia.webhook.createColModel = function(){
       xtype: 'checkcolumn',
       dataIndex: 'executeOnEveryCommit',
       header: Sonia.webhook.I18n.colEveryCommitText
-    }/*,{
+    },{
       id: 'sendCommitData',
       xtype: 'checkcolumn',
       dataIndex: 'sendCommitData',
       header: Sonia.webhook.I18n.colSendCommitData
-    }*/]
+    }]
   });
 };
 

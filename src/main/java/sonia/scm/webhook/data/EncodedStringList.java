@@ -99,5 +99,5 @@ public final class EncodedStringList
   //~--- fields ---------------------------------------------------------------
 
   /** Field description */
-  private List<String> list;
+  private final List<String> list;
 }

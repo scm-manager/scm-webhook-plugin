@@ -81,5 +81,5 @@ public final class ImmutableEncodedPerson
   //~--- fields ---------------------------------------------------------------
 
   /** Field description */
-  private Person person;
+  private final Person person;
 }

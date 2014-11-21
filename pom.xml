@@ -6,7 +6,7 @@
   <parent>
     <artifactId>scm-plugins</artifactId>
     <groupId>sonia.scm.plugins</groupId>
-    <version>1.13</version>
+    <version>1.23</version>
   </parent>
 
   <groupId>sonia.scm.plugins</groupId>
@@ -30,6 +30,12 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-jexl</artifactId>
       <version>2.1.1</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.codehaus.jackson</groupId>
+      <artifactId>jackson-mapper-asl</artifactId>
+      <version>1.9.2</version>
     </dependency>
     
 

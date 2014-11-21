@@ -30,31 +30,48 @@
  */
 
 
-package sonia.scm.webhook.jexl;
+package sonia.scm.webhook.impl;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.apache.commons.jexl2.JexlEngine;
-import org.apache.commons.jexl2.UnifiedJEXL;
+import org.apache.commons.jexl2.MapContext;
+import org.apache.commons.jexl2.UnifiedJEXL.Expression;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import sonia.scm.util.Util;
 import sonia.scm.webhook.UrlExpression;
-import sonia.scm.webhook.UrlParser;
+
+//~--- JDK imports ------------------------------------------------------------
+
+import java.util.Map;
 
 /**
  *
  * @author Sebastian Sdorra
  */
-public class JexlUrlParser implements UrlParser
+public class JexlUrlExpression implements UrlExpression
 {
 
   /**
-   * the logger for JexlUrlParser
+   * the logger for JexlUrlExpression
    */
   private static final Logger logger =
-    LoggerFactory.getLogger(JexlUrlParser.class);
+    LoggerFactory.getLogger(JexlUrlExpression.class);
+
+  //~--- constructors ---------------------------------------------------------
+
+  /**
+   * Constructs ...
+   *
+   *
+   * @param expression
+   */
+  public JexlUrlExpression(Expression expression)
+  {
+    this.expression = expression;
+  }
 
   //~--- methods --------------------------------------------------------------
 
@@ -62,20 +79,28 @@ public class JexlUrlParser implements UrlParser
    * Method description
    *
    *
-   * @param urlPattern
+   * @param environment
    *
    * @return
    */
   @Override
-  public UrlExpression parse(String urlPattern)
+  public String evaluate(Map<String, Object> environment)
   {
-    logger.trace("try to parse url pattern: {}", urlPattern);
+    String url = Util.EMPTY_STRING;
+    Object result = expression.evaluate(new MapContext(environment));
 
-    return new JexlUrlExpression(uel.parse(urlPattern));
+    if (result != null)
+    {
+      url = result.toString();
+    }
+
+    logger.trace("result of expression evaluation: {}", url);
+
+    return url;
   }
 
   //~--- fields ---------------------------------------------------------------
 
   /** Field description */
-  private UnifiedJEXL uel = new UnifiedJEXL(new JexlEngine());
+  private final Expression expression;
 }

@@ -113,5 +113,5 @@ public final class ImmutableEncodedModifications
   //~--- fields ---------------------------------------------------------------
 
   /** Field description */
-  private Modifications modifications;
+  private final Modifications modifications;
 }

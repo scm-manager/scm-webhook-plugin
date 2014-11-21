@@ -167,8 +167,7 @@ Sonia.webhook.RepositoryPanel = Ext.extend(Sonia.repository.PropertiesFormPanel,
     var webhookString = '';
     this.webhookStore.data.each(function(r){
       var w = r.data;
-      // TODO set sendCommitData
-      webhookString += w.urlPattern + ';' + w.executeOnEveryCommit + ';false|';
+      webhookString += w.urlPattern + ';' + w.executeOnEveryCommit + ';' + w.sendCommitData + '|';
     });
     
     if (debug){

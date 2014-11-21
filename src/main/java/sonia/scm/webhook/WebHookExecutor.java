@@ -30,6 +30,7 @@
  */
 
 
+
 package sonia.scm.webhook;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -37,14 +38,14 @@ package sonia.scm.webhook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import sonia.scm.net.HttpClient;
-import sonia.scm.net.HttpResponse;
 import sonia.scm.repository.Changeset;
 import sonia.scm.repository.Repository;
 import sonia.scm.webhook.data.ImmutableEncodedChangeset;
 import sonia.scm.webhook.data.ImmutableEncodedRepository;
 
 //~--- JDK imports ------------------------------------------------------------
+
+import java.io.IOException;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -77,7 +78,7 @@ public class WebHookExecutor implements Runnable
    * @param repository
    * @param changesets
    */
-  public WebHookExecutor(HttpClient httpClient, UrlParser urlParser,
+  public WebHookExecutor(WebHookHttpClient httpClient, UrlParser urlParser,
     WebHook webHook, Repository repository, Collection<Changeset> changesets)
   {
     this.httpClient = httpClient;
@@ -97,6 +98,7 @@ public class WebHookExecutor implements Runnable
   public void run()
   {
     logger.debug("execute webhook: {}", webHook);
+
     if (webHook.isExecuteOnEveryCommit())
     {
       for (Changeset c : changesets)
@@ -208,26 +210,18 @@ public class WebHookExecutor implements Runnable
       logger.info("execute webhook for url {}", url);
     }
 
-    // TODO implement data
     try
     {
-      HttpResponse response = httpClient.get(url);
-      int statusCode = response.getStatusCode();
-
-      if ((statusCode >= 200) && (statusCode < 300))
+      if (data != null)
       {
-        if (logger.isInfoEnabled())
-        {
-          logger.info("webhook {} ended successfully with status code {}", url,
-            statusCode);
-        }
+        httpClient.post(url, data);
       }
-      else if (logger.isWarnEnabled())
+      else
       {
-        logger.warn("webhook {} failed with statusCode {}", url, statusCode);
+        httpClient.get(url);
       }
     }
-    catch (Exception ex)
+    catch (IOException ex)
     {
       logger.error("error during webhook execution for ".concat(url), ex);
     }
@@ -236,17 +230,17 @@ public class WebHookExecutor implements Runnable
   //~--- fields ---------------------------------------------------------------
 
   /** Field description */
-  private Collection<Changeset> changesets;
+  private final Collection<Changeset> changesets;
 
   /** Field description */
-  private UrlExpression expression;
+  private final UrlExpression expression;
 
   /** Field description */
-  private HttpClient httpClient;
+  private final WebHookHttpClient httpClient;
 
   /** Field description */
-  private Repository repository;
+  private final Repository repository;
 
   /** Field description */
-  private WebHook webHook;
+  private final WebHook webHook;
 }

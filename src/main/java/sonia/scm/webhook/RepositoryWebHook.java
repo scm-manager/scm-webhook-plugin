@@ -41,13 +41,12 @@ import com.google.inject.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import sonia.scm.net.HttpClient;
 import sonia.scm.plugin.ext.Extension;
 import sonia.scm.repository.Changeset;
 import sonia.scm.repository.PostReceiveRepositoryHook;
 import sonia.scm.repository.Repository;
 import sonia.scm.repository.RepositoryHookEvent;
-import sonia.scm.webhook.jexl.JexlUrlParser;
+import sonia.scm.webhook.impl.JexlUrlParser;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -77,7 +76,7 @@ public class RepositoryWebHook extends PostReceiveRepositoryHook
    * @param context
    */
   @Inject
-  public RepositoryWebHook(Provider<HttpClient> httpClientProvider,
+  public RepositoryWebHook(Provider<WebHookHttpClient> httpClientProvider,
     WebHookContext context)
   {
     this.httpClientProvider = httpClientProvider;
@@ -136,8 +135,6 @@ public class RepositoryWebHook extends PostReceiveRepositoryHook
 
     for (WebHook webHook : configuration)
     {
-
-      // async ??
       new WebHookExecutor(httpClientProvider.get(), urlParser, webHook,
         repository, changesets).run();
     }
@@ -149,7 +146,7 @@ public class RepositoryWebHook extends PostReceiveRepositoryHook
   private final WebHookContext context;
 
   /** Field description */
-  private final Provider<HttpClient> httpClientProvider;
+  private final Provider<WebHookHttpClient> httpClientProvider;
 
   /** Field description */
   private final UrlParser urlParser;

@@ -30,48 +30,31 @@
  */
 
 
-package sonia.scm.webhook.jexl;
+package sonia.scm.webhook.impl;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.apache.commons.jexl2.MapContext;
-import org.apache.commons.jexl2.UnifiedJEXL.Expression;
+import org.apache.commons.jexl2.JexlEngine;
+import org.apache.commons.jexl2.UnifiedJEXL;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import sonia.scm.util.Util;
 import sonia.scm.webhook.UrlExpression;
-
-//~--- JDK imports ------------------------------------------------------------
-
-import java.util.Map;
+import sonia.scm.webhook.UrlParser;
 
 /**
  *
  * @author Sebastian Sdorra
  */
-public class JexlUrlExpression implements UrlExpression
+public class JexlUrlParser implements UrlParser
 {
 
   /**
-   * the logger for JexlUrlExpression
+   * the logger for JexlUrlParser
    */
   private static final Logger logger =
-    LoggerFactory.getLogger(JexlUrlExpression.class);
-
-  //~--- constructors ---------------------------------------------------------
-
-  /**
-   * Constructs ...
-   *
-   *
-   * @param expression
-   */
-  public JexlUrlExpression(Expression expression)
-  {
-    this.expression = expression;
-  }
+    LoggerFactory.getLogger(JexlUrlParser.class);
 
   //~--- methods --------------------------------------------------------------
 
@@ -79,28 +62,20 @@ public class JexlUrlExpression implements UrlExpression
    * Method description
    *
    *
-   * @param environment
+   * @param urlPattern
    *
    * @return
    */
   @Override
-  public String evaluate(Map<String, Object> environment)
+  public UrlExpression parse(String urlPattern)
   {
-    String url = Util.EMPTY_STRING;
-    Object result = expression.evaluate(new MapContext(environment));
+    logger.trace("try to parse url pattern: {}", urlPattern);
 
-    if (result != null)
-    {
-      url = result.toString();
-    }
-
-    logger.trace("result of expression evaluation: {}", url);
-
-    return url;
+    return new JexlUrlExpression(uel.parse(urlPattern));
   }
 
   //~--- fields ---------------------------------------------------------------
 
   /** Field description */
-  private Expression expression;
+  private final UnifiedJEXL uel = new UnifiedJEXL(new JexlEngine());
 }
