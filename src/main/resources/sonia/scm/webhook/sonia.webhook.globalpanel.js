@@ -44,7 +44,7 @@ Sonia.webhook.GlobalPanel = Ext.extend(Sonia.config.ConfigForm, {
         disableCaching: false
       }),
       root: 'webhook',
-      fields: ['urlPattern', 'sendCommitData', 'executeOnEveryCommit']
+      fields: ['urlPattern', 'sendCommitData', 'executeOnEveryCommit', 'method']
     });
     
     var webhookColModel = Sonia.webhook.createColModel();

@@ -40,6 +40,7 @@ Sonia.webhook.I18n = {
   colUrlText: 'Url Pattern',
   colEveryCommitText: 'Execute on every commit',
   colSendCommitData: 'Send commit data',
+  colHttpMethod: 'Http method',
   addText: 'Add',
   removeText: 'Remove',
   
@@ -50,8 +51,10 @@ Sonia.webhook.I18n = {
     If you enable the "Execute on every commit" checkbox, then is the specified \n\
     url triggert for each commit in a push. \n\
     If the checkbox is disabled the url is triggert once in a push. \n\
-    If the "Send commit data" checkbox is enabled, the plugin will execute the \n\
-    WebHook as POST request with commit data as json.',
+    If the "Send commit data" checkbox is enabled, the plugin will send the \n\
+    commit data as json body with in the request. \n\
+    If the http method AUTO is choosen, the plugin will use a GET request, \n\
+    expect the "Send commit data" is checked, then the plugin will use POST.',
   
   // icons
   addIcon: 'resources/images/add.gif',
@@ -80,6 +83,27 @@ Sonia.webhook.createColModel = function(){
       xtype: 'checkcolumn',
       dataIndex: 'sendCommitData',
       header: Sonia.webhook.I18n.colSendCommitData
+    },{
+      id: 'method',
+      dataIndex: 'method',
+      header: Sonia.webhook.I18n.colHttpMethod,
+      editor: new Ext.form.ComboBox({
+        valueField: 'method',
+        displayField: 'method',
+        typeAhead: false,
+        editable: false,
+        triggerAction: 'all',
+        mode: 'local',
+        store: new Ext.data.SimpleStore({
+          fields: ['method'],
+          data: [
+            ['AUTO'],
+            ['GET'],
+            ['POST'],
+            ['PUT']
+          ]
+        })
+      })
     }]
   });
 };

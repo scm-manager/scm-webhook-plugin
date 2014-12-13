@@ -158,6 +158,7 @@ public class WebHookConfiguration implements Iterable<WebHook>
       String urlPattern = configParts[0];
       boolean executeOnEveryCommit = false;
       boolean sendCommitData = false;
+      HttpMethod method = HttpMethod.AUTO;
 
       if (configParts.length > 1)
       {
@@ -166,11 +167,16 @@ public class WebHookConfiguration implements Iterable<WebHook>
         if (configParts.length > 2)
         {
           sendCommitData = Boolean.parseBoolean(configParts[2]);
+
+          if (configParts.length > 3)
+          {
+            method = HttpMethod.valueOf(configParts[3]);
+          }
         }
       }
 
       webhooks.add(new WebHook(urlPattern, executeOnEveryCommit,
-        sendCommitData));
+        sendCommitData, method));
     }
   }
 
@@ -190,7 +196,7 @@ public class WebHookConfiguration implements Iterable<WebHook>
     }
   }
 
-  //~--- get methods ----------------------------------------------------------
+  //~--- fields ---------------------------------------------------------------
 
   /** Field description */
   @XmlElement(name = "webhook")

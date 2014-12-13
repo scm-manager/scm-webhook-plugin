@@ -41,7 +41,8 @@ Sonia.webhook.RepositoryPanel = Ext.extend(Sonia.repository.PropertiesFormPanel,
       fields: [
         {name: 'urlPattern'},
         {name: 'executeOnEveryCommit', type: 'boolean'},
-        {name: 'sendCommitData', type: 'boolean'}
+        {name: 'sendCommitData', type: 'boolean'},
+        {name: 'method'}
       ]
     });
     
@@ -138,11 +139,17 @@ Sonia.webhook.RepositoryPanel = Ext.extend(Sonia.repository.PropertiesFormPanel,
       var pa = part.split(';');
       if ( pa.length > 0 && pa[0].length > 0 ){
         var Webhook = store.recordType;
+        var method = 'AUTO';
+        if (pa.length > 3){
+          method = pa[3];
+        }
         var w = new Webhook({
           urlPattern: pa[0].trim(),
           executeOnEveryCommit: pa[1] === 'true',
-          sendCommitData: pa[2] === 'true'
+          sendCommitData: pa[2] === 'true',
+          method: method
         });
+
         if (debug){
           console.debug('add webhook: ');
           console.debug( w );
@@ -167,7 +174,10 @@ Sonia.webhook.RepositoryPanel = Ext.extend(Sonia.repository.PropertiesFormPanel,
     var webhookString = '';
     this.webhookStore.data.each(function(r){
       var w = r.data;
-      webhookString += w.urlPattern + ';' + w.executeOnEveryCommit + ';' + w.sendCommitData + '|';
+      if (!w.method){
+        w.method = 'AUTO';
+      }
+      webhookString += w.urlPattern + ';' + w.executeOnEveryCommit + ';' + w.sendCommitData + ';' + w.method + '|';
     });
     
     if (debug){

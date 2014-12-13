@@ -43,6 +43,7 @@ import sonia.scm.SCMContextProvider;
 import sonia.scm.config.ScmConfiguration;
 import sonia.scm.net.Proxies;
 import sonia.scm.util.Util;
+import sonia.scm.webhook.HttpMethod;
 import sonia.scm.webhook.WebHookHttpClient;
 import sonia.scm.webhook.WebHookMarshaller;
 
@@ -79,9 +80,6 @@ public class URLWebHookHttpClient implements WebHookHttpClient
   /** Field description */
   private static final String HEADER_USERAGENT_VALUE =
     "SCM-Manager %s scm-webhook-plugin";
-
-  /** Field description */
-  private static final String METHOD_POST = "POST";
 
   /** Field description */
   private static final String PREFIX_BASIC_AUTHENTICATION = "Basic ";
@@ -123,51 +121,69 @@ public class URLWebHookHttpClient implements WebHookHttpClient
    * Method description
    *
    *
+   * @param method
+   * @param url
+   *
+   * @throws IOException
+   */
+  @Override
+  public void execute(HttpMethod method, String url) throws IOException
+  {
+    execute(method, url, null);
+  }
+
+  /**
+   * Method description
+   *
+   *
+   * @param method
    * @param url
    * @param data
    *
    * @throws IOException
    */
   @Override
-  public void post(String url, Object data) throws IOException
+  public void execute(HttpMethod method, String url, Object data)
+    throws IOException
   {
     HttpURLConnection connection = connect(url);
 
-    connection.setRequestMethod(METHOD_POST);
-    connection.setDoOutput(true);
+    HttpMethod m = method;
 
-    OutputStreamWriter writer;
+    if (m == HttpMethod.AUTO)
+    {
+      if (data != null)
+      {
+        m = HttpMethod.POST;
+      }
+      else
+      {
+        m = HttpMethod.GET;
+      }
+    }
 
-    try
+    logger.debug("using http method {} for webhook request", m);
+    connection.setRequestMethod(m.name());
+
+    if (data != null)
     {
-      writer = new OutputStreamWriter(connection.getOutputStream());
-      marshaller.marshall(writer, data);
+      connection.setDoOutput(true);
+
+      OutputStreamWriter writer;
+
+      try
+      {
+        writer = new OutputStreamWriter(connection.getOutputStream());
+        marshaller.marshall(writer, data);
+      }
+      finally
+      {
+        Closeables.close(context, true);
+      }
     }
-    finally
-    {
-      Closeables.close(context, true);
-    }
-    
+
     handleRespone(url, connection);
   }
-
-  //~--- get methods ----------------------------------------------------------
-
-  /**
-   * Method description
-   *
-   *
-   * @param url
-   *
-   * @throws IOException
-   */
-  @Override
-  public void get(String url) throws IOException
-  {
-    handleRespone(url, connect(url));
-  }
-
-  //~--- methods --------------------------------------------------------------
 
   /**
    * Method description

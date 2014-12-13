@@ -31,39 +31,11 @@
 
 package sonia.scm.webhook;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import java.io.IOException;
-
 /**
  *
  * @author Sebastian Sdorra
  */
-public interface WebHookHttpClient
+public enum HttpMethod
 {
-
-  /**
-   * Method description
-   *
-   *
-   * @param method
-   * @param url
-   * @param data
-   *
-   * @throws IOException
-   */
-  public void execute(HttpMethod method, String url, Object data) throws IOException;
-
-  //~--- get methods ----------------------------------------------------------
-
-  /**
-   * Method description
-   *
-   *
-   * @param method
-   * @param url
-   *
-   * @throws IOException
-   */
-  public void execute(HttpMethod method, String url) throws IOException;
+  AUTO, GET, POST, PUT;
 }

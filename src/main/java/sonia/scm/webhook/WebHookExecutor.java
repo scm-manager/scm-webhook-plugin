@@ -107,11 +107,11 @@ public class WebHookExecutor implements Runnable
 
         if (webHook.isSendCommitData())
         {
-          execute(url, c);
+          execute(webHook.getMethod(), url, c);
         }
         else
         {
-          execute(url, null);
+          execute(webHook.getMethod(), url, null);
         }
       }
     }
@@ -121,11 +121,11 @@ public class WebHookExecutor implements Runnable
 
       if (webHook.isSendCommitData())
       {
-        execute(url, new Changesets(changesets));
+        execute(webHook.getMethod(), url, new Changesets(changesets));
       }
       else
       {
-        execute(url, null);
+        execute(webHook.getMethod(), url, null);
       }
     }
   }
@@ -203,7 +203,7 @@ public class WebHookExecutor implements Runnable
    * @param url
    * @param data
    */
-  private void execute(String url, Object data)
+  private void execute(HttpMethod method, String url, Object data)
   {
     if (logger.isInfoEnabled())
     {
@@ -212,14 +212,7 @@ public class WebHookExecutor implements Runnable
 
     try
     {
-      if (data != null)
-      {
-        httpClient.post(url, data);
-      }
-      else
-      {
-        httpClient.get(url);
-      }
+      httpClient.execute(method, url, data);
     }
     catch (IOException ex)
     {

@@ -66,7 +66,7 @@ public class WebHook
    */
   public WebHook(String urlPattern)
   {
-    this(urlPattern, false, false);
+    this(urlPattern, false, false, HttpMethod.AUTO);
   }
 
   /**
@@ -76,13 +76,15 @@ public class WebHook
    * @param urlPattern
    * @param executeOnEveryCommit
    * @param sendCommitData
+   * @param method
    */
   public WebHook(String urlPattern, boolean executeOnEveryCommit,
-    boolean sendCommitData)
+    boolean sendCommitData, HttpMethod method)
   {
     this.urlPattern = urlPattern;
     this.executeOnEveryCommit = executeOnEveryCommit;
     this.sendCommitData = sendCommitData;
+    this.method = method;
   }
 
   //~--- methods --------------------------------------------------------------
@@ -112,7 +114,8 @@ public class WebHook
 
     return Objects.equal(urlPattern, other.urlPattern)
       && Objects.equal(sendCommitData, other.sendCommitData)
-      && Objects.equal(executeOnEveryCommit, other.executeOnEveryCommit);
+      && Objects.equal(executeOnEveryCommit, other.executeOnEveryCommit)
+      && Objects.equal(method, other.method);
   }
 
   /**
@@ -124,7 +127,8 @@ public class WebHook
   @Override
   public int hashCode()
   {
-    return Objects.hashCode(urlPattern, sendCommitData, executeOnEveryCommit);
+    return Objects.hashCode(urlPattern, sendCommitData, executeOnEveryCommit,
+      method);
   }
 
   /**
@@ -141,11 +145,23 @@ public class WebHook
                   .add("urlPattern", urlPattern)
                   .add("sendCommitData", sendCommitData)
                   .add("executeOnEveryCommit", executeOnEveryCommit)
+                  .add("method", method)
                   .toString();
     //J+
   }
 
   //~--- get methods ----------------------------------------------------------
+
+  /**
+   * Method description
+   *
+   *
+   * @return
+   */
+  public HttpMethod getMethod()
+  {
+    return method;
+  }
 
   /**
    * Method description
@@ -184,6 +200,9 @@ public class WebHook
 
   /** Field description */
   private boolean executeOnEveryCommit;
+
+  /** Field description */
+  private HttpMethod method = HttpMethod.AUTO;
 
   /** Field description */
   private boolean sendCommitData;
