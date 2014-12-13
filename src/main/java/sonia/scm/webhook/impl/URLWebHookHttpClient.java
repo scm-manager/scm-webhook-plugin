@@ -33,6 +33,7 @@ package sonia.scm.webhook.impl;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import com.google.common.base.Strings;
 import com.google.common.io.Closeables;
 import com.google.inject.Inject;
 
@@ -69,6 +70,9 @@ public class URLWebHookHttpClient implements WebHookHttpClient
 
   /** Field description */
   private static final String CREDENTIAL_SEPARATOR = ":";
+
+  /** Field description */
+  private static final String HEADER_AUTHORIZATION = "Authorization";
 
   /** Field description */
   private static final String HEADER_PROXY_AUTHORIZATION =
@@ -190,23 +194,24 @@ public class URLWebHookHttpClient implements WebHookHttpClient
    *
    *
    * @param connection
+   * @param header
    * @param username
    * @param password
    */
-  private void appendProxyAuthHeader(HttpURLConnection connection,
-    String username, String password)
+  private void appendBasicAuthHeader(HttpURLConnection connection,
+    String header, String username, String password)
   {
     if (Util.isNotEmpty(username) || Util.isNotEmpty(password))
     {
       username = Util.nonNull(username);
       password = Util.nonNull(password);
 
-      logger.debug("use proxy authentication with user {}", username);
+      logger.debug("use authentication ({}) with user {}", header, username);
 
       String auth = username.concat(CREDENTIAL_SEPARATOR).concat(password);
 
       auth = new String(Base64.encode(auth.getBytes()));
-      connection.addRequestProperty(HEADER_PROXY_AUTHORIZATION,
+      connection.addRequestProperty(header,
         PREFIX_BASIC_AUTHENTICATION.concat(auth));
     }
   }
@@ -250,6 +255,23 @@ public class URLWebHookHttpClient implements WebHookHttpClient
       connection = (HttpURLConnection) url.openConnection();
     }
 
+    String userInfo = url.getUserInfo();
+
+    if (!Strings.isNullOrEmpty(userInfo))
+    {
+      String[] authParts = userInfo.split(CREDENTIAL_SEPARATOR);
+
+      if (authParts.length == 2)
+      {
+        appendBasicAuthHeader(connection, HEADER_AUTHORIZATION, authParts[0],
+          authParts[1]);
+      }
+      else
+      {
+        logger.warn("user info url part is malformed");
+      }
+    }
+
     //J-
     connection.setReadTimeout(TIMEOUT_RAED);
     connection.setConnectTimeout(TIMEOUT_CONNECTION);
@@ -258,8 +280,8 @@ public class URLWebHookHttpClient implements WebHookHttpClient
     );
     //J+
 
-    appendProxyAuthHeader(connection, configuration.getProxyUser(),
-      configuration.getProxyPassword());
+    appendBasicAuthHeader(connection, HEADER_PROXY_AUTHORIZATION,
+      configuration.getProxyUser(), configuration.getProxyPassword());
 
     return connection;
   }
