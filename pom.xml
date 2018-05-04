@@ -12,7 +12,7 @@
   <groupId>sonia.scm.plugins</groupId>
   <artifactId>scm-webhook-plugin</artifactId>
   <packaging>jar</packaging>
-  <version>1.8</version>
+  <version>1.9-SNAPSHOT</version>
   <name>${project.artifactId}</name>
   <description>Notify a remote webserver whenever a repository is pushed to.</description>
   <url>https://bitbucket.org/sdorra/scm-webhook-plugin</url>
@@ -59,8 +59,4 @@
     </repository>
   
   </repositories>
-
-  <scm>
-    <tag>1.8</tag>
-  </scm>
 </project>
