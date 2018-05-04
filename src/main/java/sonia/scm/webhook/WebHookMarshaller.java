@@ -33,6 +33,7 @@ package sonia.scm.webhook;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.Writer;
 
@@ -52,5 +53,12 @@ public interface WebHookMarshaller
    *
    * @throws IOException
    */
-  public void marshall(Writer writer, Object data) throws IOException;
+  void marshall(Writer writer, Object data) throws IOException;
+
+  /**
+   * Returns the Content-Type of marshaled data.
+   *
+   * @return content type of data
+   */
+  MediaType getContentType();
 }

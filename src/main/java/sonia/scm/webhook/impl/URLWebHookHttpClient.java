@@ -52,6 +52,7 @@ import sonia.scm.webhook.WebHookMarshaller;
 
 import com.sun.jersey.core.util.Base64;
 
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
@@ -73,6 +74,9 @@ public class URLWebHookHttpClient implements WebHookHttpClient
 
   /** Field description */
   private static final String HEADER_AUTHORIZATION = "Authorization";
+
+  /** Field description */
+  private static final String HEADER_CONTENT_TYPE = "Content-Type";
 
   /** Field description */
   private static final String HEADER_PROXY_AUTHORIZATION =
@@ -172,6 +176,10 @@ public class URLWebHookHttpClient implements WebHookHttpClient
     if (data != null)
     {
       connection.setDoOutput(true);
+      MediaType contentType = marshaller.getContentType();
+      if (contentType != null) {
+        connection.setRequestProperty(HEADER_CONTENT_TYPE, contentType.toString());
+      }
 
       OutputStreamWriter writer;
 
@@ -275,7 +283,7 @@ public class URLWebHookHttpClient implements WebHookHttpClient
     //J-
     connection.setReadTimeout(TIMEOUT_RAED);
     connection.setConnectTimeout(TIMEOUT_CONNECTION);
-    connection.setRequestProperty(HEADER_USERAGENT, 
+    connection.setRequestProperty(HEADER_USERAGENT,
       String.format(HEADER_USERAGENT_VALUE, context.getVersion())
     );
     //J+

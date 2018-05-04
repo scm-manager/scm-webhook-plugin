@@ -41,6 +41,7 @@ import sonia.scm.webhook.WebHookMarshaller;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.Writer;
 
@@ -65,6 +66,11 @@ public class JacksonWebHookMarshaller implements WebHookMarshaller
   public void marshall(Writer writer, Object data) throws IOException
   {
     mapper.writeValue(writer, data);
+  }
+
+  @Override
+  public MediaType getContentType() {
+    return MediaType.APPLICATION_JSON_TYPE;
   }
 
   //~--- fields ---------------------------------------------------------------
