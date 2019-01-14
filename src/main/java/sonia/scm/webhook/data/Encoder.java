@@ -1,19 +1,19 @@
-/**
+/*
  * Copyright (c) 2010, Sebastian Sdorra
  * All rights reserved.
- *
+ * <p>
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- *
+ * <p>
  * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
+ * this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
  * 3. Neither the name of SCM-Manager; nor the names of its
- *    contributors may be used to endorse or promote products derived from this
- *    software without specific prior written permission.
- *
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
+ * <p>
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -24,9 +24,8 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ * <p>
  * http://bitbucket.org/sdorra/scm-manager
- *
  */
 
 
@@ -34,28 +33,24 @@ package sonia.scm.webhook.data;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.UnsupportedEncodingException;
-
 import java.net.URLEncoder;
-
 import java.util.List;
 
+//~--- JDK imports ------------------------------------------------------------
+
 /**
- *
  * @author Sebastian Sdorra
  */
-public final class Encoder
-{
+public final class Encoder {
 
-  /** Field description */
+  /**
+   * Field description
+   */
   private static final String ENCODING = "UTF-8";
 
   /**
@@ -67,30 +62,23 @@ public final class Encoder
 
   /**
    * Constructs ...
-   *
    */
-  private Encoder() {}
+  private Encoder() {
+  }
 
   //~--- methods --------------------------------------------------------------
 
   /**
    * Method description
    *
-   *
    * @param value
-   *
    * @return
    */
-  public static String encode(String value)
-  {
-    if (value != null)
-    {
-      try
-      {
+  public static String encode(String value) {
+    if (value != null) {
+      try {
         value = URLEncoder.encode(value, ENCODING);
-      }
-      catch (UnsupportedEncodingException ex)
-      {
+      } catch (UnsupportedEncodingException ex) {
         logger.error("enocding is not supported", ex);
       }
 
@@ -102,22 +90,10 @@ public final class Encoder
   /**
    * Method description
    *
-   *
    * @param values
-   *
    * @return
    */
-  public static List<String> encode(List<String> values)
-  {
-    return Lists.transform(values, new Function<String, String>()
-    {
-
-      @Override
-      public String apply(String input)
-      {
-        return encode(input);
-      }
-
-    });
+  public static List<String> encode(List<String> values) {
+    return Lists.transform(values, Encoder::encode);
   }
 }

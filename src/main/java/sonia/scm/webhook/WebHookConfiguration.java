@@ -120,7 +120,7 @@ public class WebHookConfiguration implements Iterable<WebHook>
    */
   public WebHookConfiguration merge(WebHookConfiguration otherConfiguration)
   {
-    Set<WebHook> allHooks = new HashSet<WebHook>();
+    Set<WebHook> allHooks = new HashSet<>();
 
     allHooks.addAll(webhooks);
     allHooks.addAll(otherConfiguration.webhooks);
@@ -200,5 +200,5 @@ public class WebHookConfiguration implements Iterable<WebHook>
 
   /** Field description */
   @XmlElement(name = "webhook")
-  private final Set<WebHook> webhooks = new HashSet<WebHook>();
+  private final Set<WebHook> webhooks = new HashSet<>();
 }

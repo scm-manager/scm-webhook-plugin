@@ -74,16 +74,6 @@ public final class EncodedStringList
 
   //~--- get methods ----------------------------------------------------------
 
-  /**
-   * Method description
-   *
-   *
-   * @return
-   */
-  public List<String> getEntries()
-  {
-    return list;
-  }
 
   /**
    * Method description

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2010, Sebastian Sdorra All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,14 +31,12 @@
 
 package sonia.scm.webhook;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import sonia.scm.repository.Repository;
-import sonia.scm.store.Store;
-import sonia.scm.store.StoreFactory;
+import sonia.scm.store.ConfigurationStore;
+import sonia.scm.store.ConfigurationStoreFactory;
 
 /**
  *
@@ -48,21 +46,17 @@ import sonia.scm.store.StoreFactory;
 public final class WebHookContext
 {
 
-  /** Field description */
+  private final ConfigurationStore<WebHookConfiguration> store;
+
+  private WebHookConfiguration globalConfiguration;
+
   private static final String STORE_NAME = "webhook";
 
-  //~--- constructors ---------------------------------------------------------
 
-  /**
-   * Constructs ...
-   *
-   *
-   * @param storeFactory
-   */
   @Inject
-  public WebHookContext(StoreFactory storeFactory)
+  public WebHookContext(ConfigurationStoreFactory storeFactory)
   {
-    this.store = storeFactory.getStore(WebHookConfiguration.class, STORE_NAME);
+    this.store = storeFactory.withType(WebHookConfiguration.class).withName(STORE_NAME).build();
     globalConfiguration = store.get();
 
     if (globalConfiguration == null)
@@ -113,11 +107,5 @@ public final class WebHookContext
     store.set(globalConfiguration);
   }
 
-  //~--- fields ---------------------------------------------------------------
 
-  /** Field description */
-  private final Store<WebHookConfiguration> store;
-
-  /** Field description */
-  private WebHookConfiguration globalConfiguration;
 }

@@ -35,7 +35,7 @@ package sonia.scm.webhook;
 
 import com.google.inject.AbstractModule;
 
-import sonia.scm.plugin.ext.Extension;
+import sonia.scm.plugin.Extension;
 import sonia.scm.webhook.impl.JacksonWebHookMarshaller;
 import sonia.scm.webhook.impl.URLWebHookHttpClient;
 
