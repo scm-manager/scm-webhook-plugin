@@ -52,5 +52,10 @@
     </repository>
   
   </repositories>
-  
+  <profiles>
+    <profile>
+      <!-- If enabled, explicitly disables other profiles (i.e. link-ui). -->
+      <id>ci</id>
+    </profile>
+  </profiles>
 </project>
