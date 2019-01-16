@@ -80,6 +80,7 @@ public class RepositoryWebHook {
     Repository repository = event.getRepository();
 
     if (repository != null) {
+      // TODO: get repo webHook configs from the repo store and not from properties
       WebHookConfiguration configuration = context.getConfiguration(repository);
 
       if (configuration.isWebHookAvailable()) {
@@ -130,7 +131,7 @@ public class RepositoryWebHook {
       logger.debug("execute webhooks for repository {}", repository.getName());
     }
 
-    for (WebHook webHook : configuration) {
+    for (WebHook webHook : configuration.getWebhooks()) {
       new WebHookExecutor(httpClientProvider.get(), urlParser, webHook,
         repository, changesets).run();
     }

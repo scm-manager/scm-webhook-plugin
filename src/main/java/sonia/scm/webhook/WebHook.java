@@ -35,6 +35,7 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -50,6 +51,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @ToString
 @EqualsAndHashCode
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class WebHook {

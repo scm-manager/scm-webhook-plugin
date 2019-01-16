@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
@@ -13,7 +14,7 @@
   <artifactId>scm-webhook-plugin</artifactId>
   <packaging>smp</packaging>
   <version>2.0.0-SNAPSHOT</version>
-  <name>${project.artifactId}</name>
+  <name>scm-webhook-plugin</name>
   <description>Notify a remote webserver whenever a repository is pushed to.</description>
   <url>https://bitbucket.org/sdorra/scm-webhook-plugin</url>
 
@@ -24,13 +25,13 @@
       <artifactId>commons-jexl</artifactId>
       <version>2.1.1</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.codehaus.jackson</groupId>
       <artifactId>jackson-mapper-asl</artifactId>
       <version>1.9.2</version>
     </dependency>
-    
+
 
     <!-- test scope -->
 
@@ -44,18 +45,46 @@
   </dependencies>
 
   <repositories>
-    
+
     <repository>
       <id>maven.scm-manager.org</id>
       <name>scm-manager release repository</name>
       <url>http://maven.scm-manager.org/nexus/content/groups/public</url>
     </repository>
-  
+
   </repositories>
   <profiles>
     <profile>
       <!-- If enabled, explicitly disables other profiles (i.e. link-ui). -->
       <id>ci</id>
     </profile>
+
+    <profile>
+      <id>link-ui</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+
+      <build>
+        <plugins>
+
+          <plugin>
+            <groupId>sonia.scm.maven</groupId>
+            <artifactId>smp-maven-plugin</artifactId>
+            <version>1.0.0-alpha-3</version>
+            <extensions>true</extensions>
+            <configuration>
+              <links>
+                <link>@scm-manager/ui-types</link>
+                <link>@scm-manager/ui-components</link>
+              </links>
+            </configuration>
+          </plugin>
+
+        </plugins>
+      </build>
+
+    </profile>
   </profiles>
+
 </project>

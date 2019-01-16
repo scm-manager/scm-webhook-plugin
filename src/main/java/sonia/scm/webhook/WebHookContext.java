@@ -28,81 +28,65 @@
  */
 
 
-
 package sonia.scm.webhook;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
+import sonia.scm.config.ConfigurationPermissions;
 import sonia.scm.repository.Repository;
 import sonia.scm.store.ConfigurationStore;
 import sonia.scm.store.ConfigurationStoreFactory;
 
 /**
- *
  * @author Sebastian Sdorra
  */
 @Singleton
-public final class WebHookContext
-{
+public class WebHookContext {
 
+  public static final String WEB_HOOK_ID = "webHook";
   private final ConfigurationStore<WebHookConfiguration> store;
-
   private WebHookConfiguration globalConfiguration;
-
   private static final String STORE_NAME = "webhook";
 
-
   @Inject
-  public WebHookContext(ConfigurationStoreFactory storeFactory)
-  {
+  public WebHookContext(ConfigurationStoreFactory storeFactory) {
     this.store = storeFactory.withType(WebHookConfiguration.class).withName(STORE_NAME).build();
     globalConfiguration = store.get();
 
-    if (globalConfiguration == null)
-    {
+    if (globalConfiguration == null) {
       globalConfiguration = new WebHookConfiguration();
     }
   }
 
-  //~--- get methods ----------------------------------------------------------
-
-  /**
-   * Method description
-   *
-   *
-   * @param repository
-   *
-   * @return
-   */
-  public WebHookConfiguration getConfiguration(Repository repository)
-  {
-    WebHookConfiguration repoConf = new WebHookConfiguration(repository);
-
-    return globalConfiguration.merge(repoConf);
+  public static boolean isReadPermitted() {
+    return ConfigurationPermissions.read(WEB_HOOK_ID).isPermitted();
   }
 
-  /**
-   * Method description
-   *
-   *
-   * @return
-   */
-  public WebHookConfiguration getGlobalConfiguration()
-  {
+  public static boolean isWritePermitted() {
+    return ConfigurationPermissions.write(WEB_HOOK_ID).isPermitted();
+  }
+
+  public static void checkReadPermission() {
+    ConfigurationPermissions.read(WEB_HOOK_ID).check();
+  }
+
+  public static void checkWritePermission() {
+    ConfigurationPermissions.write(WEB_HOOK_ID).check();
+  }
+
+  public WebHookConfiguration getConfiguration(Repository repository) {
+    // TODO: get repo webHook configs from the repo store and not from properties
+//    WebHookConfiguration repoConf = new WebHookConfiguration(repository);
+
+//    return globalConfiguration.merge(repoConf);
+    return new WebHookConfiguration();
+  }
+
+  public WebHookConfiguration getGlobalConfiguration() {
     return globalConfiguration;
   }
 
-  //~--- set methods ----------------------------------------------------------
-
-  /**
-   * Method description
-   *
-   *
-   * @param globalConfiguration
-   */
-  public void setGlobalConfiguration(WebHookConfiguration globalConfiguration)
-  {
+  public void setGlobalConfiguration(WebHookConfiguration globalConfiguration) {
     this.globalConfiguration = globalConfiguration;
     store.set(globalConfiguration);
   }
