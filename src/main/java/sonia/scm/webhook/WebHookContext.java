@@ -107,8 +107,10 @@ public class WebHookContext {
   }
 
   private ConfigurationStore<WebHookConfiguration> getRepositoryStore(String namespace, String name) {
-    RepositoryService repositoryService = serviceFactory.create(new NamespaceAndName(namespace, name));
-    Repository repository = repositoryService.getRepository();
+    Repository repository;
+    try (RepositoryService repositoryService = serviceFactory.create(new NamespaceAndName(namespace, name))) {
+      repository = repositoryService.getRepository();
+    }
     return getRepositoryStore(repository);
   }
 

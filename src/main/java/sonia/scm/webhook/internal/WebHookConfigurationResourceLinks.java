@@ -5,8 +5,8 @@ import sonia.scm.api.v2.resources.ScmPathInfo;
 
 public class WebHookConfigurationResourceLinks {
   private final LinkBuilder linkBuilder;
-  public GlobalConfigurationLinks globalConfigurations = new GlobalConfigurationLinks();
-  public RepositoryConfigurationLinks repositoryConfigurations = new RepositoryConfigurationLinks();
+  public final GlobalConfigurationLinks globalConfigurations = new GlobalConfigurationLinks();
+  public final RepositoryConfigurationLinks repositoryConfigurations = new RepositoryConfigurationLinks();
 
   public WebHookConfigurationResourceLinks(ScmPathInfo scmPathInfo) {
     this.linkBuilder = new LinkBuilder(scmPathInfo, WebHookResource.class);
