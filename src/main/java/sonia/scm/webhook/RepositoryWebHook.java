@@ -38,6 +38,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sonia.scm.EagerSingleton;
 import sonia.scm.plugin.Extension;
 import sonia.scm.repository.Changeset;
 import sonia.scm.repository.PostReceiveRepositoryHookEvent;
@@ -49,10 +50,10 @@ import sonia.scm.webhook.impl.JexlUrlParser;
 //~--- JDK imports ------------------------------------------------------------
 
 /**
- *
  * @author Sebastian Sdorra
  */
 @Extension
+@EagerSingleton
 public class RepositoryWebHook {
 
   /**
