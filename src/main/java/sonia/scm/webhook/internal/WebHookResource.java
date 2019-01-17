@@ -33,6 +33,7 @@ package sonia.scm.webhook.internal;
 import com.google.inject.Inject;
 import com.webcohesion.enunciate.metadata.rs.ResponseCode;
 import com.webcohesion.enunciate.metadata.rs.StatusCodes;
+import sonia.scm.repository.NamespaceAndName;
 import sonia.scm.webhook.WebHookContext;
 
 import javax.ws.rs.Consumes;
@@ -40,6 +41,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -85,7 +87,6 @@ public class WebHookResource {
     @ResponseCode(code = 500, condition = "internal server error")
   })
   public void setConfiguration(@Context UriInfo uriInfo, WebHookConfigurationDto configuration) {
-
     setConfigurations(uriInfo, configuration);
   }
 
@@ -102,9 +103,60 @@ public class WebHookResource {
     setConfigurations(uriInfo, configuration);
   }
 
+  @GET
+  @Path("/{namespace}/{name}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @StatusCodes({
+    @ResponseCode(code = 200, condition = "success"),
+    @ResponseCode(code = 401, condition = "not authenticated / invalid credentials"),
+    @ResponseCode(code = 403, condition = "not authorized, the current user does not have the \"configuration:read:webhook\" privilege"),
+    @ResponseCode(code = 500, condition = "internal server error")
+  })
+  public WebHookConfigurationDto getRepositoryConfiguration(@Context UriInfo uriInfo, @PathParam("namespace") String namespace, @PathParam("name") String name) {
+    WebHookContext.checkReadPermission();
+    return webHookMapper
+      .using(uriInfo)
+      .forRepository(new NamespaceAndName(namespace, name))
+      .map(context.getRepositoryConfiguration(namespace, name));
+  }
+
+  @POST
+  @Path("/{namespace}/{name}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @StatusCodes({
+    @ResponseCode(code = 204, condition = "no content"),
+    @ResponseCode(code = 401, condition = "not authenticated / invalid credentials"),
+    @ResponseCode(code = 403, condition = "not authorized, the current user does not have the \"configuration:read:webhook\" privilege"),
+    @ResponseCode(code = 500, condition = "internal server error")
+  })
+  public void setRepositoryConfiguration(@Context UriInfo uriInfo, @PathParam("namespace") String namespace, @PathParam("name") String name, WebHookConfigurationDto configuration) {
+    setRepositoryConfigurations(uriInfo, configuration, namespace, name);
+  }
+
+  @PUT
+  @Path("/{namespace}/{name}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @StatusCodes({
+    @ResponseCode(code = 204, condition = "update success"),
+    @ResponseCode(code = 401, condition = "not authenticated / invalid credentials"),
+    @ResponseCode(code = 403, condition = "not authorized, the current user does not have the \"configuration:write:webhook\" privilege"),
+    @ResponseCode(code = 500, condition = "internal server error")
+  })
+  public void updateRepositoryConfiguration(@Context UriInfo uriInfo, @PathParam("namespace") String namespace, @PathParam("name") String name, WebHookConfigurationDto configuration) {
+    setRepositoryConfigurations(uriInfo, configuration, namespace, name);
+  }
+
   private void setConfigurations(UriInfo uriInfo, WebHookConfigurationDto configuration) {
     WebHookContext.checkWritePermission();
     context.setGlobalConfiguration(webHookMapper.using(uriInfo).map(configuration));
+  }
+
+  private void setRepositoryConfigurations(UriInfo uriInfo, WebHookConfigurationDto configuration, String namespace, String name) {
+    WebHookContext.checkWritePermission();
+    context.setRepositoryConfiguration(webHookMapper
+      .using(uriInfo)
+      .forRepository(new NamespaceAndName(namespace, name))
+      .map(configuration), namespace, name);
   }
 
 }

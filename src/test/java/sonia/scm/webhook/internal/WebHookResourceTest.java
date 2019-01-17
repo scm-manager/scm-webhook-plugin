@@ -30,6 +30,7 @@ import java.net.URISyntaxException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -64,8 +65,8 @@ class WebHookResourceTest {
   @Test
   void shouldGetWebHookConfigurations() throws URISyntaxException, IOException {
     WebHookConfiguration configs = new WebHookConfiguration();
-    configs.getWebhooks().add(new WebHook("/url_1/pattern/{}", true, false, HttpMethod.GET));
-    configs.getWebhooks().add(new WebHook("/url_2/pattern/{}", false, false, HttpMethod.POST));
+    configs.getWebhooks().add(new WebHook("/url_1/pattern/{repository.id}", true, false, HttpMethod.GET));
+    configs.getWebhooks().add(new WebHook("/url_2/pattern/{repository.id}", false, false, HttpMethod.POST));
 
     when(context.getGlobalConfiguration()).thenReturn(configs);
     MockHttpRequest request = MockHttpRequest
@@ -79,8 +80,8 @@ class WebHookResourceTest {
     JsonNode prNode = jsonNode.get("webhooks");
     JsonNode webHook_1 = prNode.path(0);
     JsonNode webHook_2 = prNode.path(1);
-    assertThat(webHook_1.get("urlPattern").asText()).isIn("/url_1/pattern/{}", "/url_2/pattern/{}");
-    assertThat(webHook_2.get("urlPattern").asText()).isIn("/url_1/pattern/{}", "/url_2/pattern/{}");
+    assertThat(webHook_1.get("urlPattern").asText()).isIn("/url_1/pattern/{repository.id}", "/url_2/pattern/{repository.id}");
+    assertThat(webHook_2.get("urlPattern").asText()).isIn("/url_1/pattern/{repository.id}", "/url_2/pattern/{repository.id}");
 
     verify(context).getGlobalConfiguration();
   }
@@ -91,13 +92,13 @@ class WebHookResourceTest {
     String webHooks = "{\n" +
       "    \"webhooks\": [\n" +
       "        {\n" +
-      "            \"urlPattern\": \"url/{}/pattern\",\n" +
+      "            \"urlPattern\": \"url/{repository.id}/pattern\",\n" +
       "            \"executeOnEveryCommit\": true,\n" +
       "            \"sendCommitData\": true,\n" +
       "            \"method\": \"GET\"\n" +
       "        },\n" +
       "        {\n" +
-      "            \"urlPattern\": \"url2/{}/pattern\",\n" +
+      "            \"urlPattern\": \"url2/{repository.id}/pattern\",\n" +
       "            \"executeOnEveryCommit\": false,\n" +
       "            \"sendCommitData\": false,\n" +
       "            \"method\": \"POST\"\n" +
@@ -114,10 +115,140 @@ class WebHookResourceTest {
     verify(context).setGlobalConfiguration(argThat(webHookConfiguration -> {
       assertThat(webHookConfiguration.getWebhooks()).hasSize(2);
       assertThat(webHookConfiguration.getWebhooks()).containsExactlyInAnyOrder(
-        new WebHook("url/{}/pattern", true, true, HttpMethod.GET),
-        new WebHook("url2/{}/pattern", false, false, HttpMethod.POST));
+        new WebHook("url/{repository.id}/pattern", true, true, HttpMethod.GET),
+        new WebHook("url2/{repository.id}/pattern", false, false, HttpMethod.POST));
       return true;
     }));
+  }
+
+  @Test
+  void shouldUpdateWebHookConfigurations() throws URISyntaxException, IOException {
+
+    String webHooks = "{\n" +
+      "    \"webhooks\": [\n" +
+      "        {\n" +
+      "            \"urlPattern\": \"url/{repository.id}/pattern\",\n" +
+      "            \"executeOnEveryCommit\": true,\n" +
+      "            \"sendCommitData\": true,\n" +
+      "            \"method\": \"GET\"\n" +
+      "        },\n" +
+      "        {\n" +
+      "            \"urlPattern\": \"url2/{repository.id}/pattern\",\n" +
+      "            \"executeOnEveryCommit\": false,\n" +
+      "            \"sendCommitData\": false,\n" +
+      "            \"method\": \"POST\"\n" +
+      "        }\n" +
+      "    ]\n" +
+      "}";
+    MockHttpRequest request = MockHttpRequest
+      .put("/" + WebHookResource.PATH)
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(webHooks.getBytes());
+
+    dispatcher.invoke(request, response);
+    assertEquals(HttpServletResponse.SC_NO_CONTENT, response.getStatus());
+    verify(context).setGlobalConfiguration(argThat(webHookConfiguration -> {
+      assertThat(webHookConfiguration.getWebhooks()).hasSize(2);
+      assertThat(webHookConfiguration.getWebhooks()).containsExactlyInAnyOrder(
+        new WebHook("url/{repository.id}/pattern", true, true, HttpMethod.GET),
+        new WebHook("url2/{repository.id}/pattern", false, false, HttpMethod.POST));
+      return true;
+    }));
+  }
+
+
+  @Test
+  void shouldGetRepoWebHookConfigurations() throws URISyntaxException, IOException {
+    WebHookConfiguration configs = new WebHookConfiguration();
+    configs.getWebhooks().add(new WebHook("/url_1/pattern/{repository.id}", true, false, HttpMethod.GET));
+    configs.getWebhooks().add(new WebHook("/url_2/pattern/{repository.id}", false, false, HttpMethod.POST));
+
+    when(context.getRepositoryConfiguration("space", "name")).thenReturn(configs);
+    MockHttpRequest request = MockHttpRequest
+      .get("/" + WebHookResource.PATH + "/space/name")
+      .accept(MediaType.APPLICATION_JSON);
+
+    dispatcher.invoke(request, response);
+    assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode jsonNode = mapper.readValue(response.getContentAsString(), JsonNode.class);
+    JsonNode prNode = jsonNode.get("webhooks");
+    JsonNode webHook_1 = prNode.path(0);
+    JsonNode webHook_2 = prNode.path(1);
+    assertThat(webHook_1.get("urlPattern").asText()).isIn("/url_1/pattern/{repository.id}", "/url_2/pattern/{repository.id}");
+    assertThat(webHook_2.get("urlPattern").asText()).isIn("/url_1/pattern/{repository.id}", "/url_2/pattern/{repository.id}");
+
+    verify(context).getRepositoryConfiguration("space", "name");
+  }
+
+  @Test
+  void shouldPostRepoWebHookConfigurations() throws URISyntaxException, IOException {
+
+    String webHooks = "{\n" +
+      "    \"webhooks\": [\n" +
+      "        {\n" +
+      "            \"urlPattern\": \"url/{repository.id}/pattern\",\n" +
+      "            \"executeOnEveryCommit\": true,\n" +
+      "            \"sendCommitData\": true,\n" +
+      "            \"method\": \"GET\"\n" +
+      "        },\n" +
+      "        {\n" +
+      "            \"urlPattern\": \"url2/{repository.id}/pattern\",\n" +
+      "            \"executeOnEveryCommit\": false,\n" +
+      "            \"sendCommitData\": false,\n" +
+      "            \"method\": \"POST\"\n" +
+      "        }\n" +
+      "    ]\n" +
+      "}";
+    MockHttpRequest request = MockHttpRequest
+      .post("/" + WebHookResource.PATH + "/space/name")
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(webHooks.getBytes());
+
+    dispatcher.invoke(request, response);
+    assertEquals(HttpServletResponse.SC_NO_CONTENT, response.getStatus());
+    verify(context).setRepositoryConfiguration(argThat(webHookConfiguration -> {
+      assertThat(webHookConfiguration.getWebhooks()).hasSize(2);
+      assertThat(webHookConfiguration.getWebhooks()).containsExactlyInAnyOrder(
+        new WebHook("url/{repository.id}/pattern", true, true, HttpMethod.GET),
+        new WebHook("url2/{repository.id}/pattern", false, false, HttpMethod.POST));
+      return true;
+    }), eq("space"), eq("name"));
+  }
+
+ @Test
+  void shouldUpdateRepoWebHookConfigurations() throws URISyntaxException, IOException {
+
+    String webHooks = "{\n" +
+      "    \"webhooks\": [\n" +
+      "        {\n" +
+      "            \"urlPattern\": \"url/{repository.id}/pattern\",\n" +
+      "            \"executeOnEveryCommit\": true,\n" +
+      "            \"sendCommitData\": true,\n" +
+      "            \"method\": \"GET\"\n" +
+      "        },\n" +
+      "        {\n" +
+      "            \"urlPattern\": \"url2/{repository.id}/pattern\",\n" +
+      "            \"executeOnEveryCommit\": false,\n" +
+      "            \"sendCommitData\": false,\n" +
+      "            \"method\": \"POST\"\n" +
+      "        }\n" +
+      "    ]\n" +
+      "}";
+    MockHttpRequest request = MockHttpRequest
+      .put("/" + WebHookResource.PATH + "/space/name")
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(webHooks.getBytes());
+
+    dispatcher.invoke(request, response);
+    assertEquals(HttpServletResponse.SC_NO_CONTENT, response.getStatus());
+    verify(context).setRepositoryConfiguration(argThat(webHookConfiguration -> {
+      assertThat(webHookConfiguration.getWebhooks()).hasSize(2);
+      assertThat(webHookConfiguration.getWebhooks()).containsExactlyInAnyOrder(
+        new WebHook("url/{repository.id}/pattern", true, true, HttpMethod.GET),
+        new WebHook("url2/{repository.id}/pattern", false, false, HttpMethod.POST));
+      return true;
+    }), eq("space"), eq("name"));
   }
 
 }

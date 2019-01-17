@@ -1,11 +1,18 @@
 // @flow
 
-import { ConfigurationBinder as cfgBinder } from "@scm-manager/ui-components";
-import GlobalWebHookConfiguration from "./GlobalWebHookConfiguration";
+import {ConfigurationBinder as cfgBinder} from "@scm-manager/ui-components";
+import WebHookConfigurationComponent from "./WebHookConfigurationComponent";
 
 cfgBinder.bindGlobal(
   "/webhook",
   "scm-webhook-plugin.nav-link",
   "webHookConfig",
-  GlobalWebHookConfiguration
+  WebHookConfigurationComponent
+);
+
+cfgBinder.bindRepository(
+  "/webhook",
+  "scm-webhook-plugin.nav-link",
+  "webHookConfig",
+  WebHookConfigurationComponent
 );

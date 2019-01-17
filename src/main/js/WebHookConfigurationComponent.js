@@ -3,13 +3,15 @@ import React from "react";
 import {Configuration, Title} from "@scm-manager/ui-components";
 import {translate} from "react-i18next";
 import WebHookConfigurationsForm from "./WebHookConfigurationsForm";
+import type {Repository} from "@scm-manager/ui-types";
 
 type Props = {
+  repository?: Repository,
   link: string,
   t: string => string
 };
 
-class GlobalWebHookConfiguration extends React.Component<Props, State> {
+class WebHookConfigurationComponent extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
@@ -28,4 +30,4 @@ class GlobalWebHookConfiguration extends React.Component<Props, State> {
   };
 }
 
-export default translate("plugins")(GlobalWebHookConfiguration);
+export default translate("plugins")(WebHookConfigurationComponent);
