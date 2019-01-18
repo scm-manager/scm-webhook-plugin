@@ -91,14 +91,15 @@ public class WebHookContext {
     store.set(globalConfiguration);
   }
 
-  public WebHookConfiguration getRepositoryConfiguration(String namespace, String name) {
+  public WebHookConfiguration getRepositoryConfigurations(String namespace, String name) {
     ConfigurationStore<WebHookConfiguration> repositoryStore = getRepositoryStore(namespace, name);
     return Optional.ofNullable(repositoryStore.get()).orElse(new WebHookConfiguration());
   }
 
-  public WebHookConfiguration getRepositoryConfiguration(Repository repository) {
+  public WebHookConfiguration getAllConfigurations(Repository repository) {
     ConfigurationStore<WebHookConfiguration> repositoryStore = getRepositoryStore(repository);
-    return Optional.ofNullable(repositoryStore.get()).orElse(new WebHookConfiguration());
+    WebHookConfiguration repositoryConfiguration = Optional.ofNullable(repositoryStore.get()).orElse(new WebHookConfiguration());
+    return getGlobalConfiguration().merge(repositoryConfiguration);
   }
 
   public void setRepositoryConfiguration(WebHookConfiguration configuration, String namespace, String name) {

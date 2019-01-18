@@ -163,7 +163,7 @@ class WebHookResourceTest {
     configs.getWebhooks().add(new WebHook("/url_1/pattern/{repository.id}", true, false, HttpMethod.GET));
     configs.getWebhooks().add(new WebHook("/url_2/pattern/{repository.id}", false, false, HttpMethod.POST));
 
-    when(context.getRepositoryConfiguration("space", "name")).thenReturn(configs);
+    when(context.getRepositoryConfigurations("space", "name")).thenReturn(configs);
     MockHttpRequest request = MockHttpRequest
       .get("/" + WebHookResource.PATH + "/space/name")
       .accept(MediaType.APPLICATION_JSON);
@@ -178,7 +178,7 @@ class WebHookResourceTest {
     assertThat(webHook_1.get("urlPattern").asText()).isIn("/url_1/pattern/{repository.id}", "/url_2/pattern/{repository.id}");
     assertThat(webHook_2.get("urlPattern").asText()).isIn("/url_1/pattern/{repository.id}", "/url_2/pattern/{repository.id}");
 
-    verify(context).getRepositoryConfiguration("space", "name");
+    verify(context).getRepositoryConfigurations("space", "name");
   }
 
   @Test

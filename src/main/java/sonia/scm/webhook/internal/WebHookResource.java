@@ -117,7 +117,7 @@ public class WebHookResource {
     return webHookMapper
       .using(uriInfo)
       .forRepository(new NamespaceAndName(namespace, name))
-      .map(context.getRepositoryConfiguration(namespace, name));
+      .map(context.getRepositoryConfigurations(namespace, name));
   }
 
   @POST

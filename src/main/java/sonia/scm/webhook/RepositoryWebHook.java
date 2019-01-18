@@ -81,7 +81,7 @@ public class RepositoryWebHook {
     Repository repository = event.getRepository();
 
     if (repository != null) {
-      WebHookConfiguration configuration = context.getRepositoryConfiguration(repository);
+      WebHookConfiguration configuration = context.getAllConfigurations(repository);
       if (configuration.isWebHookAvailable()) {
 
         Iterable<Changeset> changesets = getChangesets(event, repository);
