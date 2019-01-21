@@ -50,7 +50,7 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
 
   render() {
     const {webhooks} = this.state;
-    const {t} = this.props;
+    const {t, readOnly} = this.props;
     let defaultWebHook = {
       urlPattern: "",
       executeOnEveryCommit: false,
@@ -63,12 +63,13 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
         {webhooks.map((webHook, index) => {
           return <WebHookConfigurationForm
             webHook={webHook}
+            readOnly={readOnly}
             onDelete={this.onDelete}
             onChange={(changedWebHook) => this.onChange(changedWebHook, index)}
           />
         })}
         <article className="media">
-          <Button label={t("scm-webhook-plugin.add")} action={() => {
+          <Button  disabled={readOnly} label={t("scm-webhook-plugin.add")} action={() => {
             webhooks.push(defaultWebHook);
             this.updateWebHooks(webhooks);
           }

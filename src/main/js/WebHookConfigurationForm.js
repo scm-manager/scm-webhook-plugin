@@ -7,6 +7,7 @@ import Checkbox from "@scm-manager/ui-components/src/forms/Checkbox";
 
 type Props = {
   webHook: WebHookConfiguration,
+  readOnly: boolean,
   onChange: (WebHookConfiguration) => void,
   onDelete: (WebHookConfiguration) => void,
   // context prop
@@ -22,6 +23,8 @@ class WebHookConfigurationForm extends React.Component<Props, State> {
   }
 
   componentWillReceiveProps(nextProps) {
+    // update the webhook in the state if the prop are changed
+    // The prop can be modified if webhooks are deleted
     if (nextProps.webHook !== this.props.webHook) {
       this.state = nextProps.webHook;
     }
@@ -34,15 +37,15 @@ class WebHookConfigurationForm extends React.Component<Props, State> {
   };
 
   renderHttpMethodDropDown = () => {
+    const {readOnly} = this.props;
     return (
-      <div className="field">
-        <div className="control">
-          <DropDown
-            options={["GET", "POST", "AUTO", "PUT"]}
-            optionSelected={this.handleDropDownChange}
-            preselectedOption={this.state.method}
-          />
-        </div>
+      <div className="field control">
+        <DropDown
+          options={["GET", "POST", "AUTO", "PUT"]}
+          optionSelected={this.handleDropDownChange}
+          preselectedOption={this.state.method}
+          disabled={readOnly}
+        />
       </div>
     );
   };
@@ -71,9 +74,9 @@ class WebHookConfigurationForm extends React.Component<Props, State> {
   };
 
   render() {
-    const {t} = this.props;
+    const {t, readOnly} = this.props;
     const {urlPattern, executeOnEveryCommit, sendCommitData} = this.state;
-    const deleteIcon =
+    const deleteIcon = readOnly? "" :
       <a className="level-item"
          onClick={this.confirmDelete}
       >
@@ -89,27 +92,28 @@ class WebHookConfigurationForm extends React.Component<Props, State> {
         <div className="media-left">
           {this.renderHttpMethodDropDown()}
         </div>
-        <div className="media-content">
-          <div className="content">
-            <InputField
-              name={"urlPattern"}
-              placeholder={t("scm-webhook-plugin.form.urlPattern")}
-              value={urlPattern}
-              onChange={this.handleChange}
-            />
-            <Checkbox
-              name={"executeOnEveryCommit"}
-              label={t("scm-webhook-plugin.form.executeOnEveryCommit")}
-              checked={executeOnEveryCommit}
-              onChange={this.handleChange}
-            />
-            <Checkbox
-              name={"sendCommitData"}
-              label={t("scm-webhook-plugin.form.sendCommitData")}
-              checked={sendCommitData}
-              onChange={this.handleChange}
-            />
-          </div>
+        <div className="media-content content">
+          <InputField
+            name={"urlPattern"}
+            placeholder={t("scm-webhook-plugin.form.urlPattern")}
+            value={urlPattern}
+            onChange={this.handleChange}
+            disabled={readOnly}
+          />
+          <Checkbox
+            name={"executeOnEveryCommit"}
+            label={t("scm-webhook-plugin.form.executeOnEveryCommit")}
+            checked={executeOnEveryCommit}
+            onChange={this.handleChange}
+            disabled={readOnly}
+          />
+          <Checkbox
+            name={"sendCommitData"}
+            label={t("scm-webhook-plugin.form.sendCommitData")}
+            checked={sendCommitData}
+            onChange={this.handleChange}
+            disabled={readOnly}
+          />
         </div>
         <div className="media-right">
           {deleteIcon}

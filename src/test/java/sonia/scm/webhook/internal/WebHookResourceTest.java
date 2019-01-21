@@ -51,6 +51,22 @@ class WebHookResourceTest {
   WebHookResource resource;
   private Dispatcher dispatcher;
   private final MockHttpResponse response = new MockHttpResponse();
+  public static final String WEB_HOOKS = "{\n" +
+    "    \"webhooks\": [\n" +
+    "        {\n" +
+    "            \"urlPattern\": \"url/{repository.id}/pattern\",\n" +
+    "            \"executeOnEveryCommit\": true,\n" +
+    "            \"sendCommitData\": true,\n" +
+    "            \"method\": \"GET\"\n" +
+    "        },\n" +
+    "        {\n" +
+    "            \"urlPattern\": \"url2/{repository.id}/pattern\",\n" +
+    "            \"executeOnEveryCommit\": false,\n" +
+    "            \"sendCommitData\": false,\n" +
+    "            \"method\": \"POST\"\n" +
+    "        }\n" +
+    "    ]\n" +
+    "}";
 
   @BeforeEach
   void init() {
@@ -89,26 +105,10 @@ class WebHookResourceTest {
   @Test
   void shouldPostWebHookConfigurations() throws URISyntaxException, IOException {
 
-    String webHooks = "{\n" +
-      "    \"webhooks\": [\n" +
-      "        {\n" +
-      "            \"urlPattern\": \"url/{repository.id}/pattern\",\n" +
-      "            \"executeOnEveryCommit\": true,\n" +
-      "            \"sendCommitData\": true,\n" +
-      "            \"method\": \"GET\"\n" +
-      "        },\n" +
-      "        {\n" +
-      "            \"urlPattern\": \"url2/{repository.id}/pattern\",\n" +
-      "            \"executeOnEveryCommit\": false,\n" +
-      "            \"sendCommitData\": false,\n" +
-      "            \"method\": \"POST\"\n" +
-      "        }\n" +
-      "    ]\n" +
-      "}";
     MockHttpRequest request = MockHttpRequest
       .post("/" + WebHookResource.PATH)
       .contentType(MediaType.APPLICATION_JSON)
-      .content(webHooks.getBytes());
+      .content(WEB_HOOKS.getBytes());
 
     dispatcher.invoke(request, response);
     assertEquals(HttpServletResponse.SC_NO_CONTENT, response.getStatus());
@@ -123,27 +123,10 @@ class WebHookResourceTest {
 
   @Test
   void shouldUpdateWebHookConfigurations() throws URISyntaxException, IOException {
-
-    String webHooks = "{\n" +
-      "    \"webhooks\": [\n" +
-      "        {\n" +
-      "            \"urlPattern\": \"url/{repository.id}/pattern\",\n" +
-      "            \"executeOnEveryCommit\": true,\n" +
-      "            \"sendCommitData\": true,\n" +
-      "            \"method\": \"GET\"\n" +
-      "        },\n" +
-      "        {\n" +
-      "            \"urlPattern\": \"url2/{repository.id}/pattern\",\n" +
-      "            \"executeOnEveryCommit\": false,\n" +
-      "            \"sendCommitData\": false,\n" +
-      "            \"method\": \"POST\"\n" +
-      "        }\n" +
-      "    ]\n" +
-      "}";
     MockHttpRequest request = MockHttpRequest
       .put("/" + WebHookResource.PATH)
       .contentType(MediaType.APPLICATION_JSON)
-      .content(webHooks.getBytes());
+      .content(WEB_HOOKS.getBytes());
 
     dispatcher.invoke(request, response);
     assertEquals(HttpServletResponse.SC_NO_CONTENT, response.getStatus());
@@ -184,26 +167,10 @@ class WebHookResourceTest {
   @Test
   void shouldPostRepoWebHookConfigurations() throws URISyntaxException, IOException {
 
-    String webHooks = "{\n" +
-      "    \"webhooks\": [\n" +
-      "        {\n" +
-      "            \"urlPattern\": \"url/{repository.id}/pattern\",\n" +
-      "            \"executeOnEveryCommit\": true,\n" +
-      "            \"sendCommitData\": true,\n" +
-      "            \"method\": \"GET\"\n" +
-      "        },\n" +
-      "        {\n" +
-      "            \"urlPattern\": \"url2/{repository.id}/pattern\",\n" +
-      "            \"executeOnEveryCommit\": false,\n" +
-      "            \"sendCommitData\": false,\n" +
-      "            \"method\": \"POST\"\n" +
-      "        }\n" +
-      "    ]\n" +
-      "}";
     MockHttpRequest request = MockHttpRequest
       .post("/" + WebHookResource.PATH + "/space/name")
       .contentType(MediaType.APPLICATION_JSON)
-      .content(webHooks.getBytes());
+      .content(WEB_HOOKS.getBytes());
 
     dispatcher.invoke(request, response);
     assertEquals(HttpServletResponse.SC_NO_CONTENT, response.getStatus());
@@ -219,26 +186,10 @@ class WebHookResourceTest {
  @Test
   void shouldUpdateRepoWebHookConfigurations() throws URISyntaxException, IOException {
 
-    String webHooks = "{\n" +
-      "    \"webhooks\": [\n" +
-      "        {\n" +
-      "            \"urlPattern\": \"url/{repository.id}/pattern\",\n" +
-      "            \"executeOnEveryCommit\": true,\n" +
-      "            \"sendCommitData\": true,\n" +
-      "            \"method\": \"GET\"\n" +
-      "        },\n" +
-      "        {\n" +
-      "            \"urlPattern\": \"url2/{repository.id}/pattern\",\n" +
-      "            \"executeOnEveryCommit\": false,\n" +
-      "            \"sendCommitData\": false,\n" +
-      "            \"method\": \"POST\"\n" +
-      "        }\n" +
-      "    ]\n" +
-      "}";
     MockHttpRequest request = MockHttpRequest
       .put("/" + WebHookResource.PATH + "/space/name")
       .contentType(MediaType.APPLICATION_JSON)
-      .content(webHooks.getBytes());
+      .content(WEB_HOOKS.getBytes());
 
     dispatcher.invoke(request, response);
     assertEquals(HttpServletResponse.SC_NO_CONTENT, response.getStatus());

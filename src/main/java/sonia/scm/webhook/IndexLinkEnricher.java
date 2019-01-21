@@ -16,7 +16,7 @@ import javax.inject.Provider;
 @Enrich(Index.class)
 public class IndexLinkEnricher implements LinkEnricher {
 
-  private Provider<ScmPathInfoStore> scmPathInfoStoreProvider;
+  private final Provider<ScmPathInfoStore> scmPathInfoStoreProvider;
 
   @Inject
   public IndexLinkEnricher(Provider<ScmPathInfoStore> scmPathInfoStoreProvider) {
