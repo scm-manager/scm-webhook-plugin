@@ -1,6 +1,6 @@
 //@flow
 import React from "react";
-import {confirmAlert, DropDown, InputField} from "@scm-manager/ui-components";
+import {confirmAlert, DropDown, InputField, Help} from "@scm-manager/ui-components";
 import {translate} from "react-i18next";
 import type {WebHookConfiguration} from "./WebHookConfiguration";
 import Checkbox from "@scm-manager/ui-components/src/forms/Checkbox";
@@ -37,11 +37,11 @@ class WebHookConfigurationForm extends React.Component<Props, State> {
     return (
       <div className="field">
         <div className="control">
-          <DropDown
-            options={["GET", "POST", "AUTO", "PUT"]}
-            optionSelected={this.handleDropDownChange}
-            preselectedOption={this.state.method}
-          />
+        <DropDown
+          options={["GET", "POST", "AUTO", "PUT"]}
+          optionSelected={this.handleDropDownChange}
+          preselectedOption={this.state.method}
+          /><Help message={this.props.t("scm-webhook-plugin.form.methodHelp")}/>
         </div>
       </div>
     );
@@ -102,14 +102,19 @@ class WebHookConfigurationForm extends React.Component<Props, State> {
               label={t("scm-webhook-plugin.form.executeOnEveryCommit")}
               checked={executeOnEveryCommit}
               onChange={this.handleChange}
+              helpText={t("scm-webhook-plugin.form.executeOnEveryCommitHelp")}
             />
             <Checkbox
               name={"sendCommitData"}
               label={t("scm-webhook-plugin.form.sendCommitData")}
               checked={sendCommitData}
               onChange={this.handleChange}
+              helpText={t("scm-webhook-plugin.form.sendCommitDataHelp")}
             />
           </div>
+        </div>
+        <div>
+          <Help message={this.props.t("scm-webhook-plugin.form.urlPatternHelp")} />
         </div>
         <div className="media-right">
           {deleteIcon}
