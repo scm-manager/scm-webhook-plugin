@@ -38,7 +38,6 @@ import sonia.scm.repository.Changeset;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.Collection;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -66,9 +65,9 @@ public class Changesets
    *
    * @param changesets
    */
-  public Changesets(Collection<Changeset> changesets)
+  public Changesets(Iterable<Changeset> changesets)
   {
-    this.changesets = changesets;
+    this.changesetList = changesets;
   }
 
   //~--- get methods ----------------------------------------------------------
@@ -79,14 +78,14 @@ public class Changesets
    *
    * @return
    */
-  public Collection<Changeset> getChangesets()
+  public Iterable<Changeset> getChangesets()
   {
-    return changesets;
+    return changesetList;
   }
 
   //~--- fields ---------------------------------------------------------------
 
   /** Field description */
   @XmlElement(name = "changeset")
-  private Collection<Changeset> changesets;
+  private Iterable<Changeset> changesetList;
 }

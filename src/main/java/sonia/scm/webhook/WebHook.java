@@ -1,19 +1,19 @@
-/**
+/*
  * Copyright (c) 2010, Sebastian Sdorra
  * All rights reserved.
- *
+ * <p>
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- *
+ * <p>
  * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
+ * this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
  * 3. Neither the name of SCM-Manager; nor the names of its
- *    contributors may be used to endorse or promote products derived from this
- *    software without specific prior written permission.
- *
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
+ * <p>
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -24,20 +24,19 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ * <p>
  * http://bitbucket.org/sdorra/scm-manager
- *
  */
-
 
 
 package sonia.scm.webhook;
 
-//~--- non-JDK imports --------------------------------------------------------
-
-import com.google.common.base.Objects;
-
-//~--- JDK imports ------------------------------------------------------------
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -49,164 +48,15 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(name = "webhook")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class WebHook
-{
-
-  /**
-   * Constructs ...
-   *
-   */
-  WebHook() {}
-
-  /**
-   * Constructs ...
-   *
-   *
-   * @param urlPattern
-   */
-  public WebHook(String urlPattern)
-  {
-    this(urlPattern, false, false, HttpMethod.AUTO);
-  }
-
-  /**
-   * Constructs ...
-   *
-   *
-   * @param urlPattern
-   * @param executeOnEveryCommit
-   * @param sendCommitData
-   * @param method
-   */
-  public WebHook(String urlPattern, boolean executeOnEveryCommit,
-    boolean sendCommitData, HttpMethod method)
-  {
-    this.urlPattern = urlPattern;
-    this.executeOnEveryCommit = executeOnEveryCommit;
-    this.sendCommitData = sendCommitData;
-    this.method = method;
-  }
-
-  //~--- methods --------------------------------------------------------------
-
-  /**
-   * Method description
-   *
-   *
-   * @param obj
-   *
-   * @return
-   */
-  @Override
-  public boolean equals(Object obj)
-  {
-    if (obj == null)
-    {
-      return false;
-    }
-
-    if (getClass() != obj.getClass())
-    {
-      return false;
-    }
-
-    final WebHook other = (WebHook) obj;
-
-    return Objects.equal(urlPattern, other.urlPattern)
-      && Objects.equal(sendCommitData, other.sendCommitData)
-      && Objects.equal(executeOnEveryCommit, other.executeOnEveryCommit)
-      && Objects.equal(method, other.method);
-  }
-
-  /**
-   * Method description
-   *
-   *
-   * @return
-   */
-  @Override
-  public int hashCode()
-  {
-    return Objects.hashCode(urlPattern, sendCommitData, executeOnEveryCommit,
-      method);
-  }
-
-  /**
-   * Method description
-   *
-   *
-   * @return
-   */
-  @Override
-  public String toString()
-  {
-    //J-
-    return Objects.toStringHelper(this)
-                  .add("urlPattern", urlPattern)
-                  .add("sendCommitData", sendCommitData)
-                  .add("executeOnEveryCommit", executeOnEveryCommit)
-                  .add("method", method)
-                  .toString();
-    //J+
-  }
-
-  //~--- get methods ----------------------------------------------------------
-
-  /**
-   * Method description
-   *
-   *
-   * @return
-   */
-  public HttpMethod getMethod()
-  {
-    return method;
-  }
-
-  /**
-   * Method description
-   *
-   *
-   * @return
-   */
-  public String getUrlPattern()
-  {
-    return urlPattern;
-  }
-
-  /**
-   * Method description
-   *
-   *
-   * @return
-   */
-  public boolean isExecuteOnEveryCommit()
-  {
-    return executeOnEveryCommit;
-  }
-
-  /**
-   * Method description
-   *
-   *
-   * @return
-   */
-  public boolean isSendCommitData()
-  {
-    return sendCommitData;
-  }
-
-  //~--- fields ---------------------------------------------------------------
-
-  /** Field description */
-  private boolean executeOnEveryCommit;
-
-  /** Field description */
-  private HttpMethod method = HttpMethod.AUTO;
-
-  /** Field description */
-  private boolean sendCommitData;
-
-  /** Field description */
+@ToString
+@EqualsAndHashCode
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class WebHook {
   private String urlPattern;
+  private boolean executeOnEveryCommit;
+  private boolean sendCommitData;
+  private HttpMethod method = HttpMethod.AUTO;
 }

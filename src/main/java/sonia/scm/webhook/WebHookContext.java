@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2010, Sebastian Sdorra All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,96 +28,98 @@
  */
 
 
-
 package sonia.scm.webhook;
-
-//~--- non-JDK imports --------------------------------------------------------
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
+import sonia.scm.config.ConfigurationPermissions;
+import sonia.scm.repository.NamespaceAndName;
 import sonia.scm.repository.Repository;
-import sonia.scm.store.Store;
-import sonia.scm.store.StoreFactory;
+import sonia.scm.repository.api.RepositoryService;
+import sonia.scm.repository.api.RepositoryServiceFactory;
+import sonia.scm.store.ConfigurationStore;
+import sonia.scm.store.ConfigurationStoreFactory;
+
+import java.util.Optional;
 
 /**
- *
  * @author Sebastian Sdorra
  */
 @Singleton
-public final class WebHookContext
-{
+public class WebHookContext {
 
-  /** Field description */
+  public static final String WEB_HOOK_ID = "webHook";
+  private final ConfigurationStore<WebHookConfiguration> store;
+  private ConfigurationStoreFactory storeFactory;
+  private WebHookConfiguration globalConfiguration;
   private static final String STORE_NAME = "webhook";
+  private final RepositoryServiceFactory serviceFactory;
 
-  //~--- constructors ---------------------------------------------------------
-
-  /**
-   * Constructs ...
-   *
-   *
-   * @param storeFactory
-   */
   @Inject
-  public WebHookContext(StoreFactory storeFactory)
-  {
-    this.store = storeFactory.getStore(WebHookConfiguration.class, STORE_NAME);
+  public WebHookContext(ConfigurationStoreFactory storeFactory, RepositoryServiceFactory serviceFactory) {
+    this.storeFactory = storeFactory;
+    this.store = storeFactory.withType(WebHookConfiguration.class).withName(STORE_NAME).build();
+    this.serviceFactory = serviceFactory;
     globalConfiguration = store.get();
-
-    if (globalConfiguration == null)
-    {
+    if (globalConfiguration == null) {
       globalConfiguration = new WebHookConfiguration();
     }
   }
 
-  //~--- get methods ----------------------------------------------------------
-
-  /**
-   * Method description
-   *
-   *
-   * @param repository
-   *
-   * @return
-   */
-  public WebHookConfiguration getConfiguration(Repository repository)
-  {
-    WebHookConfiguration repoConf = new WebHookConfiguration(repository);
-
-    return globalConfiguration.merge(repoConf);
+  public static boolean isReadPermitted() {
+    return ConfigurationPermissions.read(WEB_HOOK_ID).isPermitted();
   }
 
-  /**
-   * Method description
-   *
-   *
-   * @return
-   */
-  public WebHookConfiguration getGlobalConfiguration()
-  {
+  public static boolean isWritePermitted() {
+    return ConfigurationPermissions.write(WEB_HOOK_ID).isPermitted();
+  }
+
+  public static void checkReadPermission() {
+    ConfigurationPermissions.read(WEB_HOOK_ID).check();
+  }
+
+  public static void checkWritePermission() {
+    ConfigurationPermissions.write(WEB_HOOK_ID).check();
+  }
+
+  public WebHookConfiguration getGlobalConfiguration() {
     return globalConfiguration;
   }
 
-  //~--- set methods ----------------------------------------------------------
-
-  /**
-   * Method description
-   *
-   *
-   * @param globalConfiguration
-   */
-  public void setGlobalConfiguration(WebHookConfiguration globalConfiguration)
-  {
+  public void setGlobalConfiguration(WebHookConfiguration globalConfiguration) {
     this.globalConfiguration = globalConfiguration;
     store.set(globalConfiguration);
   }
 
-  //~--- fields ---------------------------------------------------------------
+  public WebHookConfiguration getRepositoryConfigurations(String namespace, String name) {
+    ConfigurationStore<WebHookConfiguration> repositoryStore = getRepositoryStore(namespace, name);
+    return Optional.ofNullable(repositoryStore.get()).orElse(new WebHookConfiguration());
+  }
 
-  /** Field description */
-  private final Store<WebHookConfiguration> store;
+  public WebHookConfiguration getAllConfigurations(Repository repository) {
+    ConfigurationStore<WebHookConfiguration> repositoryStore = getRepositoryStore(repository);
+    WebHookConfiguration repositoryConfiguration = Optional.ofNullable(repositoryStore.get()).orElse(new WebHookConfiguration());
+    return getGlobalConfiguration().merge(repositoryConfiguration);
+  }
 
-  /** Field description */
-  private WebHookConfiguration globalConfiguration;
+  public void setRepositoryConfiguration(WebHookConfiguration configuration, String namespace, String name) {
+    ConfigurationStore<WebHookConfiguration> repositoryStore = getRepositoryStore(namespace, name);
+    repositoryStore.set(configuration);
+  }
+
+  private ConfigurationStore<WebHookConfiguration> getRepositoryStore(String namespace, String name) {
+    Repository repository;
+    try (RepositoryService repositoryService = serviceFactory.create(new NamespaceAndName(namespace, name))) {
+      repository = repositoryService.getRepository();
+    }
+    return getRepositoryStore(repository);
+  }
+
+  private ConfigurationStore<WebHookConfiguration> getRepositoryStore(Repository repository) {
+    return storeFactory
+      .withType(WebHookConfiguration.class)
+      .withName(STORE_NAME)
+      .forRepository(repository)
+      .build();
+  }
 }

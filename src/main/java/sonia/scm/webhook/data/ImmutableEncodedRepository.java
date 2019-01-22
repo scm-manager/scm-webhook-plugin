@@ -139,17 +139,6 @@ public final class ImmutableEncodedRepository
    *
    * @return
    */
-  public String getUrl()
-  {
-    return repository.getUrl();
-  }
-
-  /**
-   * Method description
-   *
-   *
-   * @return
-   */
   public boolean isPublicReadable()
   {
     return repository.isPublicReadable();
