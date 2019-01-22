@@ -117,6 +117,9 @@ class WebHookConfigurationForm extends React.Component<Props, State> {
             helpText={t("scm-webhook-plugin.form.sendCommitDataHelp")}
           />
         </div>
+        <div>
+          <Help message={this.props.t("scm-webhook-plugin.form.urlPatternHelp")} />
+        </div>
         <div className="media-right">
           {deleteIcon}
         </div>
