@@ -19,6 +19,6 @@
       "submit": "Yes (do not forget to submit)",
       "cancel": "No"
     },
-    "helpText" : "Add and remove WebHooks for your repositories."
+    "helpText" : "Add and remove Web Hooks for your repositories."
   }
 }
