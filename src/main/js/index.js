@@ -10,7 +10,7 @@ cfgBinder.bindGlobal(
   WebHookConfigurationComponent
 );
 
-cfgBinder.bindRepository(
+cfgBinder.bindRepositorySub(
   "/webhook",
   "scm-webhook-plugin.nav-link",
   "webHookConfig",
