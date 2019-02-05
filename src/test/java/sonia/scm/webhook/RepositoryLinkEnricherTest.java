@@ -11,8 +11,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import sonia.scm.api.v2.resources.LinkAppender;
-import sonia.scm.api.v2.resources.LinkEnricherContext;
+import sonia.scm.api.v2.resources.HalAppender;
+import sonia.scm.api.v2.resources.HalEnricherContext;
 import sonia.scm.api.v2.resources.ScmPathInfoStore;
 import sonia.scm.repository.Repository;
 
@@ -31,7 +31,7 @@ public class RepositoryLinkEnricherTest {
   public ShiroRule shiro = new ShiroRule();
 
   @Mock
-  private LinkAppender appender;
+  private HalAppender appender;
   private RepositoryLinkEnricher enricher;
 
   public RepositoryLinkEnricherTest() {
@@ -53,9 +53,9 @@ public class RepositoryLinkEnricherTest {
   public void shouldEnrichIndex() {
     enricher = new RepositoryLinkEnricher(scmPathInfoStoreProvider);
     Repository repo = new Repository("id", "type" , "space", "name");
-    LinkEnricherContext context = LinkEnricherContext.of(repo);
+    HalEnricherContext context = HalEnricherContext.of(repo);
     enricher.enrich(context, appender);
-    verify(appender).appendOne("webHookConfig", "https://scm-manager.org/scm/api/v2/plugins/webhook/space/name");
+    verify(appender).appendLink("webHookConfig", "https://scm-manager.org/scm/api/v2/plugins/webhook/space/name");
   }
 
   @Test
@@ -63,8 +63,8 @@ public class RepositoryLinkEnricherTest {
   public void shouldNotEnrichIndexBecauseOfMissingPermission() {
     enricher = new RepositoryLinkEnricher(scmPathInfoStoreProvider);
     Repository repo = new Repository("id", "type" , "space", "name");
-    LinkEnricherContext context = LinkEnricherContext.of(repo);
+    HalEnricherContext context = HalEnricherContext.of(repo);
     enricher.enrich(context, appender);
-    verify(appender, never()).appendOne("webHookConfig", "https://scm-manager.org/scm/api/v2/plugins/webhook/space/name");
+    verify(appender, never()).appendLink("webHookConfig", "https://scm-manager.org/scm/api/v2/plugins/webhook/space/name");
   }
 }

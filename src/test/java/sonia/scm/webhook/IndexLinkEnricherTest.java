@@ -11,8 +11,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import sonia.scm.api.v2.resources.LinkAppender;
-import sonia.scm.api.v2.resources.LinkEnricherContext;
+import sonia.scm.api.v2.resources.HalAppender;
+import sonia.scm.api.v2.resources.HalEnricherContext;
 import sonia.scm.api.v2.resources.ScmPathInfoStore;
 
 import java.net.URI;
@@ -30,7 +30,7 @@ public class IndexLinkEnricherTest {
   public ShiroRule shiro = new ShiroRule();
 
   @Mock
-  private LinkAppender appender;
+  private HalAppender appender;
   private IndexLinkEnricher enricher;
 
   public IndexLinkEnricherTest() {
@@ -52,16 +52,16 @@ public class IndexLinkEnricherTest {
   @SubjectAware( username = "trillian", password = "secret")
   public void shouldEnrichIndex() {
     enricher = new IndexLinkEnricher(scmPathInfoStoreProvider);
-    enricher.enrich(LinkEnricherContext.of(), appender);
-    verify(appender).appendOne("webHookConfig", "https://scm-manager.org/scm/api/v2/plugins/webhook");
+    enricher.enrich(HalEnricherContext.of(), appender);
+    verify(appender).appendLink("webHookConfig", "https://scm-manager.org/scm/api/v2/plugins/webhook");
   }
 
   @Test
   @SubjectAware(username = "unpriv", password = "secret")
   public void shouldNotEnrichIndexBecauseOfMissingPermission() {
     enricher = new IndexLinkEnricher(scmPathInfoStoreProvider);
-    enricher.enrich(LinkEnricherContext.of(), appender);
-    verify(appender, never()).appendOne("webHookConfig", "https://scm-manager.org/scm/api/v2/plugins/webhook");
+    enricher.enrich(HalEnricherContext.of(), appender);
+    verify(appender, never()).appendLink("webHookConfig", "https://scm-manager.org/scm/api/v2/plugins/webhook");
   }
 
 }
