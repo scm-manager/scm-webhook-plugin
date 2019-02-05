@@ -1,9 +1,9 @@
 package sonia.scm.webhook;
 
 import sonia.scm.api.v2.resources.Enrich;
-import sonia.scm.api.v2.resources.LinkAppender;
-import sonia.scm.api.v2.resources.LinkEnricher;
-import sonia.scm.api.v2.resources.LinkEnricherContext;
+import sonia.scm.api.v2.resources.HalAppender;
+import sonia.scm.api.v2.resources.HalEnricher;
+import sonia.scm.api.v2.resources.HalEnricherContext;
 import sonia.scm.api.v2.resources.ScmPathInfoStore;
 import sonia.scm.plugin.Extension;
 import sonia.scm.repository.Repository;
@@ -14,7 +14,7 @@ import javax.inject.Provider;
 
 @Extension
 @Enrich(Repository.class)
-public class RepositoryLinkEnricher implements LinkEnricher {
+public class RepositoryLinkEnricher implements HalEnricher {
 
   private final Provider<ScmPathInfoStore> scmPathInfoStoreProvider;
 
@@ -24,11 +24,11 @@ public class RepositoryLinkEnricher implements LinkEnricher {
   }
 
   @Override
-  public void enrich(LinkEnricherContext context, LinkAppender appender) {
+  public void enrich(HalEnricherContext context, HalAppender appender) {
     if (WebHookContext.isReadPermitted()) {
       Repository repository = context.oneRequireByType(Repository.class);
       WebHookConfigurationResourceLinks resourceLinks = new WebHookConfigurationResourceLinks(scmPathInfoStoreProvider.get().get());
-      appender.appendOne("webHookConfig", resourceLinks.repositoryConfigurations.self(repository.getNamespace(), repository.getName()));
+      appender.appendLink("webHookConfig", resourceLinks.repositoryConfigurations.self(repository.getNamespace(), repository.getName()));
     }
   }
 }
