@@ -5,7 +5,7 @@ import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import sonia.scm.repository.NamespaceAndName;
+import sonia.scm.repository.Repository;
 import sonia.scm.webhook.WebHook;
 import sonia.scm.webhook.WebHookConfiguration;
 import sonia.scm.webhook.WebHookContext;
@@ -19,7 +19,7 @@ import static de.otto.edison.hal.Link.link;
 public abstract class WebHookMapper {
 
   private WebHookConfigurationResourceLinks resourceLinks = new WebHookConfigurationResourceLinks(() -> URI.create("/"));
-  private NamespaceAndName namespaceAndName;
+  private Repository repository;
 
   @Mapping(target = "attributes", ignore = true)
   protected abstract WebHookConfigurationDto map(WebHookConfiguration webHookConfiguration);
@@ -36,18 +36,18 @@ public abstract class WebHookMapper {
     return this;
   }
 
-  public WebHookMapper forRepository(NamespaceAndName namespaceAndName) {
-    this.namespaceAndName = namespaceAndName;
+  public WebHookMapper forRepository(Repository repository) {
+    this.repository = repository;
     return this;
   }
 
   @AfterMapping
   void addLinks(@MappingTarget WebHookConfigurationDto dto) {
     Links.Builder links = Links.linkingTo();
-    if (namespaceAndName != null) {
-      links.self(resourceLinks.repositoryConfigurations.self(namespaceAndName.getNamespace(), namespaceAndName.getName()));
-      if (WebHookContext.isWritePermitted()) {
-        links.single(link("update", resourceLinks.repositoryConfigurations.update(namespaceAndName.getNamespace(), namespaceAndName.getName())));
+    if (repository != null) {
+      links.self(resourceLinks.repositoryConfigurations.self(repository.getNamespace(), repository.getName()));
+      if (WebHookContext.isWritePermitted(repository)) {
+        links.single(link("update", resourceLinks.repositoryConfigurations.update(repository.getNamespace(), repository.getName())));
       }
     } else {
       links.self(resourceLinks.globalConfigurations.self());

@@ -25,8 +25,8 @@ public class RepositoryLinkEnricher implements HalEnricher {
 
   @Override
   public void enrich(HalEnricherContext context, HalAppender appender) {
-    if (WebHookContext.isReadPermitted()) {
-      Repository repository = context.oneRequireByType(Repository.class);
+    Repository repository = context.oneRequireByType(Repository.class);
+    if (WebHookContext.isReadPermitted(repository)) {
       WebHookConfigurationResourceLinks resourceLinks = new WebHookConfigurationResourceLinks(scmPathInfoStoreProvider.get().get());
       appender.appendLink("webHookConfig", resourceLinks.repositoryConfigurations.self(repository.getNamespace(), repository.getName()));
     }

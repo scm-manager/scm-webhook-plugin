@@ -17,6 +17,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import sonia.scm.repository.NamespaceAndName;
+import sonia.scm.repository.Repository;
+import sonia.scm.repository.RepositoryManager;
 import sonia.scm.webhook.HttpMethod;
 import sonia.scm.webhook.WebHook;
 import sonia.scm.webhook.WebHookConfiguration;
@@ -45,6 +48,8 @@ class WebHookResourceTest {
 
   @Mock
   WebHookContext context;
+  @Mock
+  RepositoryManager repositoryManager;
 
   WebHookMapper webHookMapper = new WebHookMapperImpl();
 
@@ -72,7 +77,8 @@ class WebHookResourceTest {
   void init() {
     subjectThreadState.bind();
     ThreadContext.bind(subject);
-    resource = new WebHookResource(context, webHookMapper);
+    resource = new WebHookResource(context, webHookMapper, repositoryManager);
+    when(repositoryManager.get(new NamespaceAndName("space", "name"))).thenReturn(new Repository("id", "git", "space", "name"));
     dispatcher = MockDispatcherFactory.createDispatcher();
     dispatcher.getRegistry().addSingletonResource(resource);
   }
