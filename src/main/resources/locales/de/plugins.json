@@ -20,5 +20,31 @@
       "cancel": "Nein"
     },
     "helpText" : "Web Hooks für das Repository hinzufügen und entfernen."
+  },
+  "permissions": {
+    "configuration": {
+      "read,write": {
+        "webhook": {
+          "displayName": "Globale Web Hooks ändern",
+          "description": "Darf globale Web Hooks erstellen und verändern"
+        }
+      }
+    },
+    "repository": {
+      "webhook": {
+        "*": {
+          "displayName": "Repository-spezifische Web Hooks ändern",
+          "description": "Darf repository-spezifische Web Hooks erstellen und verändern"
+        }
+      }
+    }
+  },
+  "verbs": {
+    "repository": {
+      "webhook": {
+        "displayName": "Web Hooks ändern",
+        "description": "Darf Web Hooks für dieses Repository erstellen und verändern"
+      }
+    }
   }
 }

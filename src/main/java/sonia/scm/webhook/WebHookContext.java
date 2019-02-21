@@ -35,8 +35,8 @@ import com.google.inject.Singleton;
 import sonia.scm.config.ConfigurationPermissions;
 import sonia.scm.repository.NamespaceAndName;
 import sonia.scm.repository.Repository;
-import sonia.scm.repository.api.RepositoryService;
-import sonia.scm.repository.api.RepositoryServiceFactory;
+import sonia.scm.repository.RepositoryManager;
+import sonia.scm.repository.RepositoryPermissions;
 import sonia.scm.store.ConfigurationStore;
 import sonia.scm.store.ConfigurationStoreFactory;
 
@@ -48,18 +48,18 @@ import java.util.Optional;
 @Singleton
 public class WebHookContext {
 
-  public static final String WEB_HOOK_ID = "webHook";
+  public static final String WEB_HOOK_ID = "webhook";
   private final ConfigurationStore<WebHookConfiguration> store;
   private ConfigurationStoreFactory storeFactory;
   private WebHookConfiguration globalConfiguration;
   private static final String STORE_NAME = "webhook";
-  private final RepositoryServiceFactory serviceFactory;
+  private final RepositoryManager repositoryManager;
 
   @Inject
-  public WebHookContext(ConfigurationStoreFactory storeFactory, RepositoryServiceFactory serviceFactory) {
+  public WebHookContext(ConfigurationStoreFactory storeFactory, RepositoryManager repositoryManager) {
     this.storeFactory = storeFactory;
     this.store = storeFactory.withType(WebHookConfiguration.class).withName(STORE_NAME).build();
-    this.serviceFactory = serviceFactory;
+    this.repositoryManager = repositoryManager;
     globalConfiguration = store.get();
     if (globalConfiguration == null) {
       globalConfiguration = new WebHookConfiguration();
@@ -70,8 +70,16 @@ public class WebHookContext {
     return ConfigurationPermissions.read(WEB_HOOK_ID).isPermitted();
   }
 
+  public static boolean isReadPermitted(Repository repository) {
+    return RepositoryPermissions.custom(WEB_HOOK_ID, repository).isPermitted();
+  }
+
   public static boolean isWritePermitted() {
     return ConfigurationPermissions.write(WEB_HOOK_ID).isPermitted();
+  }
+
+  public static boolean isWritePermitted(Repository repository) {
+    return RepositoryPermissions.custom(WEB_HOOK_ID, repository).isPermitted();
   }
 
   public static void checkReadPermission() {
@@ -80,6 +88,14 @@ public class WebHookContext {
 
   public static void checkWritePermission() {
     ConfigurationPermissions.write(WEB_HOOK_ID).check();
+  }
+
+  public static void checkReadPermission(Repository repository) {
+    RepositoryPermissions.custom(WEB_HOOK_ID, repository).check();
+  }
+
+  public static void checkWritePermission(Repository repository) {
+    RepositoryPermissions.custom(WEB_HOOK_ID, repository).check();
   }
 
   public WebHookConfiguration getGlobalConfiguration() {
@@ -108,10 +124,7 @@ public class WebHookContext {
   }
 
   private ConfigurationStore<WebHookConfiguration> getRepositoryStore(String namespace, String name) {
-    Repository repository;
-    try (RepositoryService repositoryService = serviceFactory.create(new NamespaceAndName(namespace, name))) {
-      repository = repositoryService.getRepository();
-    }
+    Repository repository = repositoryManager.get(new NamespaceAndName(namespace, name));
     return getRepositoryStore(repository);
   }
 
