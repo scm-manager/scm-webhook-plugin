@@ -1,0 +1,8 @@
+<permissions>
+  <permission>
+    <value>configuration:read,write:webhook</value>
+  </permission>
+  <permission>
+    <value>repository:webhook:*</value>
+  </permission>
+</permissions>

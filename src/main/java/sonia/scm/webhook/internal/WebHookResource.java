@@ -34,6 +34,8 @@ import com.google.inject.Inject;
 import com.webcohesion.enunciate.metadata.rs.ResponseCode;
 import com.webcohesion.enunciate.metadata.rs.StatusCodes;
 import sonia.scm.repository.NamespaceAndName;
+import sonia.scm.repository.Repository;
+import sonia.scm.repository.RepositoryManager;
 import sonia.scm.webhook.WebHookContext;
 
 import javax.ws.rs.Consumes;
@@ -56,11 +58,13 @@ public class WebHookResource {
   public static final String PATH = "v2/plugins/webhook";
   private final WebHookContext context;
   private final WebHookMapper webHookMapper;
+  private final RepositoryManager repositoryManager;
 
   @Inject
-  public WebHookResource(WebHookContext context, WebHookMapper webHookMapper) {
+  public WebHookResource(WebHookContext context, WebHookMapper webHookMapper, RepositoryManager repositoryManager) {
     this.webHookMapper = webHookMapper;
     this.context = context;
+    this.repositoryManager = repositoryManager;
   }
 
   @GET
@@ -113,10 +117,11 @@ public class WebHookResource {
     @ResponseCode(code = 500, condition = "internal server error")
   })
   public WebHookConfigurationDto getRepositoryConfiguration(@Context UriInfo uriInfo, @PathParam("namespace") String namespace, @PathParam("name") String name) {
-    WebHookContext.checkReadPermission();
+    Repository repository = repositoryManager.get(new NamespaceAndName(namespace, name));
+    WebHookContext.checkReadPermission(repository);
     return webHookMapper
       .using(uriInfo)
-      .forRepository(new NamespaceAndName(namespace, name))
+      .forRepository(repository)
       .map(context.getRepositoryConfigurations(namespace, name));
   }
 
@@ -152,10 +157,11 @@ public class WebHookResource {
   }
 
   private void setRepositoryConfigurations(UriInfo uriInfo, WebHookConfigurationDto configuration, String namespace, String name) {
-    WebHookContext.checkWritePermission();
+    Repository repository = repositoryManager.get(new NamespaceAndName(namespace, name));
+    WebHookContext.checkWritePermission(repository);
     context.setRepositoryConfiguration(webHookMapper
       .using(uriInfo)
-      .forRepository(new NamespaceAndName(namespace, name))
+      .forRepository(repository)
       .map(configuration), namespace, name);
   }
 
