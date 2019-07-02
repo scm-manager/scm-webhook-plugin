@@ -4,13 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sonia.scm.migration.UpdateStep;
 import sonia.scm.plugin.Extension;
+import sonia.scm.store.ConfigurationStore;
+import sonia.scm.store.ConfigurationStoreFactory;
 import sonia.scm.update.V1Properties;
 import sonia.scm.update.V1PropertyDAO;
 import sonia.scm.version.Version;
 import sonia.scm.webhook.HttpMethod;
 import sonia.scm.webhook.WebHook;
 import sonia.scm.webhook.WebHookConfiguration;
-import sonia.scm.webhook.WebHookContext;
 
 import javax.inject.Inject;
 
@@ -26,12 +27,12 @@ public class WebhooksV2ConfigMigrationUpdateStep implements UpdateStep {
   private static final Logger LOG = LoggerFactory.getLogger(WebhooksV2ConfigMigrationUpdateStep.class);
 
   private final V1PropertyDAO v1PropertyDAO;
-  private final WebHookContext context;
+  private final ConfigurationStoreFactory storeFactory;
 
   @Inject
-  public WebhooksV2ConfigMigrationUpdateStep(V1PropertyDAO v1PropertyDAO, WebHookContext context) {
+  public WebhooksV2ConfigMigrationUpdateStep(V1PropertyDAO v1PropertyDAO, ConfigurationStoreFactory storeFactory) {
     this.v1PropertyDAO = v1PropertyDAO;
-    this.context = context;
+    this.storeFactory = storeFactory;
   }
 
   @Override
@@ -39,7 +40,7 @@ public class WebhooksV2ConfigMigrationUpdateStep implements UpdateStep {
     v1PropertyDAO
       .getProperties(REPOSITORY_PROPERTY_READER)
       .havingAllOf("webhooks")
-      .forEachEntry((key, properties) -> context.setRepositoryConfiguration(buildConfig(key,properties), key));
+      .forEachEntry((key, properties) -> setRepositoryConfiguration(buildConfig(key,properties), key));
   }
 
   private WebHookConfiguration buildConfig(String repositoryId, V1Properties properties) {
@@ -56,6 +57,19 @@ public class WebhooksV2ConfigMigrationUpdateStep implements UpdateStep {
     Set<WebHook> webhooks = new HashSet<>();
     webhooks.add(webHook);
     return new WebHookConfiguration(webhooks);
+  }
+
+  void setRepositoryConfiguration(WebHookConfiguration configuration, String repositoryId) {
+    ConfigurationStore<WebHookConfiguration> repositoryStore = getRepositoryStore(repositoryId);
+    repositoryStore.set(configuration);
+  }
+
+  private ConfigurationStore<WebHookConfiguration> getRepositoryStore(String repositoryId) {
+    return storeFactory
+      .withType(WebHookConfiguration.class)
+      .withName("webhook")
+      .forRepository(repositoryId)
+      .build();
   }
 
   @Override

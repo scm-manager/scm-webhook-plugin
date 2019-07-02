@@ -123,22 +123,9 @@ public class WebHookContext {
     repositoryStore.set(configuration);
   }
 
-  public void setRepositoryConfiguration(WebHookConfiguration configuration, String repositoryId) {
-    ConfigurationStore<WebHookConfiguration> repositoryStore = getRepositoryStore(repositoryId);
-    repositoryStore.set(configuration);
-  }
-
   private ConfigurationStore<WebHookConfiguration> getRepositoryStore(String namespace, String name) {
     Repository repository = repositoryManager.get(new NamespaceAndName(namespace, name));
     return getRepositoryStore(repository);
-  }
-
-  private ConfigurationStore<WebHookConfiguration> getRepositoryStore(String repositoryId) {
-    return storeFactory
-      .withType(WebHookConfiguration.class)
-      .withName(STORE_NAME)
-      .forRepository(repositoryId)
-      .build();
   }
 
   private ConfigurationStore<WebHookConfiguration> getRepositoryStore(Repository repository) {
