@@ -41,7 +41,6 @@ class WebhooksV2ConfigMigrationUpdateStepTest {
       ImmutableMap.of(
         "webhooks", "http://example.com/${repositoryName};true;true;POST|"
       );
-
     testUtil.mockRepositoryProperties(new V1PropertyDaoTestUtil.PropertiesForRepository(REPO_NAME, mockedValues));
 
     updateStep.doUpdate();
@@ -57,8 +56,8 @@ class WebhooksV2ConfigMigrationUpdateStepTest {
       ImmutableMap.of(
         "any", "value"
       );
-
     testUtil.mockRepositoryProperties(new V1PropertyDaoTestUtil.PropertiesForRepository(REPO_NAME, mockedValues));
+
     updateStep.doUpdate();
 
     assertThat(configStore.get()).isNull();

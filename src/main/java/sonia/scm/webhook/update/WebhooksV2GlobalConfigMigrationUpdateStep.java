@@ -35,7 +35,14 @@ public class WebhooksV2GlobalConfigMigrationUpdateStep implements UpdateStep {
       optionalConfig.ifPresent(
         v1WebhookConfiguration -> {
           Set<WebHook> v2Webhooks = new HashSet<>();
-          v1WebhookConfiguration.getWebhooks().iterator().forEachRemaining(webHook -> v2Webhooks.add(new WebHook(webHook.getUrlPattern(),webHook.isExecuteOnEveryCommit(), webHook.isSendCommitData(), webHook.getMethod())));
+          v1WebhookConfiguration.getWebhooks().iterator().forEachRemaining(webHook ->
+            v2Webhooks.add(new WebHook(
+              webHook.getUrlPattern(),
+              webHook.isExecuteOnEveryCommit(),
+              webHook.isSendCommitData(),
+              webHook.getMethod())
+            )
+          );
           WebHookConfiguration v2WebhookConfig = new WebHookConfiguration(v2Webhooks);
 
           storeFactory.withType(WebHookConfiguration.class).withName(STORE_NAME).build().set(v2WebhookConfig);
