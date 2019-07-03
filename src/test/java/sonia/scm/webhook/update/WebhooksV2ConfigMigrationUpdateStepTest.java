@@ -54,7 +54,7 @@ class WebhooksV2ConfigMigrationUpdateStepTest {
   void shouldMigrateRepositoryConfigWithMultipleWebhooks() {
     Map<String, String> mockedValues =
       ImmutableMap.of(
-        "webhooks", "http://example.com/${repositoryName};true;true;POST|http://example.com/${zweiterWebhook};false;true;AUTO|http://example.com/${dritteWebhook};false;false;PUT|"
+        "webhooks", "http://example.com/${repositoryName};true;true;POST|http://example.com/${zweiterWebhook};undefined;true;AUTO|http://example.com/${dritteWebhook};false;false;PUT|"
       );
     testUtil.mockRepositoryProperties(new V1PropertyDaoTestUtil.PropertiesForRepository(REPO_NAME, mockedValues));
 
