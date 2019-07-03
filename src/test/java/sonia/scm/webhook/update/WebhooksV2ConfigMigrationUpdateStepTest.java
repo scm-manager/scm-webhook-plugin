@@ -1,0 +1,99 @@
+package sonia.scm.webhook.update;
+
+import com.google.common.collect.ImmutableMap;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import sonia.scm.store.ConfigurationStore;
+import sonia.scm.store.InMemoryConfigurationStoreFactory;
+import sonia.scm.update.V1PropertyDaoTestUtil;
+import sonia.scm.webhook.HttpMethod;
+import sonia.scm.webhook.WebHook;
+import sonia.scm.webhook.WebHookConfiguration;
+
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@ExtendWith(MockitoExtension.class)
+class WebhooksV2ConfigMigrationUpdateStepTest {
+
+  private final static String REPO_NAME = "repo";
+
+  V1PropertyDaoTestUtil testUtil = new V1PropertyDaoTestUtil();
+
+  ConfigurationStore<WebHookConfiguration> configStore;
+
+  private WebhooksV2ConfigMigrationUpdateStep updateStep;
+
+  private InMemoryConfigurationStoreFactory storeFactory = new InMemoryConfigurationStoreFactory();
+
+  @BeforeEach
+  void initSetup() {
+    configStore = storeFactory.withType(WebHookConfiguration.class).withName("webhook").forRepository(REPO_NAME).build();
+    updateStep = new WebhooksV2ConfigMigrationUpdateStep(testUtil.getPropertyDAO(), storeFactory);
+  }
+
+  @Test
+  void shouldMigrateRepositoryConfig() {
+    Map<String, String> mockedValues =
+      ImmutableMap.of(
+        "webhooks", "http://example.com/${repositoryName};true;true;POST|"
+      );
+    testUtil.mockRepositoryProperties(new V1PropertyDaoTestUtil.PropertiesForRepository(REPO_NAME, mockedValues));
+
+    updateStep.doUpdate();
+
+    WebHook v2Webhook = new WebHook("http://example.com/${repositoryName}", true, true, HttpMethod.POST);
+
+    assertThat(configStore.get().getWebhooks().contains(v2Webhook)).isTrue();
+  }
+
+  @Test
+  void shouldMigrateRepositoryConfigWithMultipleWebhooks() {
+    Map<String, String> mockedValues =
+      ImmutableMap.of(
+        "webhooks", "http://example.com/${repositoryName};true;true;POST|http://example.com/${zweiterWebhook};undefined;true;AUTO|http://example.com/${dritteWebhook};false;false;PUT|"
+      );
+    testUtil.mockRepositoryProperties(new V1PropertyDaoTestUtil.PropertiesForRepository(REPO_NAME, mockedValues));
+
+    updateStep.doUpdate();
+
+    WebHook v2Webhook1 = new WebHook("http://example.com/${repositoryName}", true, true, HttpMethod.POST);
+    WebHook v2Webhook2 = new WebHook("http://example.com/${zweiterWebhook}", false, true, HttpMethod.AUTO);
+    WebHook v2Webhook3 = new WebHook("http://example.com/${dritteWebhook}", false, false, HttpMethod.PUT);
+
+    assertThat(configStore.get().getWebhooks().contains(v2Webhook1)).isTrue();
+    assertThat(configStore.get().getWebhooks().contains(v2Webhook2)).isTrue();
+    assertThat(configStore.get().getWebhooks().contains(v2Webhook3)).isTrue();
+    assertThat(configStore.get().getWebhooks().size()).isEqualTo(3);
+  }
+
+  @Test
+  void shouldSkipRepositoriesIfWebhookIsEmpty() {
+    Map<String, String> mockedValues =
+      ImmutableMap.of(
+        "webhooks", ""
+      );
+    testUtil.mockRepositoryProperties(new V1PropertyDaoTestUtil.PropertiesForRepository(REPO_NAME, mockedValues));
+
+    updateStep.doUpdate();
+
+    assertThat(configStore.get()).isNull();
+  }
+
+  @Test
+  void shouldSkipRepositoriesWithoutWebhookConfig() {
+    Map<String, String> mockedValues =
+      ImmutableMap.of(
+        "any", "value"
+      );
+    testUtil.mockRepositoryProperties(new V1PropertyDaoTestUtil.PropertiesForRepository(REPO_NAME, mockedValues));
+
+    updateStep.doUpdate();
+
+    assertThat(configStore.get()).isNull();
+  }
+}
+
