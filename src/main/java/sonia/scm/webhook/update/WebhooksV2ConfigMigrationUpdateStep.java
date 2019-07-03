@@ -57,17 +57,22 @@ public class WebhooksV2ConfigMigrationUpdateStep implements UpdateStep {
     if (Strings.isNullOrEmpty(v1Webhook)) {
       return empty();
     }
-    String[] splittedProperties = v1Webhook.split(";");
+    String[] splittedWebhooks = v1Webhook.split("\\|");
+    Set<WebHook> webhooksSet = new HashSet<>();
 
-    WebHook webHook = new WebHook(
-      splittedProperties[0],
-      Boolean.parseBoolean(splittedProperties[1]),
-      Boolean.parseBoolean(splittedProperties[2]),
-      Enum.valueOf(HttpMethod.class, splittedProperties[3].substring(0, splittedProperties[3].length() - 1))
-    );
-    Set<WebHook> webhooks = new HashSet<>();
-    webhooks.add(webHook);
-    return of(new WebHookConfiguration(webhooks));
+    for (String webhook : splittedWebhooks) {
+      String[] splittedProperties = webhook.split(";");
+
+      WebHook v2WebHook = new WebHook(
+        splittedProperties[0],
+        Boolean.parseBoolean(splittedProperties[1]),
+        Boolean.parseBoolean(splittedProperties[2]),
+        Enum.valueOf(HttpMethod.class, splittedProperties[3])
+      );
+
+      webhooksSet.add(v2WebHook);
+    }
+    return of(new WebHookConfiguration(webhooksSet));
   }
 
   void setRepositoryConfiguration(WebHookConfiguration configuration, String repositoryId) {

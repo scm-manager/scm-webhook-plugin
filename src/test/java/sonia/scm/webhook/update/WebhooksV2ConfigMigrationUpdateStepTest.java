@@ -51,6 +51,26 @@ class WebhooksV2ConfigMigrationUpdateStepTest {
   }
 
   @Test
+  void shouldMigrateRepositoryConfigWithMultipleWebhooks() {
+    Map<String, String> mockedValues =
+      ImmutableMap.of(
+        "webhooks", "http://example.com/${repositoryName};true;true;POST|http://example.com/${zweiterWebhook};false;true;AUTO|http://example.com/${dritteWebhook};false;false;PUT|"
+      );
+    testUtil.mockRepositoryProperties(new V1PropertyDaoTestUtil.PropertiesForRepository(REPO_NAME, mockedValues));
+
+    updateStep.doUpdate();
+
+    WebHook v2Webhook1 = new WebHook("http://example.com/${repositoryName}", true, true, HttpMethod.POST);
+    WebHook v2Webhook2 = new WebHook("http://example.com/${zweiterWebhook}", false, true, HttpMethod.AUTO);
+    WebHook v2Webhook3 = new WebHook("http://example.com/${dritteWebhook}", false, false, HttpMethod.PUT);
+
+    assertThat(configStore.get().getWebhooks().contains(v2Webhook1)).isTrue();
+    assertThat(configStore.get().getWebhooks().contains(v2Webhook2)).isTrue();
+    assertThat(configStore.get().getWebhooks().contains(v2Webhook3)).isTrue();
+    assertThat(configStore.get().getWebhooks().size()).isEqualTo(3);
+  }
+
+  @Test
   void shouldSkipRepositoriesIfWebhookIsEmpty() {
     Map<String, String> mockedValues =
       ImmutableMap.of(
