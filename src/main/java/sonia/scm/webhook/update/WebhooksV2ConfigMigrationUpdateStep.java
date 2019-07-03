@@ -1,5 +1,6 @@
 package sonia.scm.webhook.update;
 
+import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sonia.scm.migration.UpdateStep;
@@ -16,8 +17,11 @@ import sonia.scm.webhook.WebHookConfiguration;
 import javax.inject.Inject;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static sonia.scm.update.V1PropertyReader.REPOSITORY_PROPERTY_READER;
 import static sonia.scm.version.Version.parse;
 
@@ -35,28 +39,35 @@ public class WebhooksV2ConfigMigrationUpdateStep implements UpdateStep {
     this.storeFactory = storeFactory;
   }
 
-  @Override
-  public void doUpdate() {
+  @Override public void doUpdate() {
     v1PropertyDAO
       .getProperties(REPOSITORY_PROPERTY_READER)
       .havingAllOf("webhooks")
-      .forEachEntry((key, properties) -> setRepositoryConfiguration(buildConfig(key,properties), key));
+      .forEachEntry((key, properties) -> {
+        buildConfig(key, properties).ifPresent(configuration ->
+          setRepositoryConfiguration(configuration, key));
+      }
+      );
   }
 
-  private WebHookConfiguration buildConfig(String repositoryId, V1Properties properties) {
+  private Optional<WebHookConfiguration> buildConfig(String repositoryId, V1Properties properties) {
     LOG.debug("migrating repository specific webhook configuration for repository id {}", repositoryId);
 
-    String[] splittedProperties = properties.get("webhooks").split(";");
+    String v1Webhook = properties.get("webhooks");
+    if (Strings.isNullOrEmpty(v1Webhook)) {
+      return empty();
+    }
+    String[] splittedProperties = v1Webhook.split(";");
 
     WebHook webHook = new WebHook(
       splittedProperties[0],
       Boolean.parseBoolean(splittedProperties[1]),
       Boolean.parseBoolean(splittedProperties[2]),
-      Enum.valueOf(HttpMethod.class, splittedProperties[3].substring(0,splittedProperties[3].length() - 1))
+      Enum.valueOf(HttpMethod.class, splittedProperties[3].substring(0, splittedProperties[3].length() - 1))
     );
     Set<WebHook> webhooks = new HashSet<>();
     webhooks.add(webHook);
-    return new WebHookConfiguration(webhooks);
+    return of(new WebHookConfiguration(webhooks));
   }
 
   void setRepositoryConfiguration(WebHookConfiguration configuration, String repositoryId) {

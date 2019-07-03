@@ -51,6 +51,19 @@ class WebhooksV2ConfigMigrationUpdateStepTest {
   }
 
   @Test
+  void shouldSkipRepositoriesIfWebhookIsEmpty() {
+    Map<String, String> mockedValues =
+      ImmutableMap.of(
+        "webhooks", ""
+      );
+    testUtil.mockRepositoryProperties(new V1PropertyDaoTestUtil.PropertiesForRepository(REPO_NAME, mockedValues));
+
+    updateStep.doUpdate();
+
+    assertThat(configStore.get()).isNull();
+  }
+
+  @Test
   void shouldSkipRepositoriesWithoutWebhookConfig() {
     Map<String, String> mockedValues =
       ImmutableMap.of(
