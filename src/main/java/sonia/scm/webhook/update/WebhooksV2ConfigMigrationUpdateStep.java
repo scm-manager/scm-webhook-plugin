@@ -15,13 +15,13 @@ import sonia.scm.webhook.WebHook;
 import sonia.scm.webhook.WebHookConfiguration;
 
 import javax.inject.Inject;
-
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import static java.util.Arrays.stream;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
+import static java.util.stream.Collectors.toSet;
 import static sonia.scm.update.V1PropertyReader.REPOSITORY_PROPERTY_READER;
 import static sonia.scm.version.Version.parse;
 
@@ -58,21 +58,23 @@ public class WebhooksV2ConfigMigrationUpdateStep implements UpdateStep {
       return empty();
     }
     String[] splittedWebhooks = v1Webhook.split("\\|");
-    Set<WebHook> webhooksSet = new HashSet<>();
 
-    for (String webhook : splittedWebhooks) {
-      String[] splittedProperties = webhook.split(";");
+    Set<WebHook> webhooksSet = stream(splittedWebhooks)
+      .map(this::createWebHook)
+      .collect(toSet());
 
-      WebHook v2WebHook = new WebHook(
-        splittedProperties[0],
-        Boolean.parseBoolean(splittedProperties[1]),
-        Boolean.parseBoolean(splittedProperties[2]),
-        Enum.valueOf(HttpMethod.class, splittedProperties[3])
-      );
-
-      webhooksSet.add(v2WebHook);
-    }
     return of(new WebHookConfiguration(webhooksSet));
+  }
+
+  private WebHook createWebHook(String webhook) {
+    String[] splitProperties = webhook.split(";");
+
+    return new WebHook(
+      splitProperties[0],
+      Boolean.parseBoolean(splitProperties[1]),
+      Boolean.parseBoolean(splitProperties[2]),
+      Enum.valueOf(HttpMethod.class, splitProperties[3])
+    );
   }
 
   void setRepositoryConfiguration(WebHookConfiguration configuration, String repositoryId) {
