@@ -15,7 +15,7 @@
   <packaging>smp</packaging>
   <version>2.0.0-SNAPSHOT</version>
   <name>scm-webhook-plugin</name>
-  <description>Notify a remote webserver whenever a repository is pushed to.</description>
+  <description>Notifies a remote webserver whenever a repository is pushed to</description>
   <url>https://bitbucket.org/sdorra/scm-webhook-plugin</url>
 
   <dependencies>
@@ -71,7 +71,7 @@
           <plugin>
             <groupId>sonia.scm.maven</groupId>
             <artifactId>smp-maven-plugin</artifactId>
-            <version>1.0.0-alpha-4</version>
+            <version>1.0.0-alpha-6</version>
             <extensions>true</extensions>
             <configuration>
               <links>
