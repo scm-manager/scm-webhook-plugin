@@ -117,14 +117,14 @@ class WebHookConfigurationForm extends React.Component<Props, State> {
         </div>
         <div className="media-content">
           <InputField
-            name={"urlPattern"}
+            name="urlPattern"
             placeholder={t("scm-webhook-plugin.form.urlPattern")}
             value={urlPattern}
             onChange={this.handleChange}
             disabled={readOnly}
           />
           <Checkbox
-            name={"executeOnEveryCommit"}
+            name="executeOnEveryCommit"
             label={t("scm-webhook-plugin.form.executeOnEveryCommit")}
             checked={executeOnEveryCommit}
             onChange={this.handleChange}
@@ -132,7 +132,7 @@ class WebHookConfigurationForm extends React.Component<Props, State> {
             helpText={t("scm-webhook-plugin.form.executeOnEveryCommitHelp")}
           />
           <Checkbox
-            name={"sendCommitData"}
+            name="sendCommitData"
             label={t("scm-webhook-plugin.form.sendCommitData")}
             checked={sendCommitData}
             onChange={this.handleChange}
