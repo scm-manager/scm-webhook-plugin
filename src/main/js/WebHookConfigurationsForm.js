@@ -3,7 +3,7 @@ import React from "react";
 import { translate } from "react-i18next";
 import type { WebHookConfigurations } from "./WebHookConfiguration";
 import WebHookConfigurationForm from "./WebHookConfigurationForm";
-import Button from "@scm-manager/ui-components/src/buttons/Button";
+import { AddButton } from "@scm-manager/ui-components";
 
 type Props = {
   initialConfiguration: WebHookConfigurations,
@@ -26,7 +26,9 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
     let valid = true;
     webhooks.map(webHook => {
       valid =
-        valid && webHook.urlPattern.trim() != "" && webHook.method.trim() != "";
+        valid &&
+        webHook.urlPattern.trim() !== "" &&
+        webHook.method.trim() !== "";
     });
     return valid;
   }
@@ -73,7 +75,7 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
           );
         })}
         <article className="media">
-          <Button
+          <AddButton
             disabled={readOnly}
             label={t("scm-webhook-plugin.add")}
             action={() => {
