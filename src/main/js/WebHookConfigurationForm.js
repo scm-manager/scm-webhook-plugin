@@ -1,8 +1,7 @@
 //@flow
 import React from "react";
 import { translate } from "react-i18next";
-import injectSheet from "react-jss";
-import classNames from "classnames";
+import styled from "styled-components";
 import {
   confirmAlert,
   DropDown,
@@ -12,6 +11,14 @@ import {
 } from "@scm-manager/ui-components";
 import type { WebHookConfiguration } from "./WebHookConfiguration";
 
+const DeleteIcon = styled.a`
+  margin: 0.55rem 0 0 0.75rem;
+`;
+
+const DropDownWrapper = styled.div`
+  margin-right: 1.5rem;
+`;
+
 type Props = {
   webHook: WebHookConfiguration,
   readOnly: boolean,
@@ -19,20 +26,10 @@ type Props = {
   onDelete: WebHookConfiguration => void,
 
   // context prop
-  classes: any,
   t: string => string
 };
 
 type State = WebHookConfiguration;
-
-const styles = {
-  deleteIcon: {
-    margin: "0.55rem 0 0 0.75rem"
-  },
-  marginRight: {
-    marginRight: "1.5rem"
-  }
-};
 
 class WebHookConfigurationForm extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -96,25 +93,25 @@ class WebHookConfigurationForm extends React.Component<Props, State> {
   };
 
   render() {
-    const { readOnly, classes, t } = this.props;
+    const { readOnly, t } = this.props;
     const { urlPattern, executeOnEveryCommit, sendCommitData } = this.state;
     const deleteIcon = readOnly ? (
       ""
     ) : (
-      <a
-        className={classNames("level-item", classes.deleteIcon)}
+      <DeleteIcon
+        className="level-item"
         onClick={this.confirmDelete}
       >
         <span className="icon is-small">
           <i className="fas fa-trash" />
         </span>
-      </a>
+      </DeleteIcon>
     );
     return (
       <article className="media">
-        <div className={classNames("media-left", classes.marginRight)}>
+        <DropDownWrapper className="media-left">
           {this.renderHttpMethodDropDown()}
-        </div>
+        </DropDownWrapper>
         <div className="media-content">
           <InputField
             name="urlPattern"
@@ -142,7 +139,7 @@ class WebHookConfigurationForm extends React.Component<Props, State> {
         </div>
         <div>
           <Help
-            message={this.props.t("scm-webhook-plugin.form.urlPatternHelp")}
+            message={t("scm-webhook-plugin.form.urlPatternHelp")}
           />
         </div>
         <div className="media-right">{deleteIcon}</div>
@@ -151,6 +148,4 @@ class WebHookConfigurationForm extends React.Component<Props, State> {
   }
 }
 
-export default translate("plugins")(
-  injectSheet(styles)(WebHookConfigurationForm)
-);
+export default translate("plugins")(WebHookConfigurationForm);
