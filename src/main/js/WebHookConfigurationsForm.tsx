@@ -1,16 +1,13 @@
-//@flow
 import React from "react";
-import { translate } from "react-i18next";
-import type { WebHookConfigurations } from "./WebHookConfiguration";
+import { WithTranslation, withTranslation } from "react-i18next";
+import { WebHookConfigurations } from "./WebHookConfiguration";
 import WebHookConfigurationForm from "./WebHookConfigurationForm";
 import { AddButton } from "@scm-manager/ui-components";
 
-type Props = {
-  initialConfiguration: WebHookConfigurations,
-  readOnly: boolean,
-  onConfigurationChange: (WebHookConfigurations, boolean) => void,
-  // context prop
-  t: string => string
+type Props = WithTranslation & {
+  initialConfiguration: WebHookConfigurations;
+  readOnly: boolean;
+  onConfigurationChange: (p1: WebHookConfigurations, p2: boolean) => void;
 };
 
 type State = WebHookConfigurations & {};
@@ -18,30 +15,32 @@ type State = WebHookConfigurations & {};
 class WebHookConfigurationsForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { ...props.initialConfiguration };
+    this.state = {
+      ...props.initialConfiguration
+    };
   }
 
   isValid() {
     const { webhooks } = this.state;
     let valid = true;
     webhooks.map(webHook => {
-      valid =
-        valid &&
-        webHook.urlPattern.trim() !== "" &&
-        webHook.method.trim() !== "";
+      valid = valid && webHook.urlPattern.trim() !== "" && webHook.method.trim() !== "";
     });
     return valid;
   }
 
   updateWebHooks(webhooks) {
-    this.setState({ webhooks }, () =>
-      this.props.onConfigurationChange(this.state, this.isValid())
+    this.setState(
+      {
+        webhooks
+      },
+      () => this.props.onConfigurationChange(this.state, this.isValid())
     );
   }
 
   onDelete = deletedWebHook => {
     const { webhooks } = this.state;
-    let index = webhooks.indexOf(deletedWebHook);
+    const index = webhooks.indexOf(deletedWebHook);
     webhooks.splice(index, 1);
     this.updateWebHooks(webhooks);
   };
@@ -55,7 +54,7 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
   render() {
     const { webhooks } = this.state;
     const { t, readOnly } = this.props;
-    let defaultWebHook = {
+    const defaultWebHook = {
       urlPattern: "",
       executeOnEveryCommit: false,
       sendCommitData: false,
@@ -89,4 +88,4 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
   }
 }
 
-export default translate("plugins")(WebHookConfigurationsForm);
+export default withTranslation("plugins")(WebHookConfigurationsForm);

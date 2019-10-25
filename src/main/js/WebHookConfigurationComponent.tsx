@@ -1,23 +1,17 @@
-// @flow
 import React from "react";
 import { Configuration, Title, Subtitle } from "@scm-manager/ui-components";
-import { translate } from "react-i18next";
+import { WithTranslation, withTranslation } from "react-i18next";
 import WebHookConfigurationsForm from "./WebHookConfigurationsForm";
-import type { Repository } from "@scm-manager/ui-types";
+import { Repository } from "@scm-manager/ui-types";
 
-type Props = {
-  repository?: Repository,
-  title?: string,
-  subtitle?: string,
-  link: string,
-  t: string => string
+type Props = WithTranslation & {
+  repository?: Repository;
+  title?: string;
+  subtitle?: string;
+  link: string;
 };
 
 class WebHookConfigurationComponent extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-  }
-
   render() {
     const { t, link } = this.props;
     return (
@@ -26,10 +20,7 @@ class WebHookConfigurationComponent extends React.Component<Props> {
         {this.renderSubtitle()}
         <h2>{t("scm-webhook-plugin.helpText")}</h2>
         <br />
-        <Configuration
-          link={link}
-          render={props => <WebHookConfigurationsForm {...props} />}
-        />
+        <Configuration link={link} render={props => <WebHookConfigurationsForm {...props} />} />
       </>
     );
   }
@@ -49,4 +40,4 @@ class WebHookConfigurationComponent extends React.Component<Props> {
   };
 }
 
-export default translate("plugins")(WebHookConfigurationComponent);
+export default withTranslation("plugins")(WebHookConfigurationComponent);

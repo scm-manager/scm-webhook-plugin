@@ -1,15 +1,8 @@
-//@flow
 import React from "react";
-import { translate } from "react-i18next";
+import { WithTranslation, withTranslation } from "react-i18next";
 import styled from "styled-components";
-import {
-  confirmAlert,
-  DropDown,
-  Help,
-  InputField,
-  Checkbox
-} from "@scm-manager/ui-components";
-import type { WebHookConfiguration } from "./WebHookConfiguration";
+import { confirmAlert, DropDown, Help, InputField, Checkbox } from "@scm-manager/ui-components";
+import { WebHookConfiguration } from "./WebHookConfiguration";
 
 const DeleteIcon = styled.a`
   margin: 0.55rem 0 0 0.75rem;
@@ -19,14 +12,11 @@ const DropDownWrapper = styled.div`
   margin-right: 1.5rem;
 `;
 
-type Props = {
-  webHook: WebHookConfiguration,
-  readOnly: boolean,
-  onChange: WebHookConfiguration => void,
-  onDelete: WebHookConfiguration => void,
-
-  // context prop
-  t: string => string
+type Props = WithTranslation & {
+  webHook: WebHookConfiguration;
+  readOnly: boolean;
+  onChange: (p: WebHookConfiguration) => void;
+  onDelete: (p: WebHookConfiguration) => void;
 };
 
 type State = WebHookConfiguration;
@@ -70,7 +60,10 @@ class WebHookConfigurationForm extends React.Component<Props, State> {
   };
 
   handleDropDownChange = (selection: string) => {
-    this.setState({ ...this.state, method: selection });
+    this.setState({
+      ...this.state,
+      method: selection
+    });
     this.handleChange(selection, "method");
   };
 
@@ -98,10 +91,7 @@ class WebHookConfigurationForm extends React.Component<Props, State> {
     const deleteIcon = readOnly ? (
       ""
     ) : (
-      <DeleteIcon
-        className="level-item"
-        onClick={this.confirmDelete}
-      >
+      <DeleteIcon className="level-item" onClick={this.confirmDelete}>
         <span className="icon is-small">
           <i className="fas fa-trash" />
         </span>
@@ -109,9 +99,7 @@ class WebHookConfigurationForm extends React.Component<Props, State> {
     );
     return (
       <article className="media">
-        <DropDownWrapper className="media-left">
-          {this.renderHttpMethodDropDown()}
-        </DropDownWrapper>
+        <DropDownWrapper className="media-left">{this.renderHttpMethodDropDown()}</DropDownWrapper>
         <div className="media-content">
           <InputField
             name="urlPattern"
@@ -138,9 +126,7 @@ class WebHookConfigurationForm extends React.Component<Props, State> {
           />
         </div>
         <div>
-          <Help
-            message={t("scm-webhook-plugin.form.urlPatternHelp")}
-          />
+          <Help message={t("scm-webhook-plugin.form.urlPatternHelp")} />
         </div>
         <div className="media-right">{deleteIcon}</div>
       </article>
@@ -148,4 +134,4 @@ class WebHookConfigurationForm extends React.Component<Props, State> {
   }
 }
 
-export default translate("plugins")(WebHookConfigurationForm);
+export default withTranslation("plugins")(WebHookConfigurationForm);
