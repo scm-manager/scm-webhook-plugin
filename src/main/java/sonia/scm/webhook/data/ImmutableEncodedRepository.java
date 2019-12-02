@@ -133,17 +133,6 @@ public final class ImmutableEncodedRepository
     return repository.getType();
   }
 
-  /**
-   * Method description
-   *
-   *
-   * @return
-   */
-  public boolean isPublicReadable()
-  {
-    return repository.isPublicReadable();
-  }
-
   //~--- fields ---------------------------------------------------------------
 
   /** Field description */
