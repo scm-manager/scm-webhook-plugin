@@ -1,9 +1,9 @@
-/**
+/*
  * Copyright (c) 2014, Sebastian Sdorra All rights reserved.
- *
+ * <p>
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- *
+ * <p>
  * 1. Redistributions of source code must retain the above copyright notice,
  * this list of conditions and the following disclaimer. 2. Redistributions in
  * binary form must reproduce the above copyright notice, this list of
@@ -11,7 +11,7 @@
  * materials provided with the distribution. 3. Neither the name of SCM-Manager;
  * nor the names of its contributors may be used to endorse or promote products
  * derived from this software without specific prior written permission.
- *
+ * <p>
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -22,11 +22,9 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ * <p>
  * http://bitbucket.org/sdorra/scm-manager
- *
  */
-
 
 
 package sonia.scm.webhook.impl;
@@ -34,12 +32,10 @@ package sonia.scm.webhook.impl;
 //~--- non-JDK imports --------------------------------------------------------
 
 import com.google.common.base.Strings;
-import com.google.common.io.Closeables;
 import com.google.inject.Inject;
-
+import org.apache.shiro.codec.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import sonia.scm.SCMContextProvider;
 import sonia.scm.config.ScmConfiguration;
 import sonia.scm.net.Proxies;
@@ -48,26 +44,22 @@ import sonia.scm.webhook.HttpMethod;
 import sonia.scm.webhook.WebHookHttpClient;
 import sonia.scm.webhook.WebHookMarshaller;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import com.sun.jersey.core.util.Base64;
-
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketAddress;
 import java.net.URL;
 
+//~--- JDK imports ------------------------------------------------------------
+
 /**
  *
  * @author Sebastian Sdorra
  */
-public class URLWebHookHttpClient implements WebHookHttpClient
-{
+public class URLWebHookHttpClient implements WebHookHttpClient {
 
   /** Field description */
   private static final String CREDENTIAL_SEPARATOR = ":";
@@ -116,8 +108,7 @@ public class URLWebHookHttpClient implements WebHookHttpClient
    */
   @Inject
   public URLWebHookHttpClient(SCMContextProvider context,
-    ScmConfiguration configuration, WebHookMarshaller marshaller)
-  {
+                              ScmConfiguration configuration, WebHookMarshaller marshaller) {
     this.context = context;
     this.configuration = configuration;
     this.marshaller = marshaller;
@@ -135,8 +126,7 @@ public class URLWebHookHttpClient implements WebHookHttpClient
    * @throws IOException
    */
   @Override
-  public void execute(HttpMethod method, String url) throws IOException
-  {
+  public void execute(HttpMethod method, String url) throws IOException {
     execute(method, url, null);
   }
 
@@ -152,20 +142,15 @@ public class URLWebHookHttpClient implements WebHookHttpClient
    */
   @Override
   public void execute(HttpMethod method, String url, Object data)
-    throws IOException
-  {
+    throws IOException {
     HttpURLConnection connection = connect(url);
 
     HttpMethod m = method;
 
-    if (m == HttpMethod.AUTO)
-    {
-      if (data != null)
-      {
+    if (m == HttpMethod.AUTO) {
+      if (data != null) {
         m = HttpMethod.POST;
-      }
-      else
-      {
+      } else {
         m = HttpMethod.GET;
       }
     }
@@ -173,27 +158,18 @@ public class URLWebHookHttpClient implements WebHookHttpClient
     logger.debug("using http method {} for webhook request", m);
     connection.setRequestMethod(m.name());
 
-    if (data != null)
-    {
+    if (data != null) {
       connection.setDoOutput(true);
       MediaType contentType = marshaller.getContentType();
       if (contentType != null) {
         connection.setRequestProperty(HEADER_CONTENT_TYPE, contentType.toString());
       }
 
-      OutputStreamWriter writer;
 
-      try
-      {
-        writer = new OutputStreamWriter(connection.getOutputStream());
+      try (OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())) {
         marshaller.marshall(writer, data);
       }
-      finally
-      {
-        Closeables.close(context, true);
-      }
     }
-
     handleRespone(url, connection);
   }
 
@@ -207,10 +183,8 @@ public class URLWebHookHttpClient implements WebHookHttpClient
    * @param password
    */
   private void appendBasicAuthHeader(HttpURLConnection connection,
-    String header, String username, String password)
-  {
-    if (Util.isNotEmpty(username) || Util.isNotEmpty(password))
-    {
+                                     String header, String username, String password) {
+    if (Util.isNotEmpty(username) || Util.isNotEmpty(password)) {
       username = Util.nonNull(username);
       password = Util.nonNull(password);
 
@@ -228,24 +202,19 @@ public class URLWebHookHttpClient implements WebHookHttpClient
    * Method description
    *
    *
-   * @param url
-   *
    * @param urlString
    *
    * @return
    *
    * @throws IOException
    */
-  private HttpURLConnection connect(String urlString) throws IOException
-  {
+  private HttpURLConnection connect(String urlString) throws IOException {
     URL url = new URL(urlString);
     HttpURLConnection connection;
 
-    if (Proxies.isEnabled(configuration, url))
-    {
-      if (logger.isDebugEnabled())
-      {
-        logger.debug("open url connection using proxy {}:{}",
+    if (Proxies.isEnabled(configuration, url)) {
+      if (logger.isDebugEnabled()) {
+        logger.debug("open url {} connection using proxy {}:{}",
           url.toExternalForm(), configuration.getProxyServer(),
           configuration.getProxyPort());
       }
@@ -257,25 +226,19 @@ public class URLWebHookHttpClient implements WebHookHttpClient
       connection =
         (HttpURLConnection) url.openConnection(new Proxy(Proxy.Type.HTTP,
           address));
-    }
-    else
-    {
+    } else {
       connection = (HttpURLConnection) url.openConnection();
     }
 
     String userInfo = url.getUserInfo();
 
-    if (!Strings.isNullOrEmpty(userInfo))
-    {
+    if (!Strings.isNullOrEmpty(userInfo)) {
       String[] authParts = userInfo.split(CREDENTIAL_SEPARATOR);
 
-      if (authParts.length == 2)
-      {
+      if (authParts.length == 2) {
         appendBasicAuthHeader(connection, HEADER_AUTHORIZATION, authParts[0],
           authParts[1]);
-      }
-      else
-      {
+      } else {
         logger.warn("user info url part is malformed");
       }
     }
@@ -304,17 +267,13 @@ public class URLWebHookHttpClient implements WebHookHttpClient
    * @throws IOException
    */
   private void handleRespone(String url, HttpURLConnection connection)
-    throws IOException
-  {
+    throws IOException {
     int statusCode = connection.getResponseCode();
 
-    if ((statusCode >= 200) && (statusCode < 300))
-    {
+    if ((statusCode >= 200) && (statusCode < 300)) {
       logger.info("webhook {} ended successfully with status code {}", url,
         statusCode);
-    }
-    else if (logger.isWarnEnabled())
-    {
+    } else if (logger.isWarnEnabled()) {
       logger.warn("webhook {} failed with statusCode {}", url, statusCode);
     }
   }

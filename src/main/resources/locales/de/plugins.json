@@ -1,0 +1,50 @@
+{
+  "scm-webhook-plugin": {
+    "add": "Web Hook hinzufügen",
+    "nav-link": "Web Hooks",
+    "form" : {
+      "header" : "Web Hooks",
+      "urlPattern": "URL",
+      "urlPatternHelp": "Die URL Muster Spalte gibt die URL der remote Webseite an. Es können Muster wie ${repository.name} benutzt werden.",
+      "executeOnEveryCommit": "Bei jedem Commit ausführen",
+      "executeOnEveryCommitHelp": "Wenn die \"Bei jedem Commit ausführen\" Checkbox ausgewählt ist, wird die URL bei jedem Commit aus dem Push getriggert. Wenn die Checkbox nicht ausgewählt ist, wird die URL nur ein Mal durch den Push getriggert.",
+      "sendCommitData": "Commit Daten senden",
+      "sendCommitDataHelp": "Wenn die \"Commit Daten senden\" Checkbox ausgewählt ist, werden die Commit Daten als json Body mit dem Request gesendet.",
+      "method": "Http Methode",
+      "methodHelp": "Wenn die http Methode AUTO ausgewählt ist, benutzt das Plugin einen GET Request. Nur wenn \"Commit Daten senden\" ausgewählt ist benutzt das Plugin POST."
+    },
+    "confirm-delete": {
+      "title": "Web Hook löschen",
+      "message": "Soll der Web Hook wirklich gelöscht werden?",
+      "submit": "Ja (nicht das Speichern vergessen)",
+      "cancel": "Nein"
+    },
+    "helpText" : "Web Hooks für das Repository hinzufügen und entfernen."
+  },
+  "permissions": {
+    "configuration": {
+      "read,write": {
+        "webhook": {
+          "displayName": "Globale Web Hooks ändern",
+          "description": "Darf globale Web Hooks erstellen und verändern"
+        }
+      }
+    },
+    "repository": {
+      "webhook": {
+        "*": {
+          "displayName": "Repository-spezifische Web Hooks ändern",
+          "description": "Darf repository-spezifische Web Hooks erstellen und verändern"
+        }
+      }
+    }
+  },
+  "verbs": {
+    "repository": {
+      "webhook": {
+        "displayName": "Web Hooks ändern",
+        "description": "Darf Web Hooks für dieses Repository erstellen und verändern"
+      }
+    }
+  }
+}

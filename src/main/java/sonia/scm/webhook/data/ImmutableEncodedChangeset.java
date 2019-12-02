@@ -118,17 +118,6 @@ public final class ImmutableEncodedChangeset
    *
    * @return
    */
-  public ImmutableEncodedModifications getModifications()
-  {
-    return new ImmutableEncodedModifications(changeset.getModifications());
-  }
-
-  /**
-   * Method description
-   *
-   *
-   * @return
-   */
   public EncodedStringList getParents()
   {
     return new EncodedStringList(changeset.getParents());

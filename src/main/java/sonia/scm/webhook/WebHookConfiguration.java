@@ -1,19 +1,19 @@
 /**
  * Copyright (c) 2010, Sebastian Sdorra
  * All rights reserved.
- *
+ * <p>
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- *
+ * <p>
  * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
+ * this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
  * 3. Neither the name of SCM-Manager; nor the names of its
- *    contributors may be used to endorse or promote products derived from this
- *    software without specific prior written permission.
- *
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
+ * <p>
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -24,103 +24,47 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ * <p>
  * http://bitbucket.org/sdorra/scm-manager
- *
  */
-
 
 
 package sonia.scm.webhook;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sonia.scm.PropertiesAware;
-import sonia.scm.util.Util;
-
-//~--- JDK imports ------------------------------------------------------------
-
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.HashSet;
+import java.util.Set;
+
+//~--- JDK imports ------------------------------------------------------------
 
 /**
- *
  * @author Sebastian Sdorra
  */
 @XmlRootElement(name = "webhooks")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class WebHookConfiguration implements Iterable<WebHook>
-{
+@EqualsAndHashCode
+@Getter
+@NoArgsConstructor
+public class WebHookConfiguration {
 
-  /** Field description */
-  public static final String PROPERTY_WEBHOOKS = "webhooks";
+  @XmlElement(name = "webhook")
+  private final Set<WebHook> webhooks = new HashSet<>();
 
-  //~--- constructors ---------------------------------------------------------
-
-  /**
-   * Constructs ...
-   *
-   */
-  public WebHookConfiguration() {}
-
-  /**
-   * Constructs ...
-   *
-   *
-   * @param properies
-   */
-  public WebHookConfiguration(PropertiesAware properies)
-  {
-    String webHookString = properies.getProperty(PROPERTY_WEBHOOKS);
-
-    if (Util.isNotEmpty(webHookString))
-    {
-      parseWebHookProperty(webHookString);
-    }
-  }
-
-  /**
-   * Constructs ...
-   *
-   *
-   * @param webhooks
-   */
-  public WebHookConfiguration(Set<WebHook> webhooks)
-  {
+  public WebHookConfiguration(Set<WebHook> webhooks) {
     this.webhooks.addAll(webhooks);
   }
 
-  //~--- methods --------------------------------------------------------------
-
-  /**
-   * Method description
-   *
-   *
-   * @return
-   */
-  @Override
-  public Iterator<WebHook> iterator()
-  {
-    return webhooks.iterator();
-  }
-
-  /**
-   * Method description
-   *
-   *
-   * @param otherConfiguration
-   *
-   * @return
-   */
-  public WebHookConfiguration merge(WebHookConfiguration otherConfiguration)
-  {
-    Set<WebHook> allHooks = new HashSet<WebHook>();
+  public WebHookConfiguration merge(WebHookConfiguration otherConfiguration) {
+    Set<WebHook> allHooks = new HashSet<>();
 
     allHooks.addAll(webhooks);
     allHooks.addAll(otherConfiguration.webhooks);
@@ -128,77 +72,8 @@ public class WebHookConfiguration implements Iterable<WebHook>
     return new WebHookConfiguration(allHooks);
   }
 
-  //~--- get methods ----------------------------------------------------------
-
-  /**
-   * Method description
-   *
-   *
-   * @return
-   */
-  public boolean isWebHookAvailable()
-  {
+  public boolean isWebHookAvailable() {
     return !webhooks.isEmpty();
   }
 
-  //~--- methods --------------------------------------------------------------
-
-  /**
-   * Method description
-   *
-   *
-   * @param webHookConfig
-   */
-  private void parseWebHookConfig(String webHookConfig)
-  {
-    String[] configParts = webHookConfig.split(";");
-
-    if (configParts.length > 0)
-    {
-      String urlPattern = configParts[0];
-      boolean executeOnEveryCommit = false;
-      boolean sendCommitData = false;
-      HttpMethod method = HttpMethod.AUTO;
-
-      if (configParts.length > 1)
-      {
-        executeOnEveryCommit = Boolean.parseBoolean(configParts[1]);
-
-        if (configParts.length > 2)
-        {
-          sendCommitData = Boolean.parseBoolean(configParts[2]);
-
-          if (configParts.length > 3)
-          {
-            method = HttpMethod.valueOf(configParts[3]);
-          }
-        }
-      }
-
-      webhooks.add(new WebHook(urlPattern, executeOnEveryCommit,
-        sendCommitData, method));
-    }
-  }
-
-  /**
-   * Method description
-   *
-   *
-   * @param webHookString
-   */
-  private void parseWebHookProperty(String webHookString)
-  {
-    String[] webHookConfigs = webHookString.split("\\|");
-
-    for (String webHookConfig : webHookConfigs)
-    {
-      parseWebHookConfig(webHookConfig);
-    }
-  }
-
-  //~--- fields ---------------------------------------------------------------
-
-  /** Field description */
-  @XmlElement(name = "webhook")
-  private final Set<WebHook> webhooks = new HashSet<WebHook>();
 }

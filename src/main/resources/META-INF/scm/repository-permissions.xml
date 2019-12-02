@@ -1,0 +1,5 @@
+<repository-permissions>
+  <verbs>
+    <verb>webhook</verb>
+  </verbs>
+</repository-permissions>
