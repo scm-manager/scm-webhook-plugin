@@ -6,8 +6,6 @@ import org.apache.shiro.subject.Subject;
 import org.apache.shiro.subject.support.SubjectThreadState;
 import org.apache.shiro.util.ThreadContext;
 import org.apache.shiro.util.ThreadState;
-import org.jboss.resteasy.core.Dispatcher;
-import org.jboss.resteasy.mock.MockDispatcherFactory;
 import org.jboss.resteasy.mock.MockHttpRequest;
 import org.jboss.resteasy.mock.MockHttpResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +18,7 @@ import org.mockito.quality.Strictness;
 import sonia.scm.repository.NamespaceAndName;
 import sonia.scm.repository.Repository;
 import sonia.scm.repository.RepositoryManager;
+import sonia.scm.web.RestDispatcher;
 import sonia.scm.webhook.HttpMethod;
 import sonia.scm.webhook.WebHook;
 import sonia.scm.webhook.WebHookConfiguration;
@@ -54,7 +53,7 @@ class WebHookResourceTest {
   WebHookMapper webHookMapper = new WebHookMapperImpl();
 
   WebHookResource resource;
-  private Dispatcher dispatcher;
+  private RestDispatcher dispatcher;
   private final MockHttpResponse response = new MockHttpResponse();
   public static final String WEB_HOOKS = "{\n" +
     "    \"webhooks\": [\n" +
@@ -79,8 +78,8 @@ class WebHookResourceTest {
     ThreadContext.bind(subject);
     resource = new WebHookResource(context, webHookMapper, repositoryManager);
     when(repositoryManager.get(new NamespaceAndName("space", "name"))).thenReturn(new Repository("id", "git", "space", "name"));
-    dispatcher = MockDispatcherFactory.createDispatcher();
-    dispatcher.getRegistry().addSingletonResource(resource);
+    dispatcher = new RestDispatcher();
+    dispatcher.addSingletonResource(resource);
   }
 
 
