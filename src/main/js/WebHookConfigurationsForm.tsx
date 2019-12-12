@@ -2,7 +2,7 @@ import React from "react";
 import { WithTranslation, withTranslation } from "react-i18next";
 import { WebHookConfigurations } from "./WebHookConfiguration";
 import WebHookConfigurationForm from "./WebHookConfigurationForm";
-import { AddButton } from "@scm-manager/ui-components";
+import { Level, AddButton } from "@scm-manager/ui-components";
 
 type Props = WithTranslation & {
   initialConfiguration: WebHookConfigurations;
@@ -73,16 +73,15 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
             />
           );
         })}
-        <article className="media">
-          <AddButton
+        <Level right={<AddButton
             disabled={readOnly}
             label={t("scm-webhook-plugin.add")}
             action={() => {
               webhooks.push(defaultWebHook);
               this.updateWebHooks(webhooks);
             }}
-          />
-        </article>
+          />}
+        />
       </>
     );
   }
