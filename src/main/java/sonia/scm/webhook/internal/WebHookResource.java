@@ -26,16 +26,20 @@
  * http://bitbucket.org/sdorra/scm-manager
  */
 
-
 package sonia.scm.webhook.internal;
 
-
 import com.google.inject.Inject;
-import com.webcohesion.enunciate.metadata.rs.ResponseCode;
-import com.webcohesion.enunciate.metadata.rs.StatusCodes;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import sonia.scm.api.v2.resources.ErrorDto;
 import sonia.scm.repository.NamespaceAndName;
 import sonia.scm.repository.Repository;
 import sonia.scm.repository.RepositoryManager;
+import sonia.scm.web.VndMediaType;
 import sonia.scm.webhook.WebHookContext;
 
 import javax.ws.rs.Consumes;
@@ -52,6 +56,9 @@ import javax.ws.rs.core.UriInfo;
 /**
  * @author Sebastian Sdorra
  */
+@OpenAPIDefinition(tags = {
+  @Tag(name = "Webhook Plugin", description = "Webhook plugin provided endpoints")
+})
 @Path(WebHookResource.PATH)
 public class WebHookResource {
 
@@ -70,12 +77,25 @@ public class WebHookResource {
   @GET
   @Path("")
   @Produces(MediaType.APPLICATION_JSON)
-  @StatusCodes({
-    @ResponseCode(code = 200, condition = "success"),
-    @ResponseCode(code = 401, condition = "not authenticated / invalid credentials"),
-    @ResponseCode(code = 403, condition = "not authorized, the current user does not have the \"configuration:read:webhook\" privilege"),
-    @ResponseCode(code = 500, condition = "internal server error")
-  })
+  @Operation(summary = "Get global webhook configuration", description = "Returns the global webhook configuration.", tags = "Webhook Plugin")
+  @ApiResponse(
+    responseCode = "200",
+    description = "success",
+    content = @Content(
+      mediaType = MediaType.APPLICATION_JSON,
+      schema = @Schema(implementation = WebHookConfigurationDto.class)
+    )
+  )
+  @ApiResponse(responseCode = "401", description = "not authenticated / invalid credentials")
+  @ApiResponse(responseCode = "403", description = "not authorized, the current user does not have the \"configuration:read:webhook\" privilege")
+  @ApiResponse(
+    responseCode = "500",
+    description = "internal server error",
+    content = @Content(
+      mediaType = VndMediaType.ERROR_TYPE,
+      schema = @Schema(implementation = ErrorDto.class)
+    )
+  )
   public WebHookConfigurationDto getConfiguration(@Context UriInfo uriInfo) {
     WebHookContext.checkReadPermission();
     return webHookMapper.using(uriInfo).map(context.getGlobalConfiguration());
@@ -84,12 +104,18 @@ public class WebHookResource {
   @POST
   @Path("")
   @Consumes(MediaType.APPLICATION_JSON)
-  @StatusCodes({
-    @ResponseCode(code = 204, condition = "no content"),
-    @ResponseCode(code = 401, condition = "not authenticated / invalid credentials"),
-    @ResponseCode(code = 403, condition = "not authorized, the current user does not have the \"configuration:read:webhook\" privilege"),
-    @ResponseCode(code = 500, condition = "internal server error")
-  })
+  @Operation(summary = "Set global webhook configuration", description = "Sets the global webhook configuration.", tags = "Webhook Plugin")
+  @ApiResponse(responseCode = "204", description = "no content")
+  @ApiResponse(responseCode = "401", description = "not authenticated / invalid credentials")
+  @ApiResponse(responseCode = "403", description = "not authorized, the current user does not have the \"configuration:read:webhook\" privilege")
+  @ApiResponse(
+    responseCode = "500",
+    description = "internal server error",
+    content = @Content(
+      mediaType = VndMediaType.ERROR_TYPE,
+      schema = @Schema(implementation = ErrorDto.class)
+    )
+  )
   public void setConfiguration(@Context UriInfo uriInfo, WebHookConfigurationDto configuration) {
     setConfigurations(uriInfo, configuration);
   }
@@ -97,12 +123,18 @@ public class WebHookResource {
   @PUT
   @Path("")
   @Consumes(MediaType.APPLICATION_JSON)
-  @StatusCodes({
-    @ResponseCode(code = 204, condition = "update success"),
-    @ResponseCode(code = 401, condition = "not authenticated / invalid credentials"),
-    @ResponseCode(code = 403, condition = "not authorized, the current user does not have the \"configuration:write:webhook\" privilege"),
-    @ResponseCode(code = 500, condition = "internal server error")
-  })
+  @Operation(summary = "Update global webhook configuration", description = "Modifies the global webhook configuration.", tags = "Webhook Plugin")
+  @ApiResponse(responseCode = "204", description = "update success")
+  @ApiResponse(responseCode = "401", description = "not authenticated / invalid credentials")
+  @ApiResponse(responseCode = "403", description = "not authorized, the current user does not have the \"configuration:write:webhook\" privilege")
+  @ApiResponse(
+    responseCode = "500",
+    description = "internal server error",
+    content = @Content(
+      mediaType = VndMediaType.ERROR_TYPE,
+      schema = @Schema(implementation = ErrorDto.class)
+    )
+  )
   public void updateConfiguration(@Context UriInfo uriInfo, WebHookConfigurationDto configuration) {
     setConfigurations(uriInfo, configuration);
   }
@@ -110,12 +142,32 @@ public class WebHookResource {
   @GET
   @Path("/{namespace}/{name}")
   @Produces(MediaType.APPLICATION_JSON)
-  @StatusCodes({
-    @ResponseCode(code = 200, condition = "success"),
-    @ResponseCode(code = 401, condition = "not authenticated / invalid credentials"),
-    @ResponseCode(code = 403, condition = "not authorized, the current user does not have the \"configuration:read:webhook\" privilege"),
-    @ResponseCode(code = 500, condition = "internal server error")
-  })
+  @Operation(summary = "Get webhook repository configuration", description = "Returns the repository specific webhook configuration.", tags = "Webhook Plugin")
+  @ApiResponse(
+    responseCode = "200",
+    description = "success",
+    content = @Content(
+      mediaType = MediaType.APPLICATION_JSON,
+      schema = @Schema(implementation = WebHookConfigurationDto.class)
+    )
+  )
+  @ApiResponse(responseCode = "401", description = "not authenticated / invalid credentials")
+  @ApiResponse(responseCode = "403", description = "not authorized, the current user does not have the \"configuration:read:webhook\" privilege")
+  @ApiResponse(
+    responseCode = "404",
+    description = "not found, no repository with the specified namespace and name available",
+    content = @Content(
+      mediaType = VndMediaType.ERROR_TYPE,
+      schema = @Schema(implementation = ErrorDto.class)
+    ))
+  @ApiResponse(
+    responseCode = "500",
+    description = "internal server error",
+    content = @Content(
+      mediaType = VndMediaType.ERROR_TYPE,
+      schema = @Schema(implementation = ErrorDto.class)
+    )
+  )
   public WebHookConfigurationDto getRepositoryConfiguration(@Context UriInfo uriInfo, @PathParam("namespace") String namespace, @PathParam("name") String name) {
     Repository repository = repositoryManager.get(new NamespaceAndName(namespace, name));
     WebHookContext.checkReadPermission(repository);
@@ -128,12 +180,25 @@ public class WebHookResource {
   @POST
   @Path("/{namespace}/{name}")
   @Consumes(MediaType.APPLICATION_JSON)
-  @StatusCodes({
-    @ResponseCode(code = 204, condition = "no content"),
-    @ResponseCode(code = 401, condition = "not authenticated / invalid credentials"),
-    @ResponseCode(code = 403, condition = "not authorized, the current user does not have the \"configuration:read:webhook\" privilege"),
-    @ResponseCode(code = 500, condition = "internal server error")
-  })
+  @Operation(summary = "Set webhook repository configuration", description = "Sets the repository specific webhook configuration.", tags = "Webhook Plugin")
+  @ApiResponse(responseCode = "204", description = "update success")
+  @ApiResponse(responseCode = "401", description = "not authenticated / invalid credentials")
+  @ApiResponse(responseCode = "403", description = "not authorized, the current user does not have the \"configuration:read:webhook\" privilege")
+  @ApiResponse(
+    responseCode = "404",
+    description = "not found, no repository with the specified namespace and name available",
+    content = @Content(
+      mediaType = VndMediaType.ERROR_TYPE,
+      schema = @Schema(implementation = ErrorDto.class)
+    ))
+  @ApiResponse(
+    responseCode = "500",
+    description = "internal server error",
+    content = @Content(
+      mediaType = VndMediaType.ERROR_TYPE,
+      schema = @Schema(implementation = ErrorDto.class)
+    )
+  )
   public void setRepositoryConfiguration(@Context UriInfo uriInfo, @PathParam("namespace") String namespace, @PathParam("name") String name, WebHookConfigurationDto configuration) {
     setRepositoryConfigurations(uriInfo, configuration, namespace, name);
   }
@@ -141,12 +206,25 @@ public class WebHookResource {
   @PUT
   @Path("/{namespace}/{name}")
   @Consumes(MediaType.APPLICATION_JSON)
-  @StatusCodes({
-    @ResponseCode(code = 204, condition = "update success"),
-    @ResponseCode(code = 401, condition = "not authenticated / invalid credentials"),
-    @ResponseCode(code = 403, condition = "not authorized, the current user does not have the \"configuration:write:webhook\" privilege"),
-    @ResponseCode(code = 500, condition = "internal server error")
-  })
+  @Operation(summary = "Update webhook repository configuration", description = "Modifies the repository specific webhook configuration.", tags = "Webhook Plugin")
+  @ApiResponse(responseCode = "204", description = "update success")
+  @ApiResponse(responseCode = "401", description = "not authenticated / invalid credentials")
+  @ApiResponse(responseCode = "403", description = "not authorized, the current user does not have the \"configuration:write:webhook\" privilege")
+  @ApiResponse(
+    responseCode = "404",
+    description = "not found, no repository with the specified namespace and name available",
+    content = @Content(
+      mediaType = VndMediaType.ERROR_TYPE,
+      schema = @Schema(implementation = ErrorDto.class)
+    ))
+  @ApiResponse(
+    responseCode = "500",
+    description = "internal server error",
+    content = @Content(
+      mediaType = VndMediaType.ERROR_TYPE,
+      schema = @Schema(implementation = ErrorDto.class)
+    )
+  )
   public void updateRepositoryConfiguration(@Context UriInfo uriInfo, @PathParam("namespace") String namespace, @PathParam("name") String name, WebHookConfigurationDto configuration) {
     setRepositoryConfigurations(uriInfo, configuration, namespace, name);
   }
