@@ -77,7 +77,12 @@ public class WebHookResource {
   @GET
   @Path("")
   @Produces(MediaType.APPLICATION_JSON)
-  @Operation(summary = "Get global webhook configuration", description = "Returns the global webhook configuration.", tags = "Webhook Plugin")
+  @Operation(
+    summary = "Get global webhook configuration",
+    description = "Returns the global webhook configuration.",
+    tags = "Webhook Plugin",
+    operationId = "webhook_get_global_config"
+  )
   @ApiResponse(
     responseCode = "200",
     description = "success",
@@ -104,7 +109,12 @@ public class WebHookResource {
   @POST
   @Path("")
   @Consumes(MediaType.APPLICATION_JSON)
-  @Operation(summary = "Set global webhook configuration", description = "Sets the global webhook configuration.", tags = "Webhook Plugin")
+  @Operation(
+    summary = "Set global webhook configuration",
+    description = "Sets the global webhook configuration.",
+    tags = "Webhook Plugin",
+    operationId = "webhook_set_global_config"
+  )
   @ApiResponse(responseCode = "204", description = "no content")
   @ApiResponse(responseCode = "401", description = "not authenticated / invalid credentials")
   @ApiResponse(responseCode = "403", description = "not authorized, the current user does not have the \"configuration:read:webhook\" privilege")
@@ -123,7 +133,12 @@ public class WebHookResource {
   @PUT
   @Path("")
   @Consumes(MediaType.APPLICATION_JSON)
-  @Operation(summary = "Update global webhook configuration", description = "Modifies the global webhook configuration.", tags = "Webhook Plugin")
+  @Operation(
+    summary = "Update global webhook configuration",
+    description = "Modifies the global webhook configuration.",
+    tags = "Webhook Plugin",
+    operationId = "webhook_update_global_config"
+  )
   @ApiResponse(responseCode = "204", description = "update success")
   @ApiResponse(responseCode = "401", description = "not authenticated / invalid credentials")
   @ApiResponse(responseCode = "403", description = "not authorized, the current user does not have the \"configuration:write:webhook\" privilege")
@@ -142,7 +157,13 @@ public class WebHookResource {
   @GET
   @Path("/{namespace}/{name}")
   @Produces(MediaType.APPLICATION_JSON)
-  @Operation(summary = "Get webhook repository configuration", description = "Returns the repository specific webhook configuration.", tags = "Webhook Plugin")
+  @Operation(
+    summary = "Get webhook repository configuration",
+    description = "Returns the repository specific webhook configuration.",
+    tags = "Webhook Plugin",
+    operationId = "webhook_get_repo_config"
+
+  )
   @ApiResponse(
     responseCode = "200",
     description = "success",
@@ -180,7 +201,12 @@ public class WebHookResource {
   @POST
   @Path("/{namespace}/{name}")
   @Consumes(MediaType.APPLICATION_JSON)
-  @Operation(summary = "Set webhook repository configuration", description = "Sets the repository specific webhook configuration.", tags = "Webhook Plugin")
+  @Operation(
+    summary = "Set webhook repository configuration",
+    description = "Sets the repository specific webhook configuration.",
+    tags = "Webhook Plugin",
+    operationId = "webhook_set_repo_config"
+  )
   @ApiResponse(responseCode = "204", description = "update success")
   @ApiResponse(responseCode = "401", description = "not authenticated / invalid credentials")
   @ApiResponse(responseCode = "403", description = "not authorized, the current user does not have the \"configuration:read:webhook\" privilege")
@@ -206,7 +232,12 @@ public class WebHookResource {
   @PUT
   @Path("/{namespace}/{name}")
   @Consumes(MediaType.APPLICATION_JSON)
-  @Operation(summary = "Update webhook repository configuration", description = "Modifies the repository specific webhook configuration.", tags = "Webhook Plugin")
+  @Operation(
+    summary = "Update webhook repository configuration",
+    description = "Modifies the repository specific webhook configuration.",
+    tags = "Webhook Plugin",
+    operationId = "webhook_update_repo_config"
+  )
   @ApiResponse(responseCode = "204", description = "update success")
   @ApiResponse(responseCode = "401", description = "not authenticated / invalid credentials")
   @ApiResponse(responseCode = "403", description = "not authorized, the current user does not have the \"configuration:write:webhook\" privilege")
