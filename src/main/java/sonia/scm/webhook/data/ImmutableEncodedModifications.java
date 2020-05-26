@@ -26,7 +26,12 @@ package sonia.scm.webhook.data;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import sonia.scm.repository.Added;
 import sonia.scm.repository.Modifications;
+import sonia.scm.repository.Modified;
+import sonia.scm.repository.Removed;
+
+import java.util.stream.Collectors;
 
 /**
  *
@@ -76,7 +81,8 @@ public final class ImmutableEncodedModifications
    */
   public EncodedStringList getAdded()
   {
-    return new EncodedStringList(modifications.getAdded());
+    return new EncodedStringList(modifications.getAdded().stream().map(Added::getPath).collect(Collectors.toList()));
+    
   }
 
   /**
@@ -87,7 +93,7 @@ public final class ImmutableEncodedModifications
    */
   public EncodedStringList getModified()
   {
-    return new EncodedStringList(modifications.getModified());
+    return new EncodedStringList(modifications.getModified().stream().map(Modified::getPath).collect(Collectors.toList()));
   }
 
   /**
@@ -98,7 +104,7 @@ public final class ImmutableEncodedModifications
    */
   public EncodedStringList getRemoved()
   {
-    return new EncodedStringList(modifications.getRemoved());
+    return new EncodedStringList(modifications.getRemoved().stream().map(Removed::getPath).collect(Collectors.toList()));
   }
 
   //~--- fields ---------------------------------------------------------------
