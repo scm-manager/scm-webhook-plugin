@@ -23,8 +23,6 @@
  */
 package sonia.scm.webhook;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import com.github.legman.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -37,28 +35,19 @@ import sonia.scm.repository.PostReceiveRepositoryHookEvent;
 import sonia.scm.repository.Repository;
 import sonia.scm.repository.api.HookContext;
 import sonia.scm.repository.api.HookFeature;
-import sonia.scm.webhook.impl.JexlUrlParser;
+import sonia.scm.util.JexlUrlParser;
 
-//~--- JDK imports ------------------------------------------------------------
-
-/**
- * @author Sebastian Sdorra
- */
 @Extension
 @EagerSingleton
 public class RepositoryWebHook {
 
-  /**
-   * the logger for RepositoryWebHook
-   */
-  private static final Logger logger =
-    LoggerFactory.getLogger(RepositoryWebHook.class);
+  private static final Logger logger = LoggerFactory.getLogger(RepositoryWebHook.class);
 
   private final WebHookContext context;
 
   private final Provider<WebHookHttpClient> httpClientProvider;
 
-  private final UrlParser urlParser;
+  private final JexlUrlParser urlParser;
 
   @Inject
   public RepositoryWebHook(Provider<WebHookHttpClient> httpClientProvider,
@@ -108,14 +97,6 @@ public class RepositoryWebHook {
     return changesets;
   }
 
-
-  /**
-   * Method description
-   *
-   * @param configuration
-   * @param repository
-   * @param changesets
-   */
   private void executeWebHooks(WebHookConfiguration configuration,
                                Repository repository, Iterable<Changeset> changesets) {
     if (logger.isDebugEnabled()) {
@@ -127,5 +108,4 @@ public class RepositoryWebHook {
         repository, changesets).run();
     }
   }
-
 }

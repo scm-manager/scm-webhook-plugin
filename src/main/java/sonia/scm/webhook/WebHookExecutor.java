@@ -23,48 +23,31 @@
  */
 package sonia.scm.webhook;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sonia.scm.repository.Changeset;
 import sonia.scm.repository.Repository;
-import sonia.scm.webhook.data.ImmutableEncodedChangeset;
-import sonia.scm.webhook.data.ImmutableEncodedRepository;
+import sonia.scm.util.JexlUrlExpression;
+import sonia.scm.util.JexlUrlParser;
+import sonia.scm.web.data.ImmutableEncodedChangeset;
+import sonia.scm.web.data.ImmutableEncodedRepository;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-//~--- JDK imports ------------------------------------------------------------
-
-/**
- *
- * @author Sebastian Sdorra
- */
 public class WebHookExecutor implements Runnable {
 
-  /**
-   * the logger for WebHookExecutor
-   */
-  private static final Logger logger =
-    LoggerFactory.getLogger(WebHookExecutor.class);
+  private static final Logger logger = LoggerFactory.getLogger(WebHookExecutor.class);
 
-  //~--- constructors ---------------------------------------------------------
+  private final Iterable<Changeset> changesets;
+  private final JexlUrlExpression expression;
+  private final WebHookHttpClient httpClient;
+  private final Repository repository;
+  private final WebHook webHook;
 
-  /**
-   * Constructs ...
-   *
-   *
-   *
-   * @param httpClient
-   * @param urlParser
-   * @param webHook
-   * @param repository
-   * @param changesets
-   */
-  public WebHookExecutor(WebHookHttpClient httpClient, UrlParser urlParser,
+  public WebHookExecutor(WebHookHttpClient httpClient, JexlUrlParser urlParser,
                          WebHook webHook, Repository repository, Iterable<Changeset> changesets) {
     this.httpClient = httpClient;
     this.expression = urlParser.parse(webHook.getUrlPattern());
@@ -73,12 +56,6 @@ public class WebHookExecutor implements Runnable {
     this.changesets = changesets;
   }
 
-  //~--- methods --------------------------------------------------------------
-
-  /**
-   * Method description
-   *
-   */
   @Override
   public void run() {
     logger.debug("execute webhook: {}", webHook);
@@ -104,14 +81,6 @@ public class WebHookExecutor implements Runnable {
     }
   }
 
-  /**
-   * Method description
-   *
-   *
-   * @param repository
-   *
-   * @return
-   */
   private Map<String, Object> createBaseEnvironment(Repository repository) {
     Map<String, Object> env = new HashMap<>();
 
@@ -120,15 +89,6 @@ public class WebHookExecutor implements Runnable {
     return env;
   }
 
-  /**
-   * Method description
-   *
-   *
-   * @param repository
-   * @param changeset
-   *
-   * @return
-   */
   private String createUrl(Repository repository, Changeset changeset) {
     Map<String, Object> env = createBaseEnvironment(repository);
 
@@ -140,15 +100,6 @@ public class WebHookExecutor implements Runnable {
     return expression.evaluate(env);
   }
 
-  /**
-   * Method description
-   *
-   *
-   * @param repository
-   * @param changesets
-   *
-   * @return
-   */
   private String createUrl(Repository repository,
                            Iterable<Changeset> changesets) {
     Map<String, Object> env = createBaseEnvironment(repository);
@@ -166,13 +117,6 @@ public class WebHookExecutor implements Runnable {
     return expression.evaluate(env);
   }
 
-  /**
-   * Method description
-   *
-   *
-   * @param url
-   * @param data
-   */
   private void execute(HttpMethod method, String url, Object data) {
     if (logger.isInfoEnabled()) {
       logger.info("execute webhook for url {}", url);
@@ -184,21 +128,4 @@ public class WebHookExecutor implements Runnable {
       logger.error("error during webhook execution for ".concat(url), ex);
     }
   }
-
-  //~--- fields ---------------------------------------------------------------
-
-  /** Field description */
-  private final Iterable<Changeset> changesets;
-
-  /** Field description */
-  private final UrlExpression expression;
-
-  /** Field description */
-  private final WebHookHttpClient httpClient;
-
-  /** Field description */
-  private final Repository repository;
-
-  /** Field description */
-  private final WebHook webHook;
 }
