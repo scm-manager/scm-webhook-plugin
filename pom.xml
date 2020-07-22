@@ -50,12 +50,6 @@
       <version>1.0.0</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.codehaus.jackson</groupId>
-      <artifactId>jackson-mapper-asl</artifactId>
-      <version>1.9.2</version>
-    </dependency>
-
     <!-- test scope -->
 
     <dependency>
