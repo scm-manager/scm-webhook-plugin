@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Documentation in German ([#5](https://github.com/scm-manager/scm-webhook-plugin/pull/5))
 
+### Changed
+- Replaced `URLConnection` based http client with `AdvancedHttpClient` ([#9](https://github.com/scm-manager/scm-webhook-plugin/pull/9))
+
 ## [2.0.0] - 2020-06-04
 ### Changed
 - Changeover to MIT license ([#4](https://github.com/scm-manager/scm-webhook-plugin/pull/4))
