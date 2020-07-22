@@ -23,6 +23,7 @@
  */
 package sonia.scm.webhook;
 
+import com.cloudogu.scm.el.ElParser;
 import com.github.legman.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -35,7 +36,6 @@ import sonia.scm.repository.PostReceiveRepositoryHookEvent;
 import sonia.scm.repository.Repository;
 import sonia.scm.repository.api.HookContext;
 import sonia.scm.repository.api.HookFeature;
-import sonia.scm.util.JexlUrlParser;
 
 @Extension
 @EagerSingleton
@@ -44,16 +44,14 @@ public class RepositoryWebHook {
   private static final Logger logger = LoggerFactory.getLogger(RepositoryWebHook.class);
 
   private final WebHookContext context;
-
   private final Provider<WebHookHttpClient> httpClientProvider;
-
-  private final JexlUrlParser urlParser;
+  private final ElParser elParser;
 
   @Inject
   public RepositoryWebHook(Provider<WebHookHttpClient> httpClientProvider,
-                           WebHookContext context) {
+                           WebHookContext context, ElParser elParser) {
     this.httpClientProvider = httpClientProvider;
-    this.urlParser = new JexlUrlParser();
+    this.elParser = elParser;
     this.context = context;
   }
 
@@ -104,7 +102,7 @@ public class RepositoryWebHook {
     }
 
     for (WebHook webHook : configuration.getWebhooks()) {
-      new WebHookExecutor(httpClientProvider.get(), urlParser, webHook,
+      new WebHookExecutor(httpClientProvider.get(), elParser, webHook,
         repository, changesets).run();
     }
   }

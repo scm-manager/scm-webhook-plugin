@@ -23,14 +23,14 @@
  */
 package sonia.scm.webhook;
 
+import com.cloudogu.scm.el.ElParser;
+import com.cloudogu.scm.el.Expression;
+import com.cloudogu.scm.el.env.ImmutableEncodedChangeset;
+import com.cloudogu.scm.el.env.ImmutableEncodedRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sonia.scm.repository.Changeset;
 import sonia.scm.repository.Repository;
-import sonia.scm.util.JexlUrlExpression;
-import sonia.scm.util.JexlUrlParser;
-import sonia.scm.web.data.ImmutableEncodedChangeset;
-import sonia.scm.web.data.ImmutableEncodedRepository;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -42,15 +42,15 @@ public class WebHookExecutor implements Runnable {
   private static final Logger logger = LoggerFactory.getLogger(WebHookExecutor.class);
 
   private final Iterable<Changeset> changesets;
-  private final JexlUrlExpression expression;
+  private final Expression expression;
   private final WebHookHttpClient httpClient;
   private final Repository repository;
   private final WebHook webHook;
 
-  public WebHookExecutor(WebHookHttpClient httpClient, JexlUrlParser urlParser,
+  public WebHookExecutor(WebHookHttpClient httpClient, ElParser elParser,
                          WebHook webHook, Repository repository, Iterable<Changeset> changesets) {
     this.httpClient = httpClient;
-    this.expression = urlParser.parse(webHook.getUrlPattern());
+    this.expression = elParser.parse(webHook.getUrlPattern());
     this.webHook = webHook;
     this.repository = repository;
     this.changesets = changesets;
