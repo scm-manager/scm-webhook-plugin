@@ -107,6 +107,21 @@ class WebhooksV2ConfigMigrationUpdateStepTest {
   }
 
   @Test
+  void shouldMigrateRepositoryConfigIfWebhookMissesMethod() {
+    Map<String, String> mockedValues =
+      ImmutableMap.of(
+        "webhooks", "http://example.com/${repositoryName};true;true|"
+      );
+    testUtil.mockRepositoryProperties(new V1PropertyDaoTestUtil.PropertiesForRepository(REPO_NAME, mockedValues));
+
+    updateStep.doUpdate();
+
+    WebHook v2Webhook = new WebHook("http://example.com/${repositoryName}", true, true, HttpMethod.AUTO);
+
+    assertThat(configStore.get().getWebhooks().contains(v2Webhook)).isTrue();
+  }
+
+  @Test
   void shouldSkipRepositoriesWithoutWebhookConfig() {
     Map<String, String> mockedValues =
       ImmutableMap.of(
