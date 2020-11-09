@@ -62,7 +62,7 @@ public class AhcWebHookHttpClient implements WebHookHttpClient {
       }
     }
 
-    AdvancedHttpRequestWithBody request = client.method(m.name(), url);
+    AdvancedHttpRequestWithBody request = client.method(m.name(), url).spanKind("Webhook");
     if (data != null) {
       request.jsonContent(data);
     }

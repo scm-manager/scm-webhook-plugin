@@ -48,7 +48,7 @@ class AhcWebHookHttpClientTest {
 
   @Test
   void shouldUsePostMethodWithObject() throws IOException {
-    when(ahClient.method("POST", "https://scm-manager.org").request().getStatus()).thenReturn(200);
+    when(ahClient.method("POST", "https://scm-manager.org").spanKind("Webhook").request().getStatus()).thenReturn(200);
 
     client.execute(HttpMethod.AUTO, "https://scm-manager.org", "MyData");
 
@@ -58,7 +58,7 @@ class AhcWebHookHttpClientTest {
 
   @Test
   void shouldUseGetMethodWithoutObject() throws IOException {
-    when(ahClient.method("GET", "https://scm-manager.org").request().getStatus()).thenReturn(400);
+    when(ahClient.method("GET", "https://scm-manager.org").spanKind("Webhook").request().getStatus()).thenReturn(400);
 
     client.execute(HttpMethod.AUTO, "https://scm-manager.org");
 
@@ -69,7 +69,7 @@ class AhcWebHookHttpClientTest {
   void shouldUseGivenMethod() throws IOException {
     client.execute(HttpMethod.PUT, URL, "data");
 
-    verify(ahClient.method("PUT", URL)).jsonContent("data");
+    verify(ahClient.method("PUT", URL).spanKind("Webhook")).jsonContent("data");
   }
 
 }
