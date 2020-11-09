@@ -38,6 +38,8 @@ import sonia.scm.webhook.WebHook;
 import sonia.scm.webhook.WebHookConfiguration;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
 
@@ -91,6 +93,13 @@ public class WebhooksV2ConfigMigrationUpdateStep implements UpdateStep {
 
   private WebHook createWebHook(String webhook) {
     String[] splitProperties = webhook.split(";");
+
+    // Set HTTP method to AUTO if missing
+    if (splitProperties.length == 3) {
+      ArrayList<String> properties = new ArrayList<>(Arrays.asList(splitProperties));
+      properties.add("AUTO");
+      splitProperties = properties.toArray(splitProperties);
+    }
 
     return new WebHook(
       splitProperties[0],
