@@ -1,9 +1,9 @@
 {
   "scm-webhook-plugin": {
-    "add": "Web Hook hinzufügen",
-    "nav-link": "Web Hooks",
+    "add": "Webhook hinzufügen",
+    "nav-link": "Webhooks",
     "form" : {
-      "header" : "Web Hooks",
+      "header" : "Webhooks",
       "urlPattern": "URL",
       "urlPatternHelp": "Die URL Muster Spalte gibt die URL der remote Webseite an. Es können Muster wie ${repository.name} benutzt werden.",
       "executeOnEveryCommit": "Bei jedem Commit ausführen",
@@ -14,27 +14,27 @@
       "methodHelp": "Wenn die http Methode AUTO ausgewählt ist, benutzt das Plugin einen GET Request. Nur wenn \"Commit Daten senden\" ausgewählt ist benutzt das Plugin POST."
     },
     "confirm-delete": {
-      "title": "Web Hook löschen",
-      "message": "Soll der Web Hook wirklich gelöscht werden?",
+      "title": "Webhook löschen",
+      "message": "Soll der Webhook wirklich gelöscht werden?",
       "submit": "Ja (nicht das Speichern vergessen)",
       "cancel": "Nein"
     },
-    "helpText" : "Web Hooks für das Repository hinzufügen und entfernen."
+    "helpText" : "Webhooks für das Repository hinzufügen und entfernen."
   },
   "permissions": {
     "configuration": {
       "read,write": {
         "webhook": {
-          "displayName": "Globale Web Hooks ändern",
-          "description": "Darf globale Web Hooks erstellen und verändern"
+          "displayName": "Globale Webhooks ändern",
+          "description": "Darf globale Webhooks erstellen und verändern"
         }
       }
     },
     "repository": {
       "webhook": {
         "*": {
-          "displayName": "Repository-spezifische Web Hooks ändern",
-          "description": "Darf repository-spezifische Web Hooks erstellen und verändern"
+          "displayName": "Repository-spezifische Webhooks ändern",
+          "description": "Darf repository-spezifische Webhooks erstellen und verändern"
         }
       }
     }
@@ -42,8 +42,8 @@
   "verbs": {
     "repository": {
       "webhook": {
-        "displayName": "Web Hooks ändern",
-        "description": "Darf Web Hooks für dieses Repository erstellen und verändern"
+        "displayName": "Webhooks ändern",
+        "description": "Darf Webhooks für dieses Repository erstellen und verändern"
       }
     }
   }
