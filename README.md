@@ -11,7 +11,7 @@ The Webhook plugin notifies a remote webserver whenever a repository is pushed t
 
 ## Usage
 
-Find out how this plugin can be used on the [user documentation page](https://scm-manager.org/plugins/scm-xxx-plugin/docs).
+Find out how this plugin can be used on the [user documentation page](https://scm-manager.org/plugins/scm-webhook-plugin/docs).
 
 ## Build and testing
 
