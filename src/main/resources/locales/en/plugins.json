@@ -1,9 +1,9 @@
 {
   "scm-webhook-plugin": {
-    "add": "Add Web Hook",
-    "nav-link": "Web Hooks",
+    "add": "Add Webhook",
+    "nav-link": "Webhooks",
     "form" : {
-      "header" : "Web Hooks",
+      "header" : "Webhooks",
       "urlPattern": "URL",
       "urlPatternHelp": "The Url Pattern column specifies the url of the remote website. You can use patterns like ${repository.name} for the url.",
       "executeOnEveryCommit": "Execute on every commit",
@@ -14,27 +14,27 @@
       "methodHelp": "If the http method AUTO is chosen, the plugin will use a GET request, except when \"Send commit data\" is checked, then the plugin will use POST."
     },
     "confirm-delete": {
-      "title": "Delete Web Hook",
-      "message": "Do you really want to delete the Web Hook?",
+      "title": "Delete Webhook",
+      "message": "Do you really want to delete the Webhook?",
       "submit": "Yes (do not forget to submit)",
       "cancel": "No"
     },
-    "helpText" : "Add and remove Web Hooks for your repositories."
+    "helpText" : "Add and remove webhooks for your repositories."
   },
   "permissions": {
     "configuration": {
       "read,write": {
         "webhook": {
-          "displayName": "Modify global web hooks",
-          "description": "May create and modify global web hooks"
+          "displayName": "Modify global webhooks",
+          "description": "May create and modify global webhooks"
         }
       }
     },
     "repository": {
       "webhook": {
         "*": {
-          "displayName": "Modify repository specific web hooks",
-          "description": "May create and modify repository specific web hooks"
+          "displayName": "Modify repository specific webhooks",
+          "description": "May create and modify repository specific webhooks"
         }
       }
     }
@@ -42,8 +42,8 @@
   "verbs": {
     "repository": {
       "webhook": {
-        "displayName": "modify web hooks",
-        "description": "May create and modify web hooks for this repository"
+        "displayName": "modify webhooks",
+        "description": "May create and modify webhooks for this repository"
       }
     }
   }
