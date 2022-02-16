@@ -1,0 +1,2 @@
+- type: fixed
+  description: Improve accessibility by adding label to form element ([#35](https://github.com/scm-manager/scm-webhook-plugin/pull/35))
