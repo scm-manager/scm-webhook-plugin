@@ -2,8 +2,8 @@
   "scm-webhook-plugin": {
     "add": "Add Webhook",
     "nav-link": "Webhooks",
-    "form" : {
-      "header" : "Webhooks",
+    "form": {
+      "header": "Webhooks",
       "urlPattern": "URL",
       "urlPatternHelp": "The Url Pattern column specifies the url of the remote website. You can use patterns like ${repository.name} for the url.",
       "executeOnEveryCommit": "Execute on every commit",
@@ -11,7 +11,8 @@
       "sendCommitData": "Send commit data",
       "sendCommitDataHelp": "If the \"Send commit data\" checkbox is enabled, the plugin will send the commit data as json body with in the request.",
       "method": "Http Method",
-      "methodHelp": "If the http method AUTO is chosen, the plugin will use a GET request, except when \"Send commit data\" is checked, then the plugin will use POST."
+      "methodHelp": "If the http method AUTO is chosen, the plugin will use a GET request, except when \"Send commit data\" is checked, then the plugin will use POST.",
+      "delete": "Delete"
     },
     "confirm-delete": {
       "title": "Delete Webhook",
@@ -19,7 +20,7 @@
       "submit": "Yes (do not forget to submit)",
       "cancel": "No"
     },
-    "helpText" : "Add and remove webhooks for your repositories."
+    "helpText": "Add and remove webhooks for your repositories."
   },
   "permissions": {
     "configuration": {
