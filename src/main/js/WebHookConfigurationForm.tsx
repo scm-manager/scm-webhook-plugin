@@ -73,17 +73,15 @@ const WebHookConfigurationForm: FC<Props> = ({ webHook, readOnly, onChange, onDe
         />
       ) : null}
       <article className="media">
-        <div className="media-left mr-5">
-          <div className="field control">
-            <Select
-              name="method"
-              value={webHook.method}
-              onChange={handleChange}
-              options={options.map(v => ({ label: v, value: v }))}
-              disabled={readOnly}
-            />
-            <Help message={t("scm-webhook-plugin.form.methodHelp")} />
-          </div>
+        <div className="media-left mr-5 is-flex">
+          <Select
+            name="method"
+            value={webHook.method}
+            onChange={handleChange}
+            options={options.map(v => ({ label: v, value: v }))}
+            disabled={readOnly}
+          />
+          <Help message={t("scm-webhook-plugin.form.methodHelp")} />
         </div>
         <div className="media-content">
           <InputField
