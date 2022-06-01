@@ -101,6 +101,7 @@ class WebHookConfigurationForm extends React.Component<Props, State> {
           onClick: () => this.props.onDelete(this.state)
         },
         {
+          className: "is-info",
           label: t("scm-webhook-plugin.confirm-delete.cancel"),
           onClick: () => null
         }
