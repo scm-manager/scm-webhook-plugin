@@ -49,14 +49,14 @@ import java.util.Set;
 public class WebHookConfiguration {
 
   @XmlElement(name = "webhook")
-  private final Set<WebHook> webhooks = new HashSet<>();
+  private final Set<DefaultWebHook> webhooks = new HashSet<>();
 
-  public WebHookConfiguration(Set<WebHook> webhooks) {
+  public WebHookConfiguration(Set<DefaultWebHook> webhooks) {
     this.webhooks.addAll(webhooks);
   }
 
   public WebHookConfiguration merge(WebHookConfiguration otherConfiguration) {
-    Set<WebHook> allHooks = new HashSet<>();
+    Set<DefaultWebHook> allHooks = new HashSet<>();
 
     allHooks.addAll(webhooks);
     allHooks.addAll(otherConfiguration.webhooks);

@@ -29,7 +29,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import sonia.scm.repository.Repository;
-import sonia.scm.webhook.WebHook;
+import sonia.scm.webhook.DefaultWebHook;
 import sonia.scm.webhook.WebHookConfiguration;
 import sonia.scm.webhook.WebHookContext;
 
@@ -50,9 +50,9 @@ public abstract class WebHookMapper {
   protected abstract WebHookConfiguration map(WebHookConfigurationDto dto);
 
   @Mapping(target = "attributes", ignore = true)
-  protected abstract WebHookDto map(WebHook webHook);
+  protected abstract WebHookDto map(DefaultWebHook webHook);
 
-  protected abstract WebHook map(WebHookDto dto);
+  protected abstract DefaultWebHook map(WebHookDto dto);
 
   public WebHookMapper using(UriInfo uriInfo) {
     resourceLinks = new WebHookConfigurationResourceLinks(uriInfo::getBaseUri);

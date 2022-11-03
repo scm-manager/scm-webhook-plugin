@@ -43,7 +43,7 @@ public class WebHookContext {
 
   public static final String WEB_HOOK_ID = "webhook";
   private final ConfigurationStore<WebHookConfiguration> store;
-  private ConfigurationStoreFactory storeFactory;
+  private final ConfigurationStoreFactory storeFactory;
   private WebHookConfiguration globalConfiguration;
   private static final String STORE_NAME = "webhook";
   private final RepositoryManager repositoryManager;
@@ -107,7 +107,7 @@ public class WebHookContext {
 
   public WebHookConfiguration getAllConfigurations(Repository repository) {
     ConfigurationStore<WebHookConfiguration> repositoryStore = getRepositoryStore(repository);
-    WebHookConfiguration repositoryConfiguration = Optional.ofNullable(repositoryStore.get()).orElse(new WebHookConfiguration());
+    WebHookConfiguration repositoryConfiguration = repositoryStore.getOptional().orElse(new WebHookConfiguration());
     return getGlobalConfiguration().merge(repositoryConfiguration);
   }
 

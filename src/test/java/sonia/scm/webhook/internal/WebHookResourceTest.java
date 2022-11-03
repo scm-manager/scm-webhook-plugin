@@ -42,8 +42,8 @@ import sonia.scm.repository.NamespaceAndName;
 import sonia.scm.repository.Repository;
 import sonia.scm.repository.RepositoryManager;
 import sonia.scm.web.RestDispatcher;
+import sonia.scm.webhook.DefaultWebHook;
 import sonia.scm.webhook.HttpMethod;
-import sonia.scm.webhook.WebHook;
 import sonia.scm.webhook.WebHookConfiguration;
 import sonia.scm.webhook.WebHookContext;
 
@@ -109,8 +109,8 @@ class WebHookResourceTest {
   @Test
   void shouldGetWebHookConfigurations() throws URISyntaxException, IOException {
     WebHookConfiguration configs = new WebHookConfiguration();
-    configs.getWebhooks().add(new WebHook("/url_1/pattern/{repository.id}", true, false, HttpMethod.GET));
-    configs.getWebhooks().add(new WebHook("/url_2/pattern/{repository.id}", false, false, HttpMethod.POST));
+    configs.getWebhooks().add(new DefaultWebHook("/url_1/pattern/{repository.id}", true, false, HttpMethod.GET));
+    configs.getWebhooks().add(new DefaultWebHook("/url_2/pattern/{repository.id}", false, false, HttpMethod.POST));
 
     when(context.getGlobalConfiguration()).thenReturn(configs);
     MockHttpRequest request = MockHttpRequest
@@ -143,8 +143,8 @@ class WebHookResourceTest {
     verify(context).setGlobalConfiguration(argThat(webHookConfiguration -> {
       assertThat(webHookConfiguration.getWebhooks()).hasSize(2);
       assertThat(webHookConfiguration.getWebhooks()).containsExactlyInAnyOrder(
-        new WebHook("url/{repository.id}/pattern", true, true, HttpMethod.GET),
-        new WebHook("url2/{repository.id}/pattern", false, false, HttpMethod.POST));
+        new DefaultWebHook("url/{repository.id}/pattern", true, true, HttpMethod.GET),
+        new DefaultWebHook("url2/{repository.id}/pattern", false, false, HttpMethod.POST));
       return true;
     }));
   }
@@ -161,8 +161,8 @@ class WebHookResourceTest {
     verify(context).setGlobalConfiguration(argThat(webHookConfiguration -> {
       assertThat(webHookConfiguration.getWebhooks()).hasSize(2);
       assertThat(webHookConfiguration.getWebhooks()).containsExactlyInAnyOrder(
-        new WebHook("url/{repository.id}/pattern", true, true, HttpMethod.GET),
-        new WebHook("url2/{repository.id}/pattern", false, false, HttpMethod.POST));
+        new DefaultWebHook("url/{repository.id}/pattern", true, true, HttpMethod.GET),
+        new DefaultWebHook("url2/{repository.id}/pattern", false, false, HttpMethod.POST));
       return true;
     }));
   }
@@ -171,8 +171,8 @@ class WebHookResourceTest {
   @Test
   void shouldGetRepoWebHookConfigurations() throws URISyntaxException, IOException {
     WebHookConfiguration configs = new WebHookConfiguration();
-    configs.getWebhooks().add(new WebHook("/url_1/pattern/{repository.id}", true, false, HttpMethod.GET));
-    configs.getWebhooks().add(new WebHook("/url_2/pattern/{repository.id}", false, false, HttpMethod.POST));
+    configs.getWebhooks().add(new DefaultWebHook("/url_1/pattern/{repository.id}", true, false, HttpMethod.GET));
+    configs.getWebhooks().add(new DefaultWebHook("/url_2/pattern/{repository.id}", false, false, HttpMethod.POST));
 
     when(context.getRepositoryConfigurations("space", "name")).thenReturn(configs);
     MockHttpRequest request = MockHttpRequest
@@ -205,8 +205,8 @@ class WebHookResourceTest {
     verify(context).setRepositoryConfiguration(argThat(webHookConfiguration -> {
       assertThat(webHookConfiguration.getWebhooks()).hasSize(2);
       assertThat(webHookConfiguration.getWebhooks()).containsExactlyInAnyOrder(
-        new WebHook("url/{repository.id}/pattern", true, true, HttpMethod.GET),
-        new WebHook("url2/{repository.id}/pattern", false, false, HttpMethod.POST));
+        new DefaultWebHook("url/{repository.id}/pattern", true, true, HttpMethod.GET),
+        new DefaultWebHook("url2/{repository.id}/pattern", false, false, HttpMethod.POST));
       return true;
     }), eq("space"), eq("name"));
   }
@@ -224,8 +224,8 @@ class WebHookResourceTest {
     verify(context).setRepositoryConfiguration(argThat(webHookConfiguration -> {
       assertThat(webHookConfiguration.getWebhooks()).hasSize(2);
       assertThat(webHookConfiguration.getWebhooks()).containsExactlyInAnyOrder(
-        new WebHook("url/{repository.id}/pattern", true, true, HttpMethod.GET),
-        new WebHook("url2/{repository.id}/pattern", false, false, HttpMethod.POST));
+        new DefaultWebHook("url/{repository.id}/pattern", true, true, HttpMethod.GET),
+        new DefaultWebHook("url2/{repository.id}/pattern", false, false, HttpMethod.POST));
       return true;
     }), eq("space"), eq("name"));
   }

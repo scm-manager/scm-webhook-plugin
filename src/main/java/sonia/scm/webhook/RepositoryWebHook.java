@@ -37,6 +37,8 @@ import sonia.scm.repository.Repository;
 import sonia.scm.repository.api.HookContext;
 import sonia.scm.repository.api.HookFeature;
 
+import java.util.Set;
+
 @Extension
 @EagerSingleton
 public class RepositoryWebHook {
@@ -44,15 +46,14 @@ public class RepositoryWebHook {
   private static final Logger logger = LoggerFactory.getLogger(RepositoryWebHook.class);
 
   private final WebHookContext context;
-  private final Provider<WebHookHttpClient> httpClientProvider;
-  private final ElParser elParser;
+
+  private final Set<WebHookExecutorProvider> executorProviders;
 
   @Inject
   public RepositoryWebHook(Provider<WebHookHttpClient> httpClientProvider,
-                           WebHookContext context, ElParser elParser) {
-    this.httpClientProvider = httpClientProvider;
-    this.elParser = elParser;
+                           WebHookContext context, ElParser elParser, Set<WebHookExecutorProvider> executorProviders) {
     this.context = context;
+    this.executorProviders = executorProviders;
   }
 
   @Subscribe
@@ -102,8 +103,11 @@ public class RepositoryWebHook {
     }
 
     for (WebHook webHook : configuration.getWebhooks()) {
-      new WebHookExecutor(httpClientProvider.get(), elParser, webHook,
-        repository, changesets).run();
+      executorProviders
+        .stream()
+        .filter(provider -> provider.handles(webHook.getClass()))
+        .findFirst()
+        .ifPresent(webHookExecutorProvider -> webHookExecutorProvider.createExecutor(webHook, repository, changesets).run());
     }
   }
 }

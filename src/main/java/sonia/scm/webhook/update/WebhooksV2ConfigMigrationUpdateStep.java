@@ -33,8 +33,8 @@ import sonia.scm.store.ConfigurationStoreFactory;
 import sonia.scm.update.V1Properties;
 import sonia.scm.update.V1PropertyDAO;
 import sonia.scm.version.Version;
+import sonia.scm.webhook.DefaultWebHook;
 import sonia.scm.webhook.HttpMethod;
-import sonia.scm.webhook.WebHook;
 import sonia.scm.webhook.WebHookConfiguration;
 
 import javax.inject.Inject;
@@ -84,14 +84,14 @@ public class WebhooksV2ConfigMigrationUpdateStep implements UpdateStep {
     }
     String[] splittedWebhooks = v1Webhook.split("\\|");
 
-    Set<WebHook> webhooksSet = stream(splittedWebhooks)
+    Set<DefaultWebHook> webhooksSet = stream(splittedWebhooks)
       .map(this::createWebHook)
       .collect(toSet());
 
     return of(new WebHookConfiguration(webhooksSet));
   }
 
-  private WebHook createWebHook(String webhook) {
+  private DefaultWebHook createWebHook(String webhook) {
     String[] splitProperties = webhook.split(";");
 
     // Set HTTP method to AUTO if missing
@@ -101,7 +101,7 @@ public class WebhooksV2ConfigMigrationUpdateStep implements UpdateStep {
       splitProperties = properties.toArray(splitProperties);
     }
 
-    return new WebHook(
+    return new DefaultWebHook(
       splitProperties[0],
       Boolean.parseBoolean(splitProperties[1]),
       Boolean.parseBoolean(splitProperties[2]),

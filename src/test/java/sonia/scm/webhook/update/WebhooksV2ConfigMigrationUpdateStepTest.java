@@ -31,6 +31,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import sonia.scm.store.ConfigurationStore;
 import sonia.scm.store.InMemoryConfigurationStoreFactory;
 import sonia.scm.update.V1PropertyDaoTestUtil;
+import sonia.scm.webhook.DefaultWebHook;
 import sonia.scm.webhook.HttpMethod;
 import sonia.scm.webhook.WebHook;
 import sonia.scm.webhook.WebHookConfiguration;
@@ -68,7 +69,7 @@ class WebhooksV2ConfigMigrationUpdateStepTest {
 
     updateStep.doUpdate();
 
-    WebHook v2Webhook = new WebHook("http://example.com/${repositoryName}", true, true, HttpMethod.POST);
+    WebHook v2Webhook = new DefaultWebHook("http://example.com/${repositoryName}", true, true, HttpMethod.POST);
 
     assertThat(configStore.get().getWebhooks().contains(v2Webhook)).isTrue();
   }
@@ -83,9 +84,9 @@ class WebhooksV2ConfigMigrationUpdateStepTest {
 
     updateStep.doUpdate();
 
-    WebHook v2Webhook1 = new WebHook("http://example.com/${repositoryName}", true, true, HttpMethod.POST);
-    WebHook v2Webhook2 = new WebHook("http://example.com/${zweiterWebhook}", false, true, HttpMethod.AUTO);
-    WebHook v2Webhook3 = new WebHook("http://example.com/${dritteWebhook}", false, false, HttpMethod.PUT);
+    WebHook v2Webhook1 = new DefaultWebHook("http://example.com/${repositoryName}", true, true, HttpMethod.POST);
+    WebHook v2Webhook2 = new DefaultWebHook("http://example.com/${zweiterWebhook}", false, true, HttpMethod.AUTO);
+    WebHook v2Webhook3 = new DefaultWebHook("http://example.com/${dritteWebhook}", false, false, HttpMethod.PUT);
 
     assertThat(configStore.get().getWebhooks().contains(v2Webhook1)).isTrue();
     assertThat(configStore.get().getWebhooks().contains(v2Webhook2)).isTrue();
@@ -116,7 +117,7 @@ class WebhooksV2ConfigMigrationUpdateStepTest {
 
     updateStep.doUpdate();
 
-    WebHook v2Webhook = new WebHook("http://example.com/${repositoryName}", true, true, HttpMethod.AUTO);
+    WebHook v2Webhook = new DefaultWebHook("http://example.com/${repositoryName}", true, true, HttpMethod.AUTO);
 
     assertThat(configStore.get().getWebhooks().contains(v2Webhook)).isTrue();
   }
