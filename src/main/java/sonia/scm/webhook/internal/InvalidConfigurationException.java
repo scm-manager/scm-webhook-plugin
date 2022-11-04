@@ -34,7 +34,7 @@ public class InvalidConfigurationException extends BadRequestException {
 
   public static final String CODE = "BcTMDIHIb1"; // TODO Translations
 
-  public InvalidConfigurationException(WebHookSpecification<?> specification, Exception cause) {
+  public InvalidConfigurationException(WebHookSpecification specification, Exception cause) {
     super(ContextEntry.ContextBuilder.entity("validator", AvailableWebHookSpecifications.nameOf(specification)).build(), "configuration could not be parsed", cause);
   }
 

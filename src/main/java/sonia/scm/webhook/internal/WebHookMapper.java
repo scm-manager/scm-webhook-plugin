@@ -71,13 +71,13 @@ public abstract class WebHookMapper implements InstantAttributeMapper {
 
   WebHook map(WebHookDto dto) {
     WebHook webHook = new WebHook();
-    WebHookSpecification<?> specification = availableSpecifications.specificationFor(dto.getName());
+    WebHookSpecification specification = availableSpecifications.specificationFor(dto.getName());
     webHook.setName(dto.getName());
     webHook.setConfiguration(parseConfiguration(dto, specification, specification.getSpecificationType()));
     return webHook;
   }
 
-  private SingleWebHookConfiguration parseConfiguration(WebHookDto dto, WebHookSpecification<?> specification, Class<? extends SingleWebHookConfiguration> configurationType) {
+  private SingleWebHookConfiguration parseConfiguration(WebHookDto dto, WebHookSpecification specification, Class<? extends SingleWebHookConfiguration> configurationType) {
     SingleWebHookConfiguration configuration;
     try {
       configuration = new ObjectMapper().treeToValue(dto.getConfiguration(), configurationType);
