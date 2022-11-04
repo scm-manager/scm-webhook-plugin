@@ -107,7 +107,7 @@ public class RepositoryWebHook {
         .stream()
         .filter(provider -> provider.handles(webHook.getClass()))
         .findFirst()
-        .ifPresent(webHookExecutorProvider -> webHookExecutorProvider.createExecutor(webHook, repository, changesets).run());
+        .ifPresent(webHookExecutorProvider -> webHookExecutorProvider.createExecutor(webHook.getConfiguration(), repository, changesets).run());
     }
   }
 }

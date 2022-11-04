@@ -5,7 +5,7 @@ import sonia.scm.repository.Changeset;
 import sonia.scm.repository.Repository;
 
 @ExtensionPoint
-public interface WebHookExecutorProvider<T extends WebHook> {
+public interface WebHookExecutorProvider<T extends SingleWebHookConfiguration> {
 
   boolean handles(Class<WebHook> webHookClass);
 

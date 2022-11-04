@@ -21,28 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package sonia.scm.webhook.internal;
+package sonia.scm.webhook;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
-import javax.validation.constraints.NotEmpty;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
-@AllArgsConstructor
-@NoArgsConstructor
+/**
+ *
+ * @author Sebastian Sdorra
+ */
+@XmlRootElement(name = "webhook")
+@XmlAccessorType(XmlAccessType.FIELD)
+@ToString
 @EqualsAndHashCode
 @Getter
 @Setter
-public class WebHookDto {
-
-  @NotEmpty
-  private String name;
-
-  @JsonInclude(JsonInclude.Include.NON_NULL)
-  private JsonNode configuration;
+@AllArgsConstructor
+@NoArgsConstructor
+public class SimpleWebHook implements SingleWebHookConfiguration {
+  private String urlPattern;
+  private boolean executeOnEveryCommit;
+  private boolean sendCommitData;
+  private HttpMethod method = HttpMethod.AUTO;
 }

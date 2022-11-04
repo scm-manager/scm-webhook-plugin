@@ -21,28 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package sonia.scm.webhook.internal;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.JsonNode;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import sonia.scm.BadRequestException;
+import sonia.scm.ContextEntry;
+import sonia.scm.webhook.AvailableWebHookSpecifications;
+import sonia.scm.webhook.WebHookSpecification;
 
-import javax.validation.constraints.NotEmpty;
+@SuppressWarnings("squid:MaximumInheritanceDepth") // exceptions have a deep inheritance depth themselves; therefore we accept this here
+public class InvalidConfigurationException extends BadRequestException {
 
-@AllArgsConstructor
-@NoArgsConstructor
-@EqualsAndHashCode
-@Getter
-@Setter
-public class WebHookDto {
+  public static final String CODE = "BcTMDIHIb1"; // TODO Translations
 
-  @NotEmpty
-  private String name;
+  public InvalidConfigurationException(WebHookSpecification<?> specification, Exception cause) {
+    super(ContextEntry.ContextBuilder.entity("validator", AvailableWebHookSpecifications.nameOf(specification)).build(), "configuration could not be parsed", cause);
+  }
 
-  @JsonInclude(JsonInclude.Include.NON_NULL)
-  private JsonNode configuration;
+  @Override
+  public String getCode() {
+    return CODE;
+  }
 }

@@ -33,8 +33,9 @@ import sonia.scm.store.ConfigurationStoreFactory;
 import sonia.scm.update.V1Properties;
 import sonia.scm.update.V1PropertyDAO;
 import sonia.scm.version.Version;
-import sonia.scm.webhook.DefaultWebHook;
+import sonia.scm.webhook.SimpleWebHook;
 import sonia.scm.webhook.HttpMethod;
+import sonia.scm.webhook.WebHook;
 import sonia.scm.webhook.WebHookConfiguration;
 
 import javax.inject.Inject;
@@ -68,10 +69,9 @@ public class WebhooksV2ConfigMigrationUpdateStep implements UpdateStep {
     v1PropertyDAO
       .getProperties(REPOSITORY_PROPERTY_READER)
       .havingAllOf("webhooks")
-      .forEachEntry((key, properties) -> {
+      .forEachEntry((key, properties) ->
         buildConfig(key, properties).ifPresent(configuration ->
-          setRepositoryConfiguration(configuration, key));
-      }
+          setRepositoryConfiguration(configuration, key))
       );
   }
 
@@ -84,14 +84,15 @@ public class WebhooksV2ConfigMigrationUpdateStep implements UpdateStep {
     }
     String[] splittedWebhooks = v1Webhook.split("\\|");
 
-    Set<DefaultWebHook> webhooksSet = stream(splittedWebhooks)
+    Set<WebHook> webhooksSet = stream(splittedWebhooks)
       .map(this::createWebHook)
+      .map(WebHook::new)
       .collect(toSet());
 
     return of(new WebHookConfiguration(webhooksSet));
   }
 
-  private DefaultWebHook createWebHook(String webhook) {
+  private SimpleWebHook createWebHook(String webhook) {
     String[] splitProperties = webhook.split(";");
 
     // Set HTTP method to AUTO if missing
@@ -101,7 +102,7 @@ public class WebhooksV2ConfigMigrationUpdateStep implements UpdateStep {
       splitProperties = properties.toArray(splitProperties);
     }
 
-    return new DefaultWebHook(
+    return new SimpleWebHook(
       splitProperties[0],
       Boolean.parseBoolean(splitProperties[1]),
       Boolean.parseBoolean(splitProperties[2]),

@@ -38,22 +38,27 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import sonia.scm.api.v2.resources.ScmPathInfoStore;
 import sonia.scm.repository.NamespaceAndName;
 import sonia.scm.repository.Repository;
 import sonia.scm.repository.RepositoryManager;
 import sonia.scm.web.RestDispatcher;
-import sonia.scm.webhook.DefaultWebHook;
+import sonia.scm.webhook.AvailableWebHookSpecifications;
 import sonia.scm.webhook.HttpMethod;
+import sonia.scm.webhook.SimpleWebHook;
+import sonia.scm.webhook.SimpleWebHookSpecification;
+import sonia.scm.webhook.WebHook;
 import sonia.scm.webhook.WebHookConfiguration;
 import sonia.scm.webhook.WebHookContext;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -63,7 +68,6 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 class WebHookResourceTest {
-
 
   private final Subject subject = mock(Subject.class);
   private final ThreadState subjectThreadState = new SubjectThreadState(subject);
@@ -80,18 +84,18 @@ class WebHookResourceTest {
   private final MockHttpResponse response = new MockHttpResponse();
   public static final String WEB_HOOKS = "{\n" +
     "    \"webhooks\": [\n" +
-    "        {\n" +
+    "        {\n\"name\": \"SimpleWebHook\", \"configuration\": {" +
     "            \"urlPattern\": \"url/{repository.id}/pattern\",\n" +
     "            \"executeOnEveryCommit\": true,\n" +
     "            \"sendCommitData\": true,\n" +
     "            \"method\": \"GET\"\n" +
-    "        },\n" +
-    "        {\n" +
+    "        }},\n" +
+    "        {\n\"name\": \"SimpleWebHook\", \"configuration\": {" +
     "            \"urlPattern\": \"url2/{repository.id}/pattern\",\n" +
     "            \"executeOnEveryCommit\": false,\n" +
     "            \"sendCommitData\": false,\n" +
     "            \"method\": \"POST\"\n" +
-    "        }\n" +
+    "        }}\n" +
     "    ]\n" +
     "}";
 
@@ -103,35 +107,42 @@ class WebHookResourceTest {
     when(repositoryManager.get(new NamespaceAndName("space", "name"))).thenReturn(new Repository("id", "git", "space", "name"));
     dispatcher = new RestDispatcher();
     dispatcher.addSingletonResource(resource);
-  }
 
+    ScmPathInfoStore scmPathInfoStore = new ScmPathInfoStore();
+    scmPathInfoStore.set(() -> URI.create("/"));
+    webHookMapper.scmPathInfoStore = scmPathInfoStore;
+    webHookMapper.availableSpecifications = new AvailableWebHookSpecifications(singleton(new SimpleWebHookSpecification()));
+    webHookMapper.configurationValidator = new ConfigurationValidator();
+  }
 
   @Test
   void shouldGetWebHookConfigurations() throws URISyntaxException, IOException {
     WebHookConfiguration configs = new WebHookConfiguration();
-    configs.getWebhooks().add(new DefaultWebHook("/url_1/pattern/{repository.id}", true, false, HttpMethod.GET));
-    configs.getWebhooks().add(new DefaultWebHook("/url_2/pattern/{repository.id}", false, false, HttpMethod.POST));
+    configs.getWebhooks().add(new WebHook(new SimpleWebHook("/url_1/pattern/{repository.id}", true, false, HttpMethod.GET)));
+    configs.getWebhooks().add(new WebHook(new SimpleWebHook("/url_2/pattern/{repository.id}", false, false, HttpMethod.POST)));
 
     when(context.getGlobalConfiguration()).thenReturn(configs);
     MockHttpRequest request = MockHttpRequest
       .get("/" + WebHookResource.PATH)
       .accept(MediaType.APPLICATION_JSON);
 
+    System.out.println(response.getContentAsString());
+
     dispatcher.invoke(request, response);
-    assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+    assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
     ObjectMapper mapper = new ObjectMapper();
     JsonNode jsonNode = mapper.readValue(response.getContentAsString(), JsonNode.class);
-    JsonNode prNode = jsonNode.get("webhooks");
-    JsonNode webHook_1 = prNode.path(0);
-    JsonNode webHook_2 = prNode.path(1);
-    assertThat(webHook_1.get("urlPattern").asText()).isIn("/url_1/pattern/{repository.id}", "/url_2/pattern/{repository.id}");
-    assertThat(webHook_2.get("urlPattern").asText()).isIn("/url_1/pattern/{repository.id}", "/url_2/pattern/{repository.id}");
+    JsonNode webhookNode = jsonNode.get("webhooks");
+    JsonNode webHook_1 = webhookNode.path(0);
+    JsonNode webHook_2 = webhookNode.path(1);
+    assertThat(webHook_1.get("configuration").get("urlPattern").asText()).isIn("/url_1/pattern/{repository.id}", "/url_2/pattern/{repository.id}");
+    assertThat(webHook_2.get("configuration").get("urlPattern").asText()).isIn("/url_1/pattern/{repository.id}", "/url_2/pattern/{repository.id}");
 
     verify(context).getGlobalConfiguration();
   }
 
   @Test
-  void shouldPostWebHookConfigurations() throws URISyntaxException, IOException {
+  void shouldPostWebHookConfigurations() throws URISyntaxException {
 
     MockHttpRequest request = MockHttpRequest
       .post("/" + WebHookResource.PATH)
@@ -139,30 +150,30 @@ class WebHookResourceTest {
       .content(WEB_HOOKS.getBytes());
 
     dispatcher.invoke(request, response);
-    assertEquals(HttpServletResponse.SC_NO_CONTENT, response.getStatus());
+    assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_NO_CONTENT);
     verify(context).setGlobalConfiguration(argThat(webHookConfiguration -> {
       assertThat(webHookConfiguration.getWebhooks()).hasSize(2);
-      assertThat(webHookConfiguration.getWebhooks()).containsExactlyInAnyOrder(
-        new DefaultWebHook("url/{repository.id}/pattern", true, true, HttpMethod.GET),
-        new DefaultWebHook("url2/{repository.id}/pattern", false, false, HttpMethod.POST));
+      assertThat(webHookConfiguration.getWebhooks()).extracting("configuration").containsExactlyInAnyOrder(
+        new SimpleWebHook("url/{repository.id}/pattern", true, true, HttpMethod.GET),
+        new SimpleWebHook("url2/{repository.id}/pattern", false, false, HttpMethod.POST));
       return true;
     }));
   }
 
   @Test
-  void shouldUpdateWebHookConfigurations() throws URISyntaxException, IOException {
+  void shouldUpdateWebHookConfigurations() throws URISyntaxException {
     MockHttpRequest request = MockHttpRequest
       .put("/" + WebHookResource.PATH)
       .contentType(MediaType.APPLICATION_JSON)
       .content(WEB_HOOKS.getBytes());
 
     dispatcher.invoke(request, response);
-    assertEquals(HttpServletResponse.SC_NO_CONTENT, response.getStatus());
+    assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_NO_CONTENT);
     verify(context).setGlobalConfiguration(argThat(webHookConfiguration -> {
       assertThat(webHookConfiguration.getWebhooks()).hasSize(2);
-      assertThat(webHookConfiguration.getWebhooks()).containsExactlyInAnyOrder(
-        new DefaultWebHook("url/{repository.id}/pattern", true, true, HttpMethod.GET),
-        new DefaultWebHook("url2/{repository.id}/pattern", false, false, HttpMethod.POST));
+      assertThat(webHookConfiguration.getWebhooks()).extracting("configuration").containsExactlyInAnyOrder(
+        new SimpleWebHook("url/{repository.id}/pattern", true, true, HttpMethod.GET),
+        new SimpleWebHook("url2/{repository.id}/pattern", false, false, HttpMethod.POST));
       return true;
     }));
   }
@@ -171,8 +182,8 @@ class WebHookResourceTest {
   @Test
   void shouldGetRepoWebHookConfigurations() throws URISyntaxException, IOException {
     WebHookConfiguration configs = new WebHookConfiguration();
-    configs.getWebhooks().add(new DefaultWebHook("/url_1/pattern/{repository.id}", true, false, HttpMethod.GET));
-    configs.getWebhooks().add(new DefaultWebHook("/url_2/pattern/{repository.id}", false, false, HttpMethod.POST));
+    configs.getWebhooks().add(new WebHook(new SimpleWebHook("/url_1/pattern/{repository.id}", true, false, HttpMethod.GET)));
+    configs.getWebhooks().add(new WebHook(new SimpleWebHook("/url_2/pattern/{repository.id}", false, false, HttpMethod.POST)));
 
     when(context.getRepositoryConfigurations("space", "name")).thenReturn(configs);
     MockHttpRequest request = MockHttpRequest
@@ -180,20 +191,20 @@ class WebHookResourceTest {
       .accept(MediaType.APPLICATION_JSON);
 
     dispatcher.invoke(request, response);
-    assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+    assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
     ObjectMapper mapper = new ObjectMapper();
     JsonNode jsonNode = mapper.readValue(response.getContentAsString(), JsonNode.class);
     JsonNode prNode = jsonNode.get("webhooks");
     JsonNode webHook_1 = prNode.path(0);
     JsonNode webHook_2 = prNode.path(1);
-    assertThat(webHook_1.get("urlPattern").asText()).isIn("/url_1/pattern/{repository.id}", "/url_2/pattern/{repository.id}");
-    assertThat(webHook_2.get("urlPattern").asText()).isIn("/url_1/pattern/{repository.id}", "/url_2/pattern/{repository.id}");
+    assertThat(webHook_1.get("configuration").get("urlPattern").asText()).isIn("/url_1/pattern/{repository.id}", "/url_2/pattern/{repository.id}");
+    assertThat(webHook_2.get("configuration").get("urlPattern").asText()).isIn("/url_1/pattern/{repository.id}", "/url_2/pattern/{repository.id}");
 
     verify(context).getRepositoryConfigurations("space", "name");
   }
 
   @Test
-  void shouldPostRepoWebHookConfigurations() throws URISyntaxException, IOException {
+  void shouldPostRepoWebHookConfigurations() throws URISyntaxException {
 
     MockHttpRequest request = MockHttpRequest
       .post("/" + WebHookResource.PATH + "/space/name")
@@ -201,18 +212,18 @@ class WebHookResourceTest {
       .content(WEB_HOOKS.getBytes());
 
     dispatcher.invoke(request, response);
-    assertEquals(HttpServletResponse.SC_NO_CONTENT, response.getStatus());
+    assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_NO_CONTENT);
     verify(context).setRepositoryConfiguration(argThat(webHookConfiguration -> {
       assertThat(webHookConfiguration.getWebhooks()).hasSize(2);
-      assertThat(webHookConfiguration.getWebhooks()).containsExactlyInAnyOrder(
-        new DefaultWebHook("url/{repository.id}/pattern", true, true, HttpMethod.GET),
-        new DefaultWebHook("url2/{repository.id}/pattern", false, false, HttpMethod.POST));
+      assertThat(webHookConfiguration.getWebhooks()).extracting("configuration").containsExactlyInAnyOrder(
+        new SimpleWebHook("url/{repository.id}/pattern", true, true, HttpMethod.GET),
+        new SimpleWebHook("url2/{repository.id}/pattern", false, false, HttpMethod.POST));
       return true;
     }), eq("space"), eq("name"));
   }
 
  @Test
-  void shouldUpdateRepoWebHookConfigurations() throws URISyntaxException, IOException {
+  void shouldUpdateRepoWebHookConfigurations() throws URISyntaxException {
 
     MockHttpRequest request = MockHttpRequest
       .put("/" + WebHookResource.PATH + "/space/name")
@@ -220,12 +231,12 @@ class WebHookResourceTest {
       .content(WEB_HOOKS.getBytes());
 
     dispatcher.invoke(request, response);
-    assertEquals(HttpServletResponse.SC_NO_CONTENT, response.getStatus());
+    assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_NO_CONTENT);
     verify(context).setRepositoryConfiguration(argThat(webHookConfiguration -> {
       assertThat(webHookConfiguration.getWebhooks()).hasSize(2);
-      assertThat(webHookConfiguration.getWebhooks()).containsExactlyInAnyOrder(
-        new DefaultWebHook("url/{repository.id}/pattern", true, true, HttpMethod.GET),
-        new DefaultWebHook("url2/{repository.id}/pattern", false, false, HttpMethod.POST));
+      assertThat(webHookConfiguration.getWebhooks()).extracting("configuration").containsExactlyInAnyOrder(
+        new SimpleWebHook("url/{repository.id}/pattern", true, true, HttpMethod.GET),
+        new SimpleWebHook("url2/{repository.id}/pattern", false, false, HttpMethod.POST));
       return true;
     }), eq("space"), eq("name"));
   }

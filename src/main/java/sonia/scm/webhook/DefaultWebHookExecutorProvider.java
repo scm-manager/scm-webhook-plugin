@@ -8,7 +8,7 @@ import sonia.scm.repository.Changeset;
 import sonia.scm.repository.Repository;
 
 @Extension
-public class DefaultWebHookExecutorProvider implements WebHookExecutorProvider<DefaultWebHook> {
+public class DefaultWebHookExecutorProvider implements WebHookExecutorProvider<SimpleWebHook> {
 
   private final Provider<WebHookHttpClient> httpClientProvider;
   private final ElParser elParser;
@@ -21,11 +21,11 @@ public class DefaultWebHookExecutorProvider implements WebHookExecutorProvider<D
 
   @Override
   public boolean handles(Class<WebHook> webHookClass) {
-    return DefaultWebHook.class.isAssignableFrom(webHookClass);
+    return SimpleWebHook.class.isAssignableFrom(webHookClass);
   }
 
   @Override
-  public WebHookExecutor createExecutor(DefaultWebHook webHook, Repository repository, Iterable<Changeset> changesets) {
+  public WebHookExecutor createExecutor(SimpleWebHook webHook, Repository repository, Iterable<Changeset> changesets) {
     return new DefaultWebHookExecutor(httpClientProvider.get(), elParser, webHook, repository, changesets);
   }
 }

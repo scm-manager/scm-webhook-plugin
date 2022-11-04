@@ -21,34 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package sonia.scm.webhook;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+package sonia.scm.webhook.internal;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import java.util.Set;
 
-/**
- *
- * @author Sebastian Sdorra
- */
-@XmlRootElement(name = "webhook")
-@XmlAccessorType(XmlAccessType.FIELD)
-@ToString
-@EqualsAndHashCode
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public class DefaultWebHook implements WebHook {
-  private String urlPattern;
-  private boolean executeOnEveryCommit;
-  private boolean sendCommitData;
-  private HttpMethod method = HttpMethod.AUTO;
+class ConfigurationValidator {
+  void validate(Object configuration) {
+    ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+    Validator validator = factory.getValidator();
+    Set<ConstraintViolation<Object>> violations = validator.validate(configuration);
+    if (!violations.isEmpty()) {
+      throw new ConstraintViolationException(violations);
+    }
+  }
 }

@@ -45,10 +45,10 @@ public class DefaultWebHookExecutor implements WebHookExecutor {
   private final Expression expression;
   private final WebHookHttpClient httpClient;
   private final Repository repository;
-  private final DefaultWebHook webHook;
+  private final SimpleWebHook webHook;
 
   public DefaultWebHookExecutor(WebHookHttpClient httpClient, ElParser elParser,
-                                DefaultWebHook webHook, Repository repository, Iterable<Changeset> changesets) {
+                                SimpleWebHook webHook, Repository repository, Iterable<Changeset> changesets) {
     this.httpClient = httpClient;
     this.expression = elParser.parse(webHook.getUrlPattern());
     this.webHook = webHook;

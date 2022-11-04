@@ -23,62 +23,90 @@
  */
 package sonia.scm.webhook.internal;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.otto.edison.hal.Links;
 import org.mapstruct.AfterMapping;
+import org.mapstruct.Context;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import sonia.scm.api.v2.resources.InstantAttributeMapper;
+import sonia.scm.api.v2.resources.ScmPathInfoStore;
 import sonia.scm.repository.Repository;
-import sonia.scm.webhook.DefaultWebHook;
+import sonia.scm.webhook.AvailableWebHookSpecifications;
+import sonia.scm.webhook.SingleWebHookConfiguration;
+import sonia.scm.webhook.WebHook;
 import sonia.scm.webhook.WebHookConfiguration;
 import sonia.scm.webhook.WebHookContext;
+import sonia.scm.webhook.WebHookSpecification;
 
-import javax.ws.rs.core.UriInfo;
-import java.net.URI;
+import javax.inject.Inject;
 
 import static de.otto.edison.hal.Link.link;
 
 @Mapper
-public abstract class WebHookMapper {
+public abstract class WebHookMapper implements InstantAttributeMapper {
 
-  private WebHookConfigurationResourceLinks resourceLinks = new WebHookConfigurationResourceLinks(() -> URI.create("/"));
-  private Repository repository;
+  @Inject
+  AvailableWebHookSpecifications availableSpecifications;
 
-  @Mapping(target = "attributes", ignore = true)
-  protected abstract WebHookConfigurationDto map(WebHookConfiguration webHookConfiguration);
+  @Inject
+  ScmPathInfoStore scmPathInfoStore;
 
-  protected abstract WebHookConfiguration map(WebHookConfigurationDto dto);
+  @Inject
+  ConfigurationValidator configurationValidator;
 
-  @Mapping(target = "attributes", ignore = true)
-  protected abstract WebHookDto map(DefaultWebHook webHook);
+  public abstract WebHookConfigurationDto map(WebHookConfiguration configuration, @Context Repository repository);
 
-  protected abstract DefaultWebHook map(WebHookDto dto);
+  public abstract GlobalWebHookConfigurationDto map(WebHookConfiguration configuration);
 
-  public WebHookMapper using(UriInfo uriInfo) {
-    resourceLinks = new WebHookConfigurationResourceLinks(uriInfo::getBaseUri);
-    return this;
+  public abstract WebHookConfiguration map(WebHookConfigurationDto configurationDto);
+
+  WebHookDto map(WebHook webHook) {
+    WebHookDto dto = new WebHookDto();
+    dto.setName(webHook.getName());
+    dto.setConfiguration(new ObjectMapper().valueToTree(webHook.getConfiguration()));
+    return dto;
   }
 
-  public WebHookMapper forRepository(Repository repository) {
-    this.repository = repository;
-    return this;
+  WebHook map(WebHookDto dto) {
+    WebHook webHook = new WebHook();
+    WebHookSpecification<?> specification = availableSpecifications.specificationFor(dto.getName());
+    webHook.setName(dto.getName());
+    webHook.setConfiguration(parseConfiguration(dto, specification, specification.getSpecificationType()));
+    return webHook;
+  }
+
+  private SingleWebHookConfiguration parseConfiguration(WebHookDto dto, WebHookSpecification<?> specification, Class<? extends SingleWebHookConfiguration> configurationType) {
+    SingleWebHookConfiguration configuration;
+    try {
+      configuration = new ObjectMapper().treeToValue(dto.getConfiguration(), configurationType);
+      configurationValidator.validate(configuration);
+      return configuration;
+    } catch (JsonProcessingException e) {
+      throw new InvalidConfigurationException(specification, e);
+    }
   }
 
   @AfterMapping
-  void addLinks(@MappingTarget WebHookConfigurationDto dto) {
+  void addLinks(@MappingTarget WebHookConfigurationDto dto, @Context Repository repository) {
+    WebHookConfigurationResourceLinks resourceLinks = new WebHookConfigurationResourceLinks(scmPathInfoStore.get());
     Links.Builder links = Links.linkingTo();
-    if (repository != null) {
-      links.self(resourceLinks.repositoryConfigurations.self(repository.getNamespace(), repository.getName()));
-      if (WebHookContext.isWritePermitted(repository)) {
-        links.single(link("update", resourceLinks.repositoryConfigurations.update(repository.getNamespace(), repository.getName())));
-      }
-    } else {
-      links.self(resourceLinks.globalConfigurations.self());
-      if (WebHookContext.isWritePermitted()) {
-        links.single(link("update", resourceLinks.globalConfigurations.update()));
-      }
+    links.self(resourceLinks.repositoryConfigurations.self(repository.getNamespace(), repository.getName()));
+    if (WebHookContext.isWritePermitted(repository)) {
+      links.single(link("update", resourceLinks.repositoryConfigurations.update(repository.getNamespace(), repository.getName())));
     }
     dto.add(links.build());
   }
 
+  @AfterMapping
+  void addLinks(@MappingTarget GlobalWebHookConfigurationDto dto) {
+    WebHookConfigurationResourceLinks resourceLinks = new WebHookConfigurationResourceLinks(scmPathInfoStore.get());
+    Links.Builder links = Links.linkingTo();
+    links.self(resourceLinks.globalConfigurations.self());
+    if (WebHookContext.isWritePermitted()) {
+      links.single(link("update", resourceLinks.globalConfigurations.update()));
+    }
+    dto.add(links.build());
+  }
 }

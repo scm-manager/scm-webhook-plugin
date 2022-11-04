@@ -23,4 +23,26 @@
  */
 package sonia.scm.webhook;
 
-public interface WebHook {}
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class WebHook {
+  String name;
+  @XmlJavaTypeAdapter(XmlConfiguration.ValidationConfigurationXmlAdapter.class)
+  SingleWebHookConfiguration configuration;
+
+  public WebHook(SingleWebHookConfiguration configuration) {
+    this(configuration.getClass().getSimpleName(), configuration);
+  }
+}
