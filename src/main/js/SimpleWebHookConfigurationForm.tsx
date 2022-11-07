@@ -47,7 +47,7 @@ type State = WebHookConfiguration;
 class SimpleWebHookConfigurationForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = props.webHook;
+    this.state = props.configuration;
   }
 
   componentWillReceiveProps(nextProps) {

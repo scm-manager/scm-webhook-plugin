@@ -91,7 +91,7 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
             <ExtensionPoint
               name={`webhook.configuration.${webHook.name}`}
               renderAll={true}
-              props={webHook.configuration
+              props={webHook
                 // configurationChanged: validatorConfigChanged
               }
             />
