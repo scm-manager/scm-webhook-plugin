@@ -93,25 +93,6 @@ class SimpleWebHookConfigurationForm extends React.Component<Props, State> {
     this.handleChange(selection, "method");
   };
 
-  confirmDelete = () => {
-    const { t } = this.props;
-    confirmAlert({
-      title: t("scm-webhook-plugin.confirm-delete.title"),
-      message: t("scm-webhook-plugin.confirm-delete.message"),
-      buttons: [
-        {
-          label: t("scm-webhook-plugin.confirm-delete.submit"),
-          onClick: () => this.props.onDelete(this.state)
-        },
-        {
-          className: "is-info",
-          label: t("scm-webhook-plugin.confirm-delete.cancel"),
-          onClick: () => null
-        }
-      ]
-    });
-  };
-
   render() {
     const { readOnly, t } = this.props;
     const { urlPattern, executeOnEveryCommit, sendCommitData } = this.state;

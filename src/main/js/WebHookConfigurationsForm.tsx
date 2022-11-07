@@ -24,7 +24,7 @@
 import React from "react";
 import { WithTranslation, withTranslation } from "react-i18next";
 import { WebHookConfigurations } from "./WebHookConfiguration";
-import { Level, AddButton } from "@scm-manager/ui-components";
+import { Level, AddButton, confirmAlert } from "@scm-manager/ui-components";
 import { ExtensionPoint } from "@scm-manager/ui-extensions";
 import styled from "styled-components";
 
@@ -66,9 +66,27 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
     );
   }
 
-  onDelete = deletedWebHook => {
+  confirmDelete = (index: number) => {
+    const { t } = this.props;
+    confirmAlert({
+      title: t("scm-webhook-plugin.confirm-delete.title"),
+      message: t("scm-webhook-plugin.confirm-delete.message"),
+      buttons: [
+        {
+          label: t("scm-webhook-plugin.confirm-delete.submit"),
+          onClick: () => this.onDelete(index)
+        },
+        {
+          className: "is-info",
+          label: t("scm-webhook-plugin.confirm-delete.cancel"),
+          onClick: () => null
+        }
+      ]
+    });
+  };
+
+  onDelete = index => {
     const { webhooks } = this.state;
-    const index = webhooks.indexOf(deletedWebHook);
     webhooks.splice(index, 1);
     this.updateWebHooks(webhooks);
   };
@@ -95,7 +113,7 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
           const deleteIcon = readOnly ? (
             ""
           ) : (
-            <DeleteIcon className="level-item" onClick={this.confirmDelete}>
+            <DeleteIcon className="level-item" onClick={() => this.confirmDelete(index)}>
               <span className="icon is-small">
                 <i className="fas fa-trash" />
               </span>
