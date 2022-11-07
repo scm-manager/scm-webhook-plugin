@@ -24,9 +24,10 @@
 import React from "react";
 import { WithTranslation, withTranslation } from "react-i18next";
 import { WebHookConfigurations } from "./WebHookConfiguration";
-import { Level, AddButton, confirmAlert } from "@scm-manager/ui-components";
+import { Level, AddButton, confirmAlert, DropDown } from "@scm-manager/ui-components";
 import { ExtensionPoint } from "@scm-manager/ui-extensions";
 import styled from "styled-components";
+import AddWebHookButton from "./AddWebHookButton";
 
 type Props = WithTranslation & {
   initialConfiguration: WebHookConfigurations;
@@ -99,13 +100,7 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
 
   render() {
     const { webhooks } = this.state;
-    const { t, readOnly } = this.props;
-    const defaultWebHook = {
-      urlPattern: "",
-      executeOnEveryCommit: false,
-      sendCommitData: false,
-      method: "AUTO"
-    };
+    const { readOnly } = this.props;
 
     return (
       <>
@@ -128,24 +123,22 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
                   webHook: webHook,
                   readOnly: readOnly,
                   onChange: changedWebHook => this.onChange(changedWebHook, index),
-                  // configurationChanged: validatorConfigChanged}
                 }}
               />
               <div>{deleteIcon}</div>
             </>
           );
         })}
-        <Level right={<AddButton
-            disabled={readOnly}
-            label={t("scm-webhook-plugin.add")}
-            action={() => {
-              webhooks.push({
-                name: "SimpleWebHook",
-                configuration: defaultWebHook
-              });
-              this.updateWebHooks(webhooks);
-            }}
-          />}
+        <Level right={
+          <AddWebHookButton readOnly={readOnly} onAdd={({name, defaultConfiguration}) => {
+            webhooks.push({
+              name: name,
+              configuration: defaultConfiguration
+            });
+            this.updateWebHooks(webhooks);
+          }}
+          />
+        }
         />
       </>
     );

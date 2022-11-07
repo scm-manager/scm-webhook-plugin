@@ -19,7 +19,10 @@
       "submit": "Yes (do not forget to submit)",
       "cancel": "No"
     },
-    "helpText" : "Add and remove webhooks for your repositories."
+    "helpText" : "Add and remove webhooks for your repositories.",
+    "name": {
+      "SimpleWebHook": "Simple Hook"
+    }
   },
   "permissions": {
     "configuration": {
