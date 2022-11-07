@@ -63,10 +63,7 @@ class SimpleWebHookConfigurationForm extends React.Component<Props, State> {
       {
         [name]: value
       },
-      () => {
-        console.log(this.state)
-        this.props.onChange(this.state)
-      }
+      () => this.props.onChange(this.state)
     );
   };
 

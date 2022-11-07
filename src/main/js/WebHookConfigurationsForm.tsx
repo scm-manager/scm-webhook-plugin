@@ -24,9 +24,8 @@
 import React from "react";
 import { WithTranslation, withTranslation } from "react-i18next";
 import { WebHookConfigurations } from "./WebHookConfiguration";
-import { Level, AddButton, confirmAlert, DropDown } from "@scm-manager/ui-components";
+import { Button, Level, confirmAlert } from "@scm-manager/ui-components";
 import { ExtensionPoint } from "@scm-manager/ui-extensions";
-import styled from "styled-components";
 import AddWebHookButton from "./AddWebHookButton";
 
 type Props = WithTranslation & {
@@ -36,10 +35,6 @@ type Props = WithTranslation & {
 };
 
 type State = WebHookConfigurations & {};
-
-const DeleteIcon = styled.a`
-  margin: 0.55rem 0 0 0.75rem;
-`;
 
 class WebHookConfigurationsForm extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -108,25 +103,25 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
           const deleteIcon = readOnly ? (
             ""
           ) : (
-            <DeleteIcon className="level-item" onClick={() => this.confirmDelete(index)}>
-              <span className="icon is-small">
-                <i className="fas fa-trash" />
-              </span>
-            </DeleteIcon>
+            <Button className="level-item" action={() => this.confirmDelete(index)}>
+              <i className="fas fa-trash" />
+            </Button>
           );
           return (
-            <>
-              <ExtensionPoint
-                name={`webhook.configuration.${webHook.name}`}
-                renderAll={true}
-                props={{
-                  webHook: webHook,
-                  readOnly: readOnly,
-                  onChange: changedWebHook => this.onChange(changedWebHook, index)
-                }}
-              />
-              <div>{deleteIcon}</div>
-            </>
+            <div className={"columns is-vcentered"}>
+              <div className={"column"}>
+                <ExtensionPoint
+                  name={`webhook.configuration.${webHook.name}`}
+                  renderAll={true}
+                  props={{
+                    webHook: webHook,
+                    readOnly: readOnly,
+                    onChange: changedWebHook => this.onChange(changedWebHook, index)
+                  }}
+                />
+              </div>
+              <div className={"colum"}>{deleteIcon}</div>
+            </div>
           );
         })}
         <Level
