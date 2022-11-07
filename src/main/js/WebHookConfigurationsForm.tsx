@@ -139,7 +139,10 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
             disabled={readOnly}
             label={t("scm-webhook-plugin.add")}
             action={() => {
-              webhooks.push(defaultWebHook);
+              webhooks.push({
+                name: "SimpleWebHook",
+                configuration: defaultWebHook
+              });
               this.updateWebHooks(webhooks);
             }}
           />}
