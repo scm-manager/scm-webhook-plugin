@@ -47,14 +47,14 @@ type State = WebHookConfiguration;
 class SimpleWebHookConfigurationForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = props.configuration;
+    this.state = props.webHook.configuration;
   }
 
   componentWillReceiveProps(nextProps) {
     // update the webhook in the state if the prop are changed
     // The prop can be modified if webhooks are deleted
     if (nextProps.webHook !== this.props.webHook) {
-      this.state = nextProps.webHook;
+      this.state = nextProps.webHook.configuration;
     }
   }
 
@@ -63,7 +63,10 @@ class SimpleWebHookConfigurationForm extends React.Component<Props, State> {
       {
         [name]: value
       },
-      () => this.props.onChange(this.state)
+      () => {
+        console.log(this.state)
+        this.props.onChange(this.state)
+      }
     );
   };
 
@@ -112,15 +115,6 @@ class SimpleWebHookConfigurationForm extends React.Component<Props, State> {
   render() {
     const { readOnly, t } = this.props;
     const { urlPattern, executeOnEveryCommit, sendCommitData } = this.state;
-    const deleteIcon = readOnly ? (
-      ""
-    ) : (
-      <DeleteIcon className="level-item" onClick={this.confirmDelete}>
-        <span className="icon is-small">
-          <i className="fas fa-trash" />
-        </span>
-      </DeleteIcon>
-    );
     return (
       <article className="media">
         <DropDownWrapper className="media-left">{this.renderHttpMethodDropDown()}</DropDownWrapper>
@@ -152,7 +146,6 @@ class SimpleWebHookConfigurationForm extends React.Component<Props, State> {
         <div>
           <Help message={t("scm-webhook-plugin.form.urlPatternHelp")} />
         </div>
-        <div className="media-right">{deleteIcon}</div>
       </article>
     );
   }

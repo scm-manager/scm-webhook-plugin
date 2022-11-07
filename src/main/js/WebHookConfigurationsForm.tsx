@@ -26,6 +26,7 @@ import { WithTranslation, withTranslation } from "react-i18next";
 import { WebHookConfigurations } from "./WebHookConfiguration";
 import { Level, AddButton } from "@scm-manager/ui-components";
 import { ExtensionPoint } from "@scm-manager/ui-extensions";
+import styled from "styled-components";
 
 type Props = WithTranslation & {
   initialConfiguration: WebHookConfigurations;
@@ -34,6 +35,10 @@ type Props = WithTranslation & {
 };
 
 type State = WebHookConfigurations & {};
+
+const DeleteIcon = styled.a`
+  margin: 0.55rem 0 0 0.75rem;
+`;
 
 class WebHookConfigurationsForm extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -47,7 +52,7 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
     const { webhooks } = this.state;
     let valid = true;
     webhooks.map(webHook => {
-      valid = valid && webHook.urlPattern.trim() !== "" && webHook.method.trim() !== "";
+      valid = valid && webHook.configuration.urlPattern.trim() !== "" && webHook.configuration.method.trim() !== "";
     });
     return valid;
   }
@@ -70,7 +75,7 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
 
   onChange = (changedWebHook, index) => {
     const { webhooks } = this.state;
-    webhooks[index] = changedWebHook;
+    webhooks[index].configuration = changedWebHook;
     this.updateWebHooks(webhooks);
   };
 
@@ -87,14 +92,29 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
     return (
       <>
         {webhooks.map((webHook, index) => {
+          const deleteIcon = readOnly ? (
+            ""
+          ) : (
+            <DeleteIcon className="level-item" onClick={this.confirmDelete}>
+              <span className="icon is-small">
+                <i className="fas fa-trash" />
+              </span>
+            </DeleteIcon>
+          );
           return (
-            <ExtensionPoint
-              name={`webhook.configuration.${webHook.name}`}
-              renderAll={true}
-              props={webHook
-                // configurationChanged: validatorConfigChanged
-              }
-            />
+            <>
+              <ExtensionPoint
+                name={`webhook.configuration.${webHook.name}`}
+                renderAll={true}
+                props={{
+                  webHook: webHook,
+                  readOnly: readOnly,
+                  onChange: changedWebHook => this.onChange(changedWebHook, index),
+                  // configurationChanged: validatorConfigChanged}
+                }}
+              />
+              <div>{deleteIcon}</div>
+            </>
           );
         })}
         <Level right={<AddButton
