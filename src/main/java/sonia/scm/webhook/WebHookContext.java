@@ -90,18 +90,8 @@ public class WebHookContext {
     RepositoryPermissions.custom(WEB_HOOK_ID, repository).check();
   }
 
-  private <T> T withUberClassLoader(Supplier<T> runnable) {
-    ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-    Thread.currentThread().setContextClassLoader(uberClassLoader);
-    try {
-      return runnable.get();
-    } finally {
-      Thread.currentThread().setContextClassLoader(contextClassLoader);
-    }
-  }
-
   public WebHookConfiguration getGlobalConfiguration() {
-    return withUberClassLoader(() -> storeFactory.withType(WebHookConfiguration.class).withName(STORE_NAME).build().getOptional().orElse(new WebHookConfiguration()));
+    return withUberClassLoader(() -> store.getOptional().orElse(new WebHookConfiguration()));
   }
 
   public void setGlobalConfiguration(WebHookConfiguration globalConfiguration) {
@@ -127,6 +117,16 @@ public class WebHookContext {
   private ConfigurationStore<WebHookConfiguration> getRepositoryStore(String namespace, String name) {
     Repository repository = repositoryManager.get(new NamespaceAndName(namespace, name));
     return getRepositoryStore(repository);
+  }
+
+  private <T> T withUberClassLoader(Supplier<T> runnable) {
+    ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+    Thread.currentThread().setContextClassLoader(uberClassLoader);
+    try {
+      return runnable.get();
+    } finally {
+      Thread.currentThread().setContextClassLoader(contextClassLoader);
+    }
   }
 
   private ConfigurationStore<WebHookConfiguration> getRepositoryStore(Repository repository) {
