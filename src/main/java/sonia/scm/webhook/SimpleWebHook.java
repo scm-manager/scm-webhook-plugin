@@ -38,7 +38,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  * @author Sebastian Sdorra
  */
-@XmlRootElement(name = "webhook")
+@XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @ToString
 @EqualsAndHashCode

@@ -26,6 +26,7 @@ package sonia.scm.webhook;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import sonia.scm.config.ConfigurationPermissions;
+import sonia.scm.plugin.PluginLoader;
 import sonia.scm.repository.NamespaceAndName;
 import sonia.scm.repository.Repository;
 import sonia.scm.repository.RepositoryManager;
@@ -34,6 +35,7 @@ import sonia.scm.store.ConfigurationStore;
 import sonia.scm.store.ConfigurationStoreFactory;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * @author Sebastian Sdorra
@@ -44,19 +46,16 @@ public class WebHookContext {
   public static final String WEB_HOOK_ID = "webhook";
   private final ConfigurationStore<WebHookConfiguration> store;
   private final ConfigurationStoreFactory storeFactory;
-  private WebHookConfiguration globalConfiguration;
+  private final ClassLoader uberClassLoader;
   private static final String STORE_NAME = "webhook";
   private final RepositoryManager repositoryManager;
 
   @Inject
-  public WebHookContext(ConfigurationStoreFactory storeFactory, RepositoryManager repositoryManager) {
+  public WebHookContext(ConfigurationStoreFactory storeFactory, RepositoryManager repositoryManager, PluginLoader pluginLoader) {
     this.storeFactory = storeFactory;
     this.store = storeFactory.withType(WebHookConfiguration.class).withName(STORE_NAME).build();
     this.repositoryManager = repositoryManager;
-    globalConfiguration = store.get();
-    if (globalConfiguration == null) {
-      globalConfiguration = new WebHookConfiguration();
-    }
+    this.uberClassLoader = pluginLoader.getUberClassLoader();
   }
 
   public static boolean isReadPermitted() {
@@ -91,12 +90,21 @@ public class WebHookContext {
     RepositoryPermissions.custom(WEB_HOOK_ID, repository).check();
   }
 
+  private <T> T withUberClassLoader(Supplier<T> runnable) {
+    ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+    Thread.currentThread().setContextClassLoader(uberClassLoader);
+    try {
+      return runnable.get();
+    } finally {
+      Thread.currentThread().setContextClassLoader(contextClassLoader);
+    }
+  }
+
   public WebHookConfiguration getGlobalConfiguration() {
-    return globalConfiguration;
+    return withUberClassLoader(() -> storeFactory.withType(WebHookConfiguration.class).withName(STORE_NAME).build().getOptional().orElse(new WebHookConfiguration()));
   }
 
   public void setGlobalConfiguration(WebHookConfiguration globalConfiguration) {
-    this.globalConfiguration = globalConfiguration;
     store.set(globalConfiguration);
   }
 
