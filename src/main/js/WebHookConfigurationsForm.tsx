@@ -122,23 +122,26 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
                 props={{
                   webHook: webHook,
                   readOnly: readOnly,
-                  onChange: changedWebHook => this.onChange(changedWebHook, index),
+                  onChange: changedWebHook => this.onChange(changedWebHook, index)
                 }}
               />
               <div>{deleteIcon}</div>
             </>
           );
         })}
-        <Level right={
-          <AddWebHookButton readOnly={readOnly} onAdd={({name, defaultConfiguration}) => {
-            webhooks.push({
-              name: name,
-              configuration: defaultConfiguration
-            });
-            this.updateWebHooks(webhooks);
-          }}
-          />
-        }
+        <Level
+          right={
+            <AddWebHookButton
+              readOnly={readOnly}
+              onAdd={({ name, defaultConfiguration }) => {
+                webhooks.push({
+                  name: name,
+                  configuration: defaultConfiguration
+                });
+                this.updateWebHooks(webhooks);
+              }}
+            />
+          }
         />
       </>
     );

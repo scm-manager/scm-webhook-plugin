@@ -30,12 +30,15 @@ import SimpleWebHookConfigurationForm from "./SimpleWebHookConfigurationForm";
 cfgBinder.bindGlobal("/webhook", "scm-webhook-plugin.nav-link", "webHookConfig", GlobalWebhookConfigurationComponent);
 
 binder.bind("webhook.configuration.SimpleWebHook", SimpleWebHookConfigurationForm);
-binder.bind("webhook.configurations", {name: "SimpleWebHook", defaultConfiguration: {
+binder.bind("webhook.configurations", {
+  name: "SimpleWebHook",
+  defaultConfiguration: {
     urlPattern: "",
     executeOnEveryCommit: false,
     sendCommitData: false,
     method: "AUTO"
-  }});
+  }
+});
 
 cfgBinder.bindRepositorySetting(
   "/webhook",
@@ -47,4 +50,4 @@ cfgBinder.bindRepositorySetting(
 export type WebHookConfiguration = {
   name: string;
   defaultConfiguration: any;
-}
+};

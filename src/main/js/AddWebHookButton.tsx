@@ -29,10 +29,10 @@ import { useBinder } from "@scm-manager/ui-extensions";
 type Props = {
   readOnly: boolean;
   onAdd: (webHookName: string) => void;
-}
+};
 
-const AddWebHookButton: FC<Props> = ({readOnly, onAdd}) => {
-  const {t} = useTranslation("plugins");
+const AddWebHookButton: FC<Props> = ({ readOnly, onAdd }) => {
+  const { t } = useTranslation("plugins");
   const binder = useBinder();
   const [selectedWebHook, setSelectedWebHook] = useState(0);
 
@@ -44,7 +44,9 @@ const AddWebHookButton: FC<Props> = ({readOnly, onAdd}) => {
         options={availableWebHooks.map(hook => t(`scm-webhook-plugin.name.${hook.name}`))}
         optionValues={availableWebHooks.map(hook => hook.name)}
         preselectedOption={t(`scm-webhook-plugin.name.${availableWebHooks[selectedWebHook].name}`)}
-        optionSelected={(selectedName) => setSelectedWebHook(availableWebHooks.findIndex(hook => hook.name === selectedName))}
+        optionSelected={selectedName =>
+          setSelectedWebHook(availableWebHooks.findIndex(hook => hook.name === selectedName))
+        }
       />
       <AddButton
         disabled={readOnly}
@@ -53,6 +55,6 @@ const AddWebHookButton: FC<Props> = ({readOnly, onAdd}) => {
       />
     </>
   );
-}
+};
 
 export default AddWebHookButton;
