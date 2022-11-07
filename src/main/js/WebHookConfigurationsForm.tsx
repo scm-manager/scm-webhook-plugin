@@ -24,8 +24,8 @@
 import React from "react";
 import { WithTranslation, withTranslation } from "react-i18next";
 import { WebHookConfigurations } from "./WebHookConfiguration";
-import WebHookConfigurationForm from "./WebHookConfigurationForm";
 import { Level, AddButton } from "@scm-manager/ui-components";
+import { ExtensionPoint } from "@scm-manager/ui-extensions";
 
 type Props = WithTranslation & {
   initialConfiguration: WebHookConfigurations;
@@ -88,11 +88,12 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
       <>
         {webhooks.map((webHook, index) => {
           return (
-            <WebHookConfigurationForm
-              webHook={webHook}
-              readOnly={readOnly}
-              onDelete={this.onDelete}
-              onChange={changedWebHook => this.onChange(changedWebHook, index)}
+            <ExtensionPoint
+              name={`webhook.configuration.${webHook.name}`}
+              renderAll={true}
+              props={webHook.configuration
+                // configurationChanged: validatorConfigChanged
+              }
             />
           );
         })}

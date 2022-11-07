@@ -54,7 +54,7 @@ class XmlConfiguration {
   @XmlAnyElement
   Element configuration;
 
-  public static class ValidationConfigurationXmlAdapter extends XmlAdapter<XmlConfiguration, Object> {
+  public static class WebHookConfigurationXmlAdapter extends XmlAdapter<XmlConfiguration, SingleWebHookConfiguration> {
 
     private static final LoadingCache<Class<?>, JAXBContext> cache = CacheBuilder.newBuilder()
       .maximumSize(1000)
@@ -67,13 +67,13 @@ class XmlConfiguration {
         });
 
     @Override
-    public Object unmarshal(XmlConfiguration internal) throws Exception {
+    public SingleWebHookConfiguration unmarshal(XmlConfiguration internal) throws Exception {
       JAXBContext jaxbContext = cache.get(internal.configurationType);
-      return jaxbContext.createUnmarshaller().unmarshal(internal.configuration);
+      return (SingleWebHookConfiguration) jaxbContext.createUnmarshaller().unmarshal(internal.configuration);
     }
 
     @Override
-    public XmlConfiguration marshal(Object configuration) throws Exception {
+    public XmlConfiguration marshal(SingleWebHookConfiguration configuration) throws Exception {
       if (configuration == null) {
         return null;
       }

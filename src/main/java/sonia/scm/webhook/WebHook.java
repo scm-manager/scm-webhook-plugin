@@ -39,7 +39,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @NoArgsConstructor
 public class WebHook {
   String name;
-  @XmlJavaTypeAdapter(XmlConfiguration.ValidationConfigurationXmlAdapter.class)
+  @XmlJavaTypeAdapter(XmlConfiguration.WebHookConfigurationXmlAdapter.class)
   SingleWebHookConfiguration configuration;
 
   public WebHook(SingleWebHookConfiguration configuration) {

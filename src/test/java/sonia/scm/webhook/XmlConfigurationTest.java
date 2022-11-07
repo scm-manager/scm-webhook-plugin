@@ -24,5 +24,37 @@
 
 package sonia.scm.webhook;
 
-public interface WebHookExecutor extends Runnable {
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import javax.xml.bind.JAXB;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@ExtendWith(MockitoExtension.class)
+class XmlConfigurationTest {
+
+  @Test
+  void shouldSerializeAndDeserializeWebHooks() {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    JAXB.marshal(new WebHookConfiguration(Arrays.asList(
+      new WebHook(new SimpleWebHook("https://example.com", true, true, HttpMethod.AUTO)),
+      new WebHook(new SimpleWebHook("https://hog/trigger", false, false, HttpMethod.GET))
+    )), baos);
+
+    byte[] bytes = baos.toByteArray();
+
+    WebHookConfiguration configuration = JAXB.unmarshal(new ByteArrayInputStream(bytes), WebHookConfiguration.class);
+
+    assertThat(configuration.getWebhooks())
+      .extracting("configuration")
+      .contains(
+        new SimpleWebHook("https://example.com", true, true, HttpMethod.AUTO),
+        new SimpleWebHook("https://hog/trigger", false, false, HttpMethod.GET)
+      );
+  }
 }

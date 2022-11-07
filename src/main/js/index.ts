@@ -24,8 +24,12 @@
 import { ConfigurationBinder as cfgBinder } from "@scm-manager/ui-components";
 import GlobalWebhookConfigurationComponent from "./GlobalWebhookConfigurationComponent";
 import RepositoryWebhookConfigurationComponent from "./RepositoryWebhookConfigurationComponent";
+import { binder } from "@scm-manager/ui-extensions";
+import SimpleWebHookConfigurationForm from "./SimpleWebHookConfigurationForm";
 
 cfgBinder.bindGlobal("/webhook", "scm-webhook-plugin.nav-link", "webHookConfig", GlobalWebhookConfigurationComponent);
+
+binder.bind("webhook.configuration.SimpleWebHook", SimpleWebHookConfigurationForm);
 
 cfgBinder.bindRepositorySetting(
   "/webhook",

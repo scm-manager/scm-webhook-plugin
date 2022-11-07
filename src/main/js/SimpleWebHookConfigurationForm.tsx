@@ -44,7 +44,7 @@ type Props = WithTranslation & {
 
 type State = WebHookConfiguration;
 
-class WebHookConfigurationForm extends React.Component<Props, State> {
+class SimpleWebHookConfigurationForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = props.webHook;
@@ -158,4 +158,4 @@ class WebHookConfigurationForm extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation("plugins")(WebHookConfigurationForm);
+export default withTranslation("plugins")(SimpleWebHookConfigurationForm);
