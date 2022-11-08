@@ -23,8 +23,8 @@
  */
 import React from "react";
 import { WithTranslation, withTranslation } from "react-i18next";
-import { WebHookConfigurations } from "./WebHookConfiguration";
-import { Button, Level, confirmAlert } from "@scm-manager/ui-components";
+import { WebHookConfiguration, WebHookConfigurations } from "./WebHookConfiguration";
+import { Button, confirmAlert, Level } from "@scm-manager/ui-components";
 import { ExtensionPoint } from "@scm-manager/ui-extensions";
 import AddWebHookButton from "./AddWebHookButton";
 
@@ -34,29 +34,35 @@ type Props = WithTranslation & {
   onConfigurationChange: (p1: WebHookConfigurations, p2: boolean) => void;
 };
 
-type State = WebHookConfigurations & {};
+type EditorState = WebHookConfiguration & {
+  valid: boolean;
+};
+
+type State = {
+  editorStates: EditorState[];
+};
 
 class WebHookConfigurationsForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      ...props.initialConfiguration
+      editorStates: props.initialConfiguration.webhooks.map(config => {
+        return {
+          ...config,
+          valid: true
+        };
+      })
     };
   }
 
-  isValid() {
-    const { webhooks } = this.state;
-    let valid = true;
-    webhooks.map(webHook => {
-      valid = valid && webHook.configuration.urlPattern.trim() !== "" && webHook.configuration.method.trim() !== "";
-    });
-    return valid;
-  }
+  isValid = () => {
+    return this.state.editorStates.findIndex(state => !state.valid) === -1;
+  };
 
-  updateWebHooks(webhooks) {
+  updateWebHooks(editorStates) {
     this.setState(
       {
-        webhooks
+        editorStates
       },
       () => this.props.onConfigurationChange(this.state, this.isValid())
     );
@@ -82,24 +88,25 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
   };
 
   onDelete = index => {
-    const { webhooks } = this.state;
-    webhooks.splice(index, 1);
-    this.updateWebHooks(webhooks);
+    const { editorStates } = this.state;
+    editorStates.splice(index, 1);
+    this.updateWebHooks(editorStates);
   };
 
-  onChange = (changedWebHook, index) => {
-    const { webhooks } = this.state;
-    webhooks[index].configuration = changedWebHook;
-    this.updateWebHooks(webhooks);
+  onChange = (changedWebHook, index, valid) => {
+    const { editorStates } = this.state;
+    editorStates[index].configuration = changedWebHook;
+    editorStates[index].valid = valid;
+    this.updateWebHooks(editorStates);
   };
 
   render() {
-    const { webhooks } = this.state;
+    const { editorStates } = this.state;
     const { readOnly } = this.props;
 
     return (
       <>
-        {webhooks.map((webHook, index) => {
+        {editorStates.map((webHook, index) => {
           const deleteIcon = readOnly ? (
             ""
           ) : (
@@ -116,7 +123,7 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
                   props={{
                     webHook: webHook,
                     readOnly: readOnly,
-                    onChange: changedWebHook => this.onChange(changedWebHook, index)
+                    onChange: (changedWebHook, valid) => this.onChange(changedWebHook, index, valid)
                   }}
                 />
               </div>
@@ -129,11 +136,12 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
             <AddWebHookButton
               readOnly={readOnly}
               onAdd={({ name, defaultConfiguration }) => {
-                webhooks.push({
+                editorStates.push({
                   name: name,
-                  configuration: defaultConfiguration
+                  configuration: defaultConfiguration,
+                  valid: true
                 });
-                this.updateWebHooks(webhooks);
+                this.updateWebHooks(editorStates);
               }}
             />
           }

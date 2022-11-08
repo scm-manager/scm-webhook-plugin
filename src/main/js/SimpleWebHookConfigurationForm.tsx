@@ -24,8 +24,8 @@
 import React from "react";
 import { WithTranslation, withTranslation } from "react-i18next";
 import styled from "styled-components";
-import { confirmAlert, DropDown, Help, InputField, Checkbox } from "@scm-manager/ui-components";
-import { WebHookConfiguration } from "./WebHookConfiguration";
+import { DropDown, Help, InputField, Checkbox } from "@scm-manager/ui-components";
+import { SimpleWebHookConfiguration, WebHookConfiguration } from "./WebHookConfiguration";
 
 const DeleteIcon = styled.a`
   margin: 0.55rem 0 0 0.75rem;
@@ -42,7 +42,7 @@ type Props = WithTranslation & {
   onDelete: (p: WebHookConfiguration) => void;
 };
 
-type State = WebHookConfiguration;
+type State = SimpleWebHookConfiguration;
 
 class SimpleWebHookConfigurationForm extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -58,12 +58,17 @@ class SimpleWebHookConfigurationForm extends React.Component<Props, State> {
     }
   }
 
+  isValid = () => {
+    const { urlPattern, method } = this.state;
+    return urlPattern.trim() !== "" && method.trim() !== "";
+  };
+
   handleChange = (value: any, name: string) => {
     this.setState(
       {
         [name]: value
       },
-      () => this.props.onChange(this.state)
+      () => this.props.onChange(this.state, this.isValid())
     );
   };
 
