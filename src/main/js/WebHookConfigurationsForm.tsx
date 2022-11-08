@@ -64,7 +64,7 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
       {
         editorStates
       },
-      () => this.props.onConfigurationChange(this.state, this.isValid())
+      () => this.props.onConfigurationChange({ webhooks: this.state.editorStates }, this.isValid())
     );
   }
 
