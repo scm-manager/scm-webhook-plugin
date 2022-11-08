@@ -34,7 +34,7 @@ binder.bind("webhook.configuration.SimpleWebHook", SimpleWebHookConfigurationFor
 binder.bind<WebHookConfiguration>("webhook.configurations", {
   name: "SimpleWebHook",
   defaultConfiguration: {
-    urlPattern: "",
+    urlPattern: "https://example.com/",
     executeOnEveryCommit: false,
     sendCommitData: false,
     method: "AUTO"
