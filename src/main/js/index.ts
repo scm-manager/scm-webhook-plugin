@@ -26,11 +26,12 @@ import GlobalWebhookConfigurationComponent from "./GlobalWebhookConfigurationCom
 import RepositoryWebhookConfigurationComponent from "./RepositoryWebhookConfigurationComponent";
 import { binder } from "@scm-manager/ui-extensions";
 import SimpleWebHookConfigurationForm from "./SimpleWebHookConfigurationForm";
+import { WebHookConfiguration } from "./AddWebHookButton";
 
 cfgBinder.bindGlobal("/webhook", "scm-webhook-plugin.nav-link", "webHookConfig", GlobalWebhookConfigurationComponent);
 
 binder.bind("webhook.configuration.SimpleWebHook", SimpleWebHookConfigurationForm);
-binder.bind("webhook.configurations", {
+binder.bind<WebHookConfiguration>("webhook.configurations", {
   name: "SimpleWebHook",
   defaultConfiguration: {
     urlPattern: "",
@@ -47,7 +48,4 @@ cfgBinder.bindRepositorySetting(
   RepositoryWebhookConfigurationComponent
 );
 
-export type WebHookConfiguration = {
-  name: string;
-  defaultConfiguration: any;
-};
+export { WebHookConfiguration } from "./AddWebHookButton";

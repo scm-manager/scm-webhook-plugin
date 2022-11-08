@@ -24,19 +24,27 @@
 import React, { FC, useState } from "react";
 import { AddButton, DropDown } from "@scm-manager/ui-components";
 import { useTranslation } from "react-i18next";
-import { useBinder } from "@scm-manager/ui-extensions";
+import { useBinder, ExtensionPointDefinition } from "@scm-manager/ui-extensions";
 
 type Props = {
   readOnly: boolean;
   onAdd: (webHookName: string) => void;
 };
 
+export type WebHookConfiguration = ExtensionPointDefinition<
+  "webhook.configurations",
+  {
+    name: string;
+    defaultConfiguration: unknown;
+  }
+>;
+
 const AddWebHookButton: FC<Props> = ({ readOnly, onAdd }) => {
   const { t } = useTranslation("plugins");
   const binder = useBinder();
   const [selectedWebHook, setSelectedWebHook] = useState(0);
 
-  const availableWebHooks = binder.getExtensions("webhook.configurations");
+  const availableWebHooks = binder.getExtensions<WebHookConfiguration>("webhook.configurations");
 
   return (
     <>
