@@ -115,11 +115,11 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
             </Button>
           );
           return (
-            <div className={"columns is-vcentered"}>
+            <div className={"columns is-vcentered"} key={`config-${index}`}>
               <div className={"column"}>
                 <ExtensionPoint
                   name={`webhook.configuration.${webHook.name}`}
-                  renderAll={true}
+                  renderAll={false}
                   props={{
                     webHook: webHook,
                     readOnly: readOnly,
