@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -60,7 +61,7 @@ class WebhooksExtensibleUpdateStepTest {
   @Test
   void shouldDoNothingIfConfigIsNewAlready() {
     WebHookConfiguration newConfiguration = new WebHookConfiguration(
-      List.of(new WebHook(new SimpleWebHook("https://hog.org/", false, false, HttpMethod.PUT)))
+      singletonList(new WebHook(new SimpleWebHook("https://hog.org/", false, false, HttpMethod.PUT)))
     );
     storeFactory
       .withType(WebHookConfiguration.class)
@@ -183,13 +184,8 @@ class WebhooksExtensibleUpdateStepTest {
       }
 
       @Override
-      public void set(T obejct) {
-        this.object = obejct;
-      }
-
-      @Override
-      public void delete() {
-        object = null;
+      public void set(T object) {
+        this.object = object;
       }
     }
   }
