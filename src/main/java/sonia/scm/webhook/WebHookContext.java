@@ -43,11 +43,12 @@ import java.util.function.Supplier;
 @Singleton
 public class WebHookContext {
 
-  public static final String WEB_HOOK_ID = "webhook";
+  private static final String WEB_HOOK_ID = "webhook";
+  private static final String STORE_NAME = "webhook";
+
   private final ConfigurationStore<WebHookConfiguration> store;
   private final ConfigurationStoreFactory storeFactory;
   private final ClassLoader uberClassLoader;
-  private static final String STORE_NAME = "webhook";
   private final RepositoryManager repositoryManager;
 
   @Inject
