@@ -101,7 +101,7 @@ public class WebHookContext {
 
   public WebHookConfiguration getRepositoryConfigurations(String namespace, String name) {
     ConfigurationStore<WebHookConfiguration> repositoryStore = getRepositoryStore(namespace, name);
-    return Optional.ofNullable(repositoryStore.get()).orElse(new WebHookConfiguration());
+    return withUberClassLoader(() -> Optional.ofNullable(repositoryStore.get()).orElse(new WebHookConfiguration()));
   }
 
   public WebHookConfiguration getAllConfigurations(Repository repository) {
