@@ -119,7 +119,7 @@ public class RepositoryWebHook {
 
     @Override
     public WebHookExecutor createExecutor(SingleWebHookConfiguration webHook, Repository repository, Iterable<Changeset> iterable) {
-      return () -> logger.warn("no executor found for webhook of type {}", webHook.getClass());
+      return () -> logger.warn("no executor found for webhook of type {} in hook for repository {}", webHook.getClass(), repository);
     }
   }
 }
