@@ -23,10 +23,8 @@
  */
 package sonia.scm.webhook;
 
-import com.cloudogu.scm.el.ElParser;
 import com.github.legman.Subscribe;
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sonia.scm.EagerSingleton;
@@ -47,13 +45,12 @@ public class RepositoryWebHook {
 
   private final WebHookContext context;
 
-  private final Set<WebHookExecutorProvider> executorProviders;
+  private final Set<WebHookSpecification> specifications;
 
   @Inject
-  public RepositoryWebHook(Provider<WebHookHttpClient> httpClientProvider,
-                           WebHookContext context, ElParser elParser, Set<WebHookExecutorProvider> executorProviders) {
+  public RepositoryWebHook(WebHookContext context, Set<WebHookSpecification> specifications) {
     this.context = context;
-    this.executorProviders = executorProviders;
+    this.specifications = specifications;
   }
 
   @Subscribe
@@ -103,7 +100,7 @@ public class RepositoryWebHook {
     }
 
     for (WebHook webHook : configuration.getWebhooks()) {
-      executorProviders
+      specifications
         .stream()
         .filter(provider -> provider.handles(webHook.getClass()))
         .findFirst()

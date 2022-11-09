@@ -111,7 +111,7 @@ class WebHookResourceTest {
     ScmPathInfoStore scmPathInfoStore = new ScmPathInfoStore();
     scmPathInfoStore.set(() -> URI.create("/"));
     webHookMapper.scmPathInfoStore = scmPathInfoStore;
-    webHookMapper.availableSpecifications = new AvailableWebHookSpecifications(singleton(new SimpleWebHookSpecification()));
+    webHookMapper.availableSpecifications = new AvailableWebHookSpecifications(singleton(new SimpleWebHookSpecification(null, null)));
     webHookMapper.configurationValidator = new ConfigurationValidator();
   }
 

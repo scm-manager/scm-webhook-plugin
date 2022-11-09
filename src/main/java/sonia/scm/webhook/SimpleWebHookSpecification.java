@@ -24,12 +24,37 @@
 
 package sonia.scm.webhook;
 
+import com.cloudogu.scm.el.ElParser;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import sonia.scm.plugin.Extension;
+import sonia.scm.repository.Changeset;
+import sonia.scm.repository.Repository;
 
 @Extension
-public class SimpleWebHookSpecification implements WebHookSpecification {
+public class SimpleWebHookSpecification implements WebHookSpecification<SimpleWebHook> {
+
+  private final Provider<WebHookHttpClient> httpClientProvider;
+  private final ElParser elParser;
+
+  @Inject
+  public SimpleWebHookSpecification(Provider<WebHookHttpClient> httpClientProvider, ElParser elParser) {
+    this.httpClientProvider = httpClientProvider;
+    this.elParser = elParser;
+  }
+
   @Override
   public Class<SimpleWebHook> getSpecificationType() {
     return SimpleWebHook.class;
+  }
+
+  @Override
+  public boolean handles(Class<WebHook> webHookClass) {
+    return SimpleWebHook.class.isAssignableFrom(webHookClass);
+  }
+
+  @Override
+  public WebHookExecutor createExecutor(SimpleWebHook webHook, Repository repository, Iterable<Changeset> changesets) {
+    return new DefaultWebHookExecutor(httpClientProvider.get(), elParser, webHook, repository, changesets);
   }
 }
