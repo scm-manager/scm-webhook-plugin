@@ -22,7 +22,8 @@
     "helpText" : "Add and remove webhooks for your repositories.",
     "name": {
       "SimpleWebHook": "Simple Hook"
-    }
+    },
+    "noHooksConfigured": "There are no hooks configured yet."
   },
   "permissions": {
     "configuration": {

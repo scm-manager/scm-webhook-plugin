@@ -24,9 +24,9 @@
 import React from "react";
 import { WithTranslation, withTranslation } from "react-i18next";
 import { WebHookConfiguration, WebHookConfigurations } from "./WebHookConfiguration";
-import { Button, confirmAlert, Level } from "@scm-manager/ui-components";
-import { ExtensionPoint } from "@scm-manager/ui-extensions";
+import { confirmAlert, Level } from "@scm-manager/ui-components";
 import AddWebHookButton from "./AddWebHookButton";
+import { WebHookListConfigurationForm } from "./WebHookListConfigurationForm";
 
 type Props = WithTranslation & {
   initialConfiguration: WebHookConfigurations;
@@ -34,13 +34,15 @@ type Props = WithTranslation & {
   onConfigurationChange: (p1: WebHookConfigurations, p2: boolean) => void;
 };
 
-type EditorState = WebHookConfiguration & {
+export type EditorState = WebHookConfiguration & {
   valid: boolean;
 };
 
-type State = {
+export type EditorStates = {
   editorStates: EditorState[];
 };
+
+type State = EditorStates;
 
 class WebHookConfigurationsForm extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -106,31 +108,12 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
 
     return (
       <>
-        {editorStates.map((webHook, index) => {
-          const deleteIcon = readOnly ? (
-            ""
-          ) : (
-            <Button className="level-item" action={() => this.confirmDelete(index)}>
-              <i className="fas fa-trash" />
-            </Button>
-          );
-          return (
-            <div className={"columns is-vcentered"} key={`config-${index}`}>
-              <div className={"column"}>
-                <ExtensionPoint
-                  name={`webhook.configuration.${webHook.name}`}
-                  renderAll={false}
-                  props={{
-                    webHook: webHook,
-                    readOnly: readOnly,
-                    onChange: (changedWebHook, valid) => this.onChange(changedWebHook, index, valid)
-                  }}
-                />
-              </div>
-              <div className={"colum"}>{deleteIcon}</div>
-            </div>
-          );
-        })}
+        <WebHookListConfigurationForm
+          editorStates={editorStates}
+          readOnly={readOnly}
+          onChange={this.onChange}
+          onDelete={this.confirmDelete}
+        />
         <Level
           right={
             <AddWebHookButton
