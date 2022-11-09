@@ -106,6 +106,24 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
     const { editorStates } = this.state;
     const { readOnly } = this.props;
 
+    const addButton = readOnly ? null : (
+      <Level
+        right={
+          <AddWebHookButton
+            readOnly={readOnly}
+            onAdd={({ name, defaultConfiguration }) => {
+              editorStates.push({
+                name: name,
+                configuration: defaultConfiguration,
+                valid: true
+              });
+              this.updateWebHooks(editorStates);
+            }}
+          />
+        }
+      />
+    );
+
     return (
       <>
         <WebHookListConfigurationForm
@@ -114,21 +132,7 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
           onChange={this.onChange}
           onDelete={this.confirmDelete}
         />
-        <Level
-          right={
-            <AddWebHookButton
-              readOnly={readOnly}
-              onAdd={({ name, defaultConfiguration }) => {
-                editorStates.push({
-                  name: name,
-                  configuration: defaultConfiguration,
-                  valid: true
-                });
-                this.updateWebHooks(editorStates);
-              }}
-            />
-          }
-        />
+        {addButton}
       </>
     );
   }
