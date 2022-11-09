@@ -24,7 +24,7 @@
 import React, { FC, useState } from "react";
 import { AddButton, DropDown } from "@scm-manager/ui-components";
 import { useTranslation } from "react-i18next";
-import { useBinder, ExtensionPointDefinition } from "@scm-manager/ui-extensions";
+import { ExtensionPointDefinition, useBinder } from "@scm-manager/ui-extensions";
 
 type Props = {
   readOnly: boolean;
@@ -45,16 +45,15 @@ const AddWebHookButton: FC<Props> = ({ readOnly, onAdd }) => {
   const [selectedWebHook, setSelectedWebHook] = useState(0);
 
   const availableWebHooks = binder.getExtensions<WebHookConfiguration>("webhook.configurations");
+  const options = availableWebHooks.map(hook => t(`webhooks.${hook.name}.name`));
+  const preselectedOption = t(`webhooks.${availableWebHooks[selectedWebHook].name}.name`);
 
   return (
     <>
       <DropDown
-        options={availableWebHooks.map(hook => t(`webhooks.${hook.name}.name`))}
-        optionValues={availableWebHooks.map(hook => hook.name)}
-        preselectedOption={t(`webhooks.${availableWebHooks[selectedWebHook].name}.name`)}
-        optionSelected={selectedName =>
-          setSelectedWebHook(availableWebHooks.findIndex(hook => hook.name === selectedName))
-        }
+        options={options}
+        preselectedOption={preselectedOption}
+        optionSelected={selectedName => setSelectedWebHook(options.findIndex(option => option === selectedName))}
       />
       <AddButton
         disabled={readOnly}
