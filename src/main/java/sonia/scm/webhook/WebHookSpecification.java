@@ -32,7 +32,9 @@ import sonia.scm.repository.Repository;
 public interface WebHookSpecification<T extends SingleWebHookConfiguration> {
   Class<T> getSpecificationType();
 
-  boolean handles(Class<WebHook> webHookClass);
+  default boolean handles(Class<WebHook> webHookClass) {
+    return getSpecificationType().isAssignableFrom(webHookClass);
+  }
 
   WebHookExecutor createExecutor(T webHook, Repository repository, Iterable< Changeset > changesets);
 }

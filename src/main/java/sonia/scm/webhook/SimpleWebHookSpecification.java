@@ -49,11 +49,6 @@ public class SimpleWebHookSpecification implements WebHookSpecification<SimpleWe
   }
 
   @Override
-  public boolean handles(Class<WebHook> webHookClass) {
-    return SimpleWebHook.class.isAssignableFrom(webHookClass);
-  }
-
-  @Override
   public WebHookExecutor createExecutor(SimpleWebHook webHook, Repository repository, Iterable<Changeset> changesets) {
     return new DefaultWebHookExecutor(httpClientProvider.get(), elParser, webHook, repository, changesets);
   }
