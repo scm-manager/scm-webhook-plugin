@@ -48,20 +48,23 @@ export const WebHookListConfigurationForm: FC<Props> = ({ editorStates, readOnly
             </Button>
           );
           return (
-            <div className={"columns is-vcentered"} key={`config-${index}`}>
-              <div className={"column"}>
-                <ExtensionPoint
-                  name={`webhook.configuration.${webHook.name}`}
-                  renderAll={false}
-                  props={{
-                    webHook: webHook,
-                    readOnly: readOnly,
-                    onChange: (changedWebHook, valid) => onChange(changedWebHook, index, valid)
-                  }}
-                />
+            <>
+              <div className={"columns is-vcentered"} key={`config-${index}`}>
+                <div className={"column"}>
+                  <ExtensionPoint
+                    name={`webhook.configuration.${webHook.name}`}
+                    renderAll={false}
+                    props={{
+                      webHook: webHook,
+                      readOnly: readOnly,
+                      onChange: (changedWebHook, valid) => onChange(changedWebHook, index, valid)
+                    }}
+                  />
+                </div>
+                <div className={"colum"}>{deleteIcon}</div>
               </div>
-              <div className={"colum"}>{deleteIcon}</div>
-            </div>
+              <hr />
+            </>
           );
         })}
       </>
