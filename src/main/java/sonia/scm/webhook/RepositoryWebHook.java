@@ -25,6 +25,7 @@ package sonia.scm.webhook;
 
 import com.github.legman.Subscribe;
 import com.google.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sonia.scm.EagerSingleton;
@@ -39,6 +40,7 @@ import java.util.Set;
 
 @Extension
 @EagerSingleton
+@Slf4j
 public class RepositoryWebHook {
 
   private static final Logger logger = LoggerFactory.getLogger(RepositoryWebHook.class);
@@ -93,6 +95,7 @@ public class RepositoryWebHook {
     return changesets;
   }
 
+  @SuppressWarnings({"unchecked"})
   private void executeWebHooks(WebHookConfiguration configuration,
                                Repository repository, Iterable<Changeset> changesets) {
     if (logger.isDebugEnabled()) {
@@ -102,9 +105,23 @@ public class RepositoryWebHook {
     for (WebHook webHook : configuration.getWebhooks()) {
       specifications
         .stream()
-        .filter(provider -> provider.handles(webHook.getClass()))
+        .filter(provider -> provider.handles(webHook.getConfiguration().getClass()))
         .findFirst()
-        .ifPresent(webHookExecutorProvider -> webHookExecutorProvider.createExecutor(webHook.getConfiguration(), repository, changesets).run());
+        .orElseGet(NoSpecificationFound::new)
+        .createExecutor(webHook.getConfiguration(), repository, changesets)
+        .run();
+    }
+  }
+
+  private static class NoSpecificationFound implements WebHookSpecification<SingleWebHookConfiguration> {
+    @Override
+    public Class<SingleWebHookConfiguration> getSpecificationType() {
+      return null;
+    }
+
+    @Override
+    public WebHookExecutor createExecutor(SingleWebHookConfiguration webHook, Repository repository, Iterable<Changeset> iterable) {
+      return () -> logger.warn("no executor found for webhook of type {}", webHook.getClass());
     }
   }
 }
