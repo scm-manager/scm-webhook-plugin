@@ -20,10 +20,12 @@
       "cancel": "Nein"
     },
     "helpText" : "Webhooks für das Repository hinzufügen und entfernen.",
-    "name": {
-      "SimpleWebHook": "Einfacher Webhook"
-    },
     "noHooksConfigured": "Es wurden noch keine Webhooks angelegt."
+  },
+  "webhooks": {
+    "SimpleWebHook": {
+      "name": "Einfacher Webhook"
+    }
   },
   "permissions": {
     "configuration": {

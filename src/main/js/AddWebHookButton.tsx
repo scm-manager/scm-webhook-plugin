@@ -49,9 +49,9 @@ const AddWebHookButton: FC<Props> = ({ readOnly, onAdd }) => {
   return (
     <>
       <DropDown
-        options={availableWebHooks.map(hook => t(`scm-webhook-plugin.name.${hook.name}`))}
+        options={availableWebHooks.map(hook => t(`webhooks.${hook.name}.name`))}
         optionValues={availableWebHooks.map(hook => hook.name)}
-        preselectedOption={t(`scm-webhook-plugin.name.${availableWebHooks[selectedWebHook].name}`)}
+        preselectedOption={t(`webhooks.${availableWebHooks[selectedWebHook].name}.name`)}
         optionSelected={selectedName =>
           setSelectedWebHook(availableWebHooks.findIndex(hook => hook.name === selectedName))
         }
