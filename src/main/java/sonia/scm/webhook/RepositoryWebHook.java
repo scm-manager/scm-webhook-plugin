@@ -25,7 +25,6 @@ package sonia.scm.webhook;
 
 import com.github.legman.Subscribe;
 import com.google.inject.Inject;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sonia.scm.EagerSingleton;
@@ -40,7 +39,6 @@ import java.util.Set;
 
 @Extension
 @EagerSingleton
-@Slf4j
 public class RepositoryWebHook {
 
   private static final Logger logger = LoggerFactory.getLogger(RepositoryWebHook.class);
