@@ -50,6 +50,6 @@ public class SimpleWebHookSpecification implements WebHookSpecification<SimpleWe
 
   @Override
   public WebHookExecutor createExecutor(SimpleWebHook webHook, Repository repository, Iterable<Changeset> changesets) {
-    return new DefaultWebHookExecutor(httpClientProvider.get(), elParser, webHook, repository, changesets);
+    return new SimpleWebHookExecutor(httpClientProvider.get(), elParser, webHook, repository, changesets);
   }
 }

@@ -37,9 +37,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class DefaultWebHookExecutor implements WebHookExecutor {
+class SimpleWebHookExecutor implements WebHookExecutor {
 
-  private static final Logger logger = LoggerFactory.getLogger(DefaultWebHookExecutor.class);
+  private static final Logger logger = LoggerFactory.getLogger(SimpleWebHookExecutor.class);
 
   private final Iterable<Changeset> changesets;
   private final Expression expression;
@@ -47,8 +47,8 @@ public class DefaultWebHookExecutor implements WebHookExecutor {
   private final Repository repository;
   private final SimpleWebHook webHook;
 
-  public DefaultWebHookExecutor(WebHookHttpClient httpClient, ElParser elParser,
-                                SimpleWebHook webHook, Repository repository, Iterable<Changeset> changesets) {
+  SimpleWebHookExecutor(WebHookHttpClient httpClient, ElParser elParser,
+                               SimpleWebHook webHook, Repository repository, Iterable<Changeset> changesets) {
     this.httpClient = httpClient;
     this.expression = elParser.parse(webHook.getUrlPattern());
     this.webHook = webHook;
