@@ -53,9 +53,9 @@ const AddWebHookButton: FC<Props> = ({ readOnly, onAdd }) => {
   });
 
   return (
-    <div className="field has-addons">
+    <div className="is-flex">
       <Select
-        className="select"
+        className={"mr-2"}
         options={options}
         value={availableWebHooks[selectedWebHook].name}
         onChange={selected => setSelectedWebHook(options.findIndex(option => option.value === selected))}
