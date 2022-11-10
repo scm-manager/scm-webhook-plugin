@@ -39,7 +39,7 @@ import java.util.Map;
 
 class SimpleWebHookExecutor implements WebHookExecutor {
 
-  private static final Logger logger = LoggerFactory.getLogger(SimpleWebHookExecutor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SimpleWebHookExecutor.class);
 
   private final Iterable<Changeset> changesets;
   private final Expression expression;
@@ -58,7 +58,7 @@ class SimpleWebHookExecutor implements WebHookExecutor {
 
   @Override
   public void run() {
-    logger.debug("execute webhook: {}", webHook);
+    LOG.debug("execute webhook: {}", webHook);
 
     if (webHook.isExecuteOnEveryCommit()) {
       for (Changeset c : changesets) {
@@ -118,14 +118,14 @@ class SimpleWebHookExecutor implements WebHookExecutor {
   }
 
   private void execute(HttpMethod method, String url, Object data) {
-    if (logger.isInfoEnabled()) {
-      logger.info("execute webhook for url {}", url);
+    if (LOG.isInfoEnabled()) {
+      LOG.info("execute webhook for url {}", url);
     }
 
     try {
       httpClient.execute(method, url, data);
     } catch (IOException ex) {
-      logger.error("error during webhook execution for ".concat(url), ex);
+      LOG.error("error during webhook execution for ".concat(url), ex);
     }
   }
 }

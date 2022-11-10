@@ -52,5 +52,11 @@
         "description": "May create and modify webhooks for this repository"
       }
     }
+  },
+  "errors": {
+    "BcTMDIHIb1": {
+      "displayName": "Unknown configuration",
+      "description": "A webhook configuration could not be read correctly."
+    }
   }
 }

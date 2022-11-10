@@ -61,7 +61,7 @@ export const WebHookListConfigurationForm: FC<Props> = ({ editorStates, readOnly
                     }}
                   />
                 </div>
-                <div className={"colum"}>{deleteIcon}</div>
+                <div className={"column"}>{deleteIcon}</div>
               </div>
               <hr />
             </>

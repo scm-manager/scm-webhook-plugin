@@ -32,10 +32,10 @@ import sonia.scm.webhook.WebHookSpecification;
 @SuppressWarnings("squid:MaximumInheritanceDepth") // exceptions have a deep inheritance depth themselves; therefore we accept this here
 public class InvalidConfigurationException extends BadRequestException {
 
-  public static final String CODE = "BcTMDIHIb1"; // TODO Translations
+  public static final String CODE = "BcTMDIHIb1";
 
   public InvalidConfigurationException(WebHookSpecification specification, Exception cause) {
-    super(ContextEntry.ContextBuilder.entity("validator", AvailableWebHookSpecifications.nameOf(specification)).build(), "configuration could not be parsed", cause);
+    super(ContextEntry.ContextBuilder.entity("webhook", AvailableWebHookSpecifications.nameOf(specification)).build(), "configuration could not be parsed", cause);
   }
 
   @Override
