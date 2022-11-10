@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 import React, { FC, useState } from "react";
-import { AddButton, DropDown } from "@scm-manager/ui-components";
+import { AddButton, Select } from "@scm-manager/ui-components";
 import { useTranslation } from "react-i18next";
 import { ExtensionPointDefinition, useBinder } from "@scm-manager/ui-extensions";
 
@@ -45,22 +45,27 @@ const AddWebHookButton: FC<Props> = ({ readOnly, onAdd }) => {
   const [selectedWebHook, setSelectedWebHook] = useState(0);
 
   const availableWebHooks = binder.getExtensions<WebHookConfiguration>("webhook.configurations");
-  const options = availableWebHooks.map(hook => t(`webhooks.${hook.name}.name`));
-  const preselectedOption = t(`webhooks.${availableWebHooks[selectedWebHook].name}.name`);
+  const options = availableWebHooks.map(hook => {
+    return {
+      value: hook.name,
+      label: t(`webhooks.${hook.name}.name`)
+    };
+  });
 
   return (
-    <>
-      <DropDown
+    <div className="field has-addons">
+      <Select
+        className="select"
         options={options}
-        preselectedOption={preselectedOption}
-        optionSelected={selectedName => setSelectedWebHook(options.findIndex(option => option === selectedName))}
+        value={availableWebHooks[selectedWebHook].name}
+        onChange={selected => setSelectedWebHook(options.findIndex(option => option.value === selected))}
       />
       <AddButton
         disabled={readOnly}
         label={t("scm-webhook-plugin.add")}
         action={() => onAdd(availableWebHooks[selectedWebHook])}
       />
-    </>
+    </div>
   );
 };
 
