@@ -21,28 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package sonia.scm.webhook.internal;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.JsonNode;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+package sonia.scm.webhook;
 
-import javax.validation.constraints.NotEmpty;
+import com.google.inject.Inject;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@EqualsAndHashCode
-@Getter
-@Setter
-public class WebHookDto {
+import java.util.Set;
 
-  @NotEmpty
-  private String name;
+public class AvailableWebHookSpecifications {
 
-  @JsonInclude(JsonInclude.Include.NON_NULL)
-  private JsonNode configuration;
+  private final Set<WebHookSpecification> specifications;
+
+  @Inject
+  public AvailableWebHookSpecifications(Set<WebHookSpecification> specifications) {
+    this.specifications = specifications;
+  }
+
+  public WebHookSpecification specificationFor(String name) {
+    return specifications.stream()
+      .filter(specification -> specification.getSpecificationType().getSimpleName().equals(name))
+      .findFirst()
+      .orElseThrow(() -> new UnknownWebHookException(name));
+  }
+
+  public static String nameOf(WebHookSpecification specification) {
+    return nameOf(specification.getClass());
+  }
+
+  public static String nameOf(Class<? extends WebHookSpecification> specificationClass) {
+    return specificationClass.getSimpleName();
+  }
 }

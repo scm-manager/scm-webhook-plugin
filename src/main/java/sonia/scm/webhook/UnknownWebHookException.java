@@ -21,28 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package sonia.scm.webhook.internal;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.JsonNode;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+package sonia.scm.webhook;
 
-import javax.validation.constraints.NotEmpty;
-
-@AllArgsConstructor
-@NoArgsConstructor
-@EqualsAndHashCode
-@Getter
-@Setter
-public class WebHookDto {
-
-  @NotEmpty
-  private String name;
-
-  @JsonInclude(JsonInclude.Include.NON_NULL)
-  private JsonNode configuration;
+public class UnknownWebHookException extends RuntimeException {
+  public UnknownWebHookException(String name) {
+    super(name);
+  }
 }
