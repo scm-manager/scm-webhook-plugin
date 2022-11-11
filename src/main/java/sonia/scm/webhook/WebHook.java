@@ -24,31 +24,27 @@
 package sonia.scm.webhook;
 
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-/**
- *
- * @author Sebastian Sdorra
- */
-@XmlRootElement(name = "webhook")
+@XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-@ToString
-@EqualsAndHashCode
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class WebHook {
-  private String urlPattern;
-  private boolean executeOnEveryCommit;
-  private boolean sendCommitData;
-  private HttpMethod method = HttpMethod.AUTO;
+  String name;
+  @XmlJavaTypeAdapter(XmlConfiguration.WebHookConfigurationXmlAdapter.class)
+  SingleWebHookConfiguration configuration;
+
+  public WebHook(SingleWebHookConfiguration configuration) {
+    this(configuration.getClass().getSimpleName(), configuration);
+  }
 }

@@ -1,0 +1,2 @@
+- type: added
+  description: Extendable webhooks ([#46](https://github.com/scm-manager/scm-webhook-plugin/pull/46))

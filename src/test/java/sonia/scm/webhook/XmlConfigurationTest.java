@@ -21,46 +21,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package sonia.scm.webhook;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import sonia.scm.net.ahc.AdvancedHttpClient;
-import sonia.scm.repository.RepositoryManager;
-import sonia.scm.store.ConfigurationStoreFactory;
-import sonia.scm.webhook.impl.AhcWebHookHttpClient;
+
+import javax.xml.bind.JAXB;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
-class WebHookModuleTest {
-
-  @Mock
-  private AdvancedHttpClient ahClient;
-
-  @Mock
-  private RepositoryManager repositoryManager;
-
-  @Mock
-  private ConfigurationStoreFactory configurationStoreFactory;
+class XmlConfigurationTest {
 
   @Test
-  void shouldBindAhcWebHookHttpClient() {
-    Injector injector = Guice.createInjector(new WebHookModule(), new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(AdvancedHttpClient.class).toInstance(ahClient);
-        bind(RepositoryManager.class).toInstance(repositoryManager);
-        bind(ConfigurationStoreFactory.class).toInstance(configurationStoreFactory);
-      }
-    });
-    WebHookHttpClient client = injector.getInstance(WebHookHttpClient.class);
-    assertThat(client).isInstanceOf(AhcWebHookHttpClient.class);
-  }
+  void shouldSerializeAndDeserializeWebHooks() {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    JAXB.marshal(new WebHookConfiguration(Arrays.asList(
+      new WebHook(new SimpleWebHook("https://example.com", true, true, HttpMethod.AUTO)),
+      new WebHook(new SimpleWebHook("https://hog/trigger", false, false, HttpMethod.GET))
+    )), baos);
 
+    byte[] bytes = baos.toByteArray();
+
+    WebHookConfiguration configuration = JAXB.unmarshal(new ByteArrayInputStream(bytes), WebHookConfiguration.class);
+
+    assertThat(configuration.getWebhooks())
+      .extracting("configuration")
+      .contains(
+        new SimpleWebHook("https://example.com", true, true, HttpMethod.AUTO),
+        new SimpleWebHook("https://hog/trigger", false, false, HttpMethod.GET)
+      );
+  }
 }

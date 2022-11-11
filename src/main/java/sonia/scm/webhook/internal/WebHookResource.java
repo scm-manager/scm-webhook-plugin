@@ -44,9 +44,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriInfo;
 
 /**
  * @author Sebastian Sdorra
@@ -96,9 +94,9 @@ public class WebHookResource {
       schema = @Schema(implementation = ErrorDto.class)
     )
   )
-  public WebHookConfigurationDto getConfiguration(@Context UriInfo uriInfo) {
+  public WebHookConfigurationDto getConfiguration() {
     WebHookContext.checkReadPermission();
-    return webHookMapper.using(uriInfo).map(context.getGlobalConfiguration());
+    return webHookMapper.map(context.getGlobalConfiguration());
   }
 
   @POST
@@ -121,8 +119,8 @@ public class WebHookResource {
       schema = @Schema(implementation = ErrorDto.class)
     )
   )
-  public void setConfiguration(@Context UriInfo uriInfo, WebHookConfigurationDto configuration) {
-    setConfigurations(uriInfo, configuration);
+  public void setConfiguration(WebHookConfigurationDto configuration) {
+    setConfigurations(configuration);
   }
 
   @PUT
@@ -145,8 +143,8 @@ public class WebHookResource {
       schema = @Schema(implementation = ErrorDto.class)
     )
   )
-  public void updateConfiguration(@Context UriInfo uriInfo, WebHookConfigurationDto configuration) {
-    setConfigurations(uriInfo, configuration);
+  public void updateConfiguration(WebHookConfigurationDto configuration) {
+    setConfigurations(configuration);
   }
 
   @GET
@@ -184,13 +182,11 @@ public class WebHookResource {
       schema = @Schema(implementation = ErrorDto.class)
     )
   )
-  public WebHookConfigurationDto getRepositoryConfiguration(@Context UriInfo uriInfo, @PathParam("namespace") String namespace, @PathParam("name") String name) {
+  public WebHookConfigurationDto getRepositoryConfiguration(@PathParam("namespace") String namespace, @PathParam("name") String name) {
     Repository repository = repositoryManager.get(new NamespaceAndName(namespace, name));
     WebHookContext.checkReadPermission(repository);
     return webHookMapper
-      .using(uriInfo)
-      .forRepository(repository)
-      .map(context.getRepositoryConfigurations(namespace, name));
+      .map(context.getRepositoryConfigurations(namespace, name), repository);
   }
 
   @POST
@@ -220,8 +216,8 @@ public class WebHookResource {
       schema = @Schema(implementation = ErrorDto.class)
     )
   )
-  public void setRepositoryConfiguration(@Context UriInfo uriInfo, @PathParam("namespace") String namespace, @PathParam("name") String name, WebHookConfigurationDto configuration) {
-    setRepositoryConfigurations(uriInfo, configuration, namespace, name);
+  public void setRepositoryConfiguration(@PathParam("namespace") String namespace, @PathParam("name") String name, WebHookConfigurationDto configuration) {
+    setRepositoryConfigurations(configuration, namespace, name);
   }
 
   @PUT
@@ -251,21 +247,19 @@ public class WebHookResource {
       schema = @Schema(implementation = ErrorDto.class)
     )
   )
-  public void updateRepositoryConfiguration(@Context UriInfo uriInfo, @PathParam("namespace") String namespace, @PathParam("name") String name, WebHookConfigurationDto configuration) {
-    setRepositoryConfigurations(uriInfo, configuration, namespace, name);
+  public void updateRepositoryConfiguration(@PathParam("namespace") String namespace, @PathParam("name") String name, WebHookConfigurationDto configuration) {
+    setRepositoryConfigurations(configuration, namespace, name);
   }
 
-  private void setConfigurations(UriInfo uriInfo, WebHookConfigurationDto configuration) {
+  private void setConfigurations(WebHookConfigurationDto configuration) {
     WebHookContext.checkWritePermission();
-    context.setGlobalConfiguration(webHookMapper.using(uriInfo).map(configuration));
+    context.setGlobalConfiguration(webHookMapper.map(configuration));
   }
 
-  private void setRepositoryConfigurations(UriInfo uriInfo, WebHookConfigurationDto configuration, String namespace, String name) {
+  private void setRepositoryConfigurations(WebHookConfigurationDto configuration, String namespace, String name) {
     Repository repository = repositoryManager.get(new NamespaceAndName(namespace, name));
     WebHookContext.checkWritePermission(repository);
     context.setRepositoryConfiguration(webHookMapper
-      .using(uriInfo)
-      .forRepository(repository)
       .map(configuration), namespace, name);
   }
 

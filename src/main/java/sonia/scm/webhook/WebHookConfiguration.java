@@ -23,8 +23,6 @@
  */
 package sonia.scm.webhook;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,10 +31,9 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.HashSet;
-import java.util.Set;
-
-//~--- JDK imports ------------------------------------------------------------
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Sebastian Sdorra
@@ -49,14 +46,14 @@ import java.util.Set;
 public class WebHookConfiguration {
 
   @XmlElement(name = "webhook")
-  private final Set<WebHook> webhooks = new HashSet<>();
+  private final List<WebHook> webhooks = new ArrayList<>();
 
-  public WebHookConfiguration(Set<WebHook> webhooks) {
+  public WebHookConfiguration(Collection<WebHook> webhooks) {
     this.webhooks.addAll(webhooks);
   }
 
   public WebHookConfiguration merge(WebHookConfiguration otherConfiguration) {
-    Set<WebHook> allHooks = new HashSet<>();
+    Collection<WebHook> allHooks = new ArrayList<>();
 
     allHooks.addAll(webhooks);
     allHooks.addAll(otherConfiguration.webhooks);
