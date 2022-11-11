@@ -21,7 +21,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 export type WebHookConfiguration = {
+  name: string;
+  configuration: any;
+};
+
+export type SimpleWebHookConfiguration = {
   urlPattern: string;
   executeOnEveryCommit: boolean;
   sendCommitData: boolean;

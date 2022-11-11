@@ -30,8 +30,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @AllArgsConstructor
 @EqualsAndHashCode
@@ -39,7 +39,7 @@ import java.util.Set;
 @Setter
 public class WebHookConfigurationDto extends HalRepresentation {
 
-  final Set<WebHookDto> webhooks = new HashSet<>();
+  final List<WebHookDto> webhooks = new ArrayList<>();
 
   @Override
   @SuppressWarnings("squid:S1185") // We want to have this method available in this package

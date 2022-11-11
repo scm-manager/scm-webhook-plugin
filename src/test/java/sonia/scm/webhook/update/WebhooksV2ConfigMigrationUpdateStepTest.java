@@ -32,7 +32,7 @@ import sonia.scm.store.ConfigurationStore;
 import sonia.scm.store.InMemoryConfigurationStoreFactory;
 import sonia.scm.update.V1PropertyDaoTestUtil;
 import sonia.scm.webhook.HttpMethod;
-import sonia.scm.webhook.WebHook;
+import sonia.scm.webhook.SimpleWebHook;
 import sonia.scm.webhook.WebHookConfiguration;
 
 import java.util.Map;
@@ -50,7 +50,7 @@ class WebhooksV2ConfigMigrationUpdateStepTest {
 
   private WebhooksV2ConfigMigrationUpdateStep updateStep;
 
-  private InMemoryConfigurationStoreFactory storeFactory = new InMemoryConfigurationStoreFactory();
+  private final InMemoryConfigurationStoreFactory storeFactory = new InMemoryConfigurationStoreFactory();
 
   @BeforeEach
   void initSetup() {
@@ -68,9 +68,9 @@ class WebhooksV2ConfigMigrationUpdateStepTest {
 
     updateStep.doUpdate();
 
-    WebHook v2Webhook = new WebHook("http://example.com/${repositoryName}", true, true, HttpMethod.POST);
+    SimpleWebHook v2Webhook = new SimpleWebHook("http://example.com/${repositoryName}", true, true, HttpMethod.POST);
 
-    assertThat(configStore.get().getWebhooks().contains(v2Webhook)).isTrue();
+    assertThat(configStore.get().getWebhooks()).extracting("configuration").contains(v2Webhook);
   }
 
   @Test
@@ -83,14 +83,14 @@ class WebhooksV2ConfigMigrationUpdateStepTest {
 
     updateStep.doUpdate();
 
-    WebHook v2Webhook1 = new WebHook("http://example.com/${repositoryName}", true, true, HttpMethod.POST);
-    WebHook v2Webhook2 = new WebHook("http://example.com/${zweiterWebhook}", false, true, HttpMethod.AUTO);
-    WebHook v2Webhook3 = new WebHook("http://example.com/${dritteWebhook}", false, false, HttpMethod.PUT);
+    SimpleWebHook v2Webhook1 = new SimpleWebHook("http://example.com/${repositoryName}", true, true, HttpMethod.POST);
+    SimpleWebHook v2Webhook2 = new SimpleWebHook("http://example.com/${zweiterWebhook}", false, true, HttpMethod.AUTO);
+    SimpleWebHook v2Webhook3 = new SimpleWebHook("http://example.com/${dritteWebhook}", false, false, HttpMethod.PUT);
 
-    assertThat(configStore.get().getWebhooks().contains(v2Webhook1)).isTrue();
-    assertThat(configStore.get().getWebhooks().contains(v2Webhook2)).isTrue();
-    assertThat(configStore.get().getWebhooks().contains(v2Webhook3)).isTrue();
-    assertThat(configStore.get().getWebhooks().size()).isEqualTo(3);
+    assertThat(configStore.get().getWebhooks())
+      .extracting("configuration")
+      .contains(v2Webhook1, v2Webhook2, v2Webhook3)
+      .hasSize(3);
   }
 
   @Test
@@ -116,9 +116,9 @@ class WebhooksV2ConfigMigrationUpdateStepTest {
 
     updateStep.doUpdate();
 
-    WebHook v2Webhook = new WebHook("http://example.com/${repositoryName}", true, true, HttpMethod.AUTO);
+    SimpleWebHook v2Webhook = new SimpleWebHook("http://example.com/${repositoryName}", true, true, HttpMethod.AUTO);
 
-    assertThat(configStore.get().getWebhooks().contains(v2Webhook)).isTrue();
+    assertThat(configStore.get().getWebhooks()).extracting("configuration").contains(v2Webhook);
   }
 
   @Test

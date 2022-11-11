@@ -23,10 +23,8 @@
  */
 package sonia.scm.webhook;
 
-import com.cloudogu.scm.el.ElParser;
 import com.github.legman.Subscribe;
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sonia.scm.EagerSingleton;
@@ -37,6 +35,8 @@ import sonia.scm.repository.Repository;
 import sonia.scm.repository.api.HookContext;
 import sonia.scm.repository.api.HookFeature;
 
+import java.util.Set;
+
 @Extension
 @EagerSingleton
 public class RepositoryWebHook {
@@ -44,15 +44,13 @@ public class RepositoryWebHook {
   private static final Logger logger = LoggerFactory.getLogger(RepositoryWebHook.class);
 
   private final WebHookContext context;
-  private final Provider<WebHookHttpClient> httpClientProvider;
-  private final ElParser elParser;
+
+  private final Set<WebHookSpecification> specifications;
 
   @Inject
-  public RepositoryWebHook(Provider<WebHookHttpClient> httpClientProvider,
-                           WebHookContext context, ElParser elParser) {
-    this.httpClientProvider = httpClientProvider;
-    this.elParser = elParser;
+  public RepositoryWebHook(WebHookContext context, Set<WebHookSpecification> specifications) {
     this.context = context;
+    this.specifications = specifications;
   }
 
   @Subscribe
@@ -95,6 +93,7 @@ public class RepositoryWebHook {
     return changesets;
   }
 
+  @SuppressWarnings({"unchecked"})
   private void executeWebHooks(WebHookConfiguration configuration,
                                Repository repository, Iterable<Changeset> changesets) {
     if (logger.isDebugEnabled()) {
@@ -102,8 +101,25 @@ public class RepositoryWebHook {
     }
 
     for (WebHook webHook : configuration.getWebhooks()) {
-      new WebHookExecutor(httpClientProvider.get(), elParser, webHook,
-        repository, changesets).run();
+      specifications
+        .stream()
+        .filter(provider -> provider.handles(webHook.getConfiguration().getClass()))
+        .findFirst()
+        .orElseGet(NoSpecificationFound::new)
+        .createExecutor(webHook.getConfiguration(), repository, changesets)
+        .run();
+    }
+  }
+
+  private static class NoSpecificationFound implements WebHookSpecification<SingleWebHookConfiguration> {
+    @Override
+    public Class<SingleWebHookConfiguration> getSpecificationType() {
+      return null;
+    }
+
+    @Override
+    public WebHookExecutor createExecutor(SingleWebHookConfiguration webHook, Repository repository, Iterable<Changeset> iterable) {
+      return () -> logger.warn("no executor found for webhook of type {} in hook for repository {}", webHook.getClass(), repository);
     }
   }
 }

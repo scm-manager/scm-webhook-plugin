@@ -21,28 +21,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package sonia.scm.webhook.internal;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.JsonNode;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+package sonia.scm.webhook;
 
-import javax.validation.constraints.NotEmpty;
+import com.cloudogu.scm.el.ElParser;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import sonia.scm.plugin.Extension;
+import sonia.scm.repository.Changeset;
+import sonia.scm.repository.Repository;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@EqualsAndHashCode
-@Getter
-@Setter
-public class WebHookDto {
+@Extension
+public class SimpleWebHookSpecification implements WebHookSpecification<SimpleWebHook> {
 
-  @NotEmpty
-  private String name;
+  private final Provider<WebHookHttpClient> httpClientProvider;
+  private final ElParser elParser;
 
-  @JsonInclude(JsonInclude.Include.NON_NULL)
-  private JsonNode configuration;
+  @Inject
+  public SimpleWebHookSpecification(Provider<WebHookHttpClient> httpClientProvider, ElParser elParser) {
+    this.httpClientProvider = httpClientProvider;
+    this.elParser = elParser;
+  }
+
+  @Override
+  public Class<SimpleWebHook> getSpecificationType() {
+    return SimpleWebHook.class;
+  }
+
+  @Override
+  public WebHookExecutor createExecutor(SimpleWebHook webHook, Repository repository, Iterable<Changeset> changesets) {
+    return new SimpleWebHookExecutor(httpClientProvider.get(), elParser, webHook, repository, changesets);
+  }
 }

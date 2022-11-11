@@ -19,7 +19,13 @@
       "submit": "Ja (nicht das Speichern vergessen)",
       "cancel": "Nein"
     },
-    "helpText" : "Webhooks für das Repository hinzufügen und entfernen."
+    "helpText" : "Webhooks für das Repository hinzufügen und entfernen.",
+    "noHooksConfigured": "Es wurden noch keine Webhooks angelegt."
+  },
+  "webhooks": {
+    "SimpleWebHook": {
+      "name": "Einfacher Webhook"
+    }
   },
   "permissions": {
     "configuration": {
@@ -45,6 +51,12 @@
         "displayName": "Webhooks ändern",
         "description": "Darf Webhooks für dieses Repository erstellen und verändern"
       }
+    }
+  },
+  "errors": {
+    "BcTMDIHIb1": {
+      "displayName": "Unbekannte Konfiguration",
+      "description": "Eine Konfiguration für einen Webhook konnte nicht korrekt eingelesen werden."
     }
   }
 }
