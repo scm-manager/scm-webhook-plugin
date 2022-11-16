@@ -173,6 +173,18 @@ class WebhooksExtensibleUpdateStepTest {
       .containsExactly(new SimpleWebHook("https://hog.org/", false, false, HttpMethod.PUT));
   }
 
+  @Test
+  void shouldHandleEmptyConfig() {
+    WebhooksExtensibleUpdateStep.OldWebHookConfiguration oldConfiguration = new WebhooksExtensibleUpdateStep.OldWebHookConfiguration();
+    storeFactory
+      .withType(WebhooksExtensibleUpdateStep.OldWebHookConfiguration.class)
+      .withName("webhook")
+      .build()
+      .set(oldConfiguration);
+
+    updateStep.doUpdate();
+  }
+
   @SuppressWarnings({"rawtypes", "unchecked"})
   private static class InMemoryConfigurationStoreFactory implements ConfigurationStoreFactory {
 

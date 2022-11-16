@@ -82,11 +82,12 @@ public class WebhooksExtensibleUpdateStep implements UpdateStep {
 
   private void doUpdate(Supplier<ConfigurationStore<WebHookConfiguration>> storeSupplier, ConfigurationStore<OldWebHookConfiguration> oldStore) {
     Optional<OldWebHookConfiguration> webhooks = oldStore.getOptional();
-    webhooks.filter(this::isOlfConfiguration).map(this::convert).ifPresent(newConfig -> storeSupplier.get().set(newConfig));
+    webhooks.filter(this::isOldConfiguration).map(this::convert).ifPresent(newConfig -> storeSupplier.get().set(newConfig));
   }
 
-  private boolean isOlfConfiguration(OldWebHookConfiguration oldWebHookConfiguration) {
-    return oldWebHookConfiguration.webhooks.stream().anyMatch(hook -> !Strings.isNullOrEmpty(hook.urlPattern) && Strings.isNullOrEmpty(hook.name));
+  private boolean isOldConfiguration(OldWebHookConfiguration oldWebHookConfiguration) {
+    return oldWebHookConfiguration.webhooks != null &&
+      oldWebHookConfiguration.webhooks.stream().anyMatch(hook -> !Strings.isNullOrEmpty(hook.urlPattern) && Strings.isNullOrEmpty(hook.name));
   }
 
   private WebHookConfiguration convert(OldWebHookConfiguration oldWebHookConfiguration) {
