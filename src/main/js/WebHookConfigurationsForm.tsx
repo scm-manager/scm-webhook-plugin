@@ -27,8 +27,10 @@ import { WebHookConfiguration, WebHookConfigurations } from "./WebHookConfigurat
 import { confirmAlert, Level } from "@scm-manager/ui-components";
 import AddWebHookButton from "./AddWebHookButton";
 import { WebHookListConfigurationForm } from "./WebHookListConfigurationForm";
+import { Repository } from "@scm-manager/ui-types";
 
 type Props = WithTranslation & {
+  repository?: Repository;
   initialConfiguration: WebHookConfigurations;
   readOnly: boolean;
   onConfigurationChange: (p1: WebHookConfigurations, p2: boolean) => void;
@@ -104,7 +106,7 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
 
   render() {
     const { editorStates } = this.state;
-    const { readOnly } = this.props;
+    const { readOnly, repository } = this.props;
 
     const addButton = readOnly ? null : (
       <Level
@@ -119,6 +121,7 @@ class WebHookConfigurationsForm extends React.Component<Props, State> {
               });
               this.updateWebHooks(editorStates);
             }}
+            repository={repository}
           />
         }
       />

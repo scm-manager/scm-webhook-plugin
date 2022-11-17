@@ -23,6 +23,9 @@
  */
 package sonia.scm.webhook;
 
+import de.otto.edison.hal.HalRepresentation;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import sonia.scm.api.v2.resources.Enrich;
 import sonia.scm.api.v2.resources.HalAppender;
 import sonia.scm.api.v2.resources.HalEnricher;
@@ -34,16 +37,19 @@ import sonia.scm.webhook.internal.WebHookConfigurationResourceLinks;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.util.Collection;
 
 @Extension
 @Enrich(Repository.class)
 public class RepositoryLinkEnricher implements HalEnricher {
 
   private final Provider<ScmPathInfoStore> scmPathInfoStoreProvider;
+  private final AvailableWebHookSpecifications availableSpecifications;
 
   @Inject
-  public RepositoryLinkEnricher(Provider<ScmPathInfoStore> scmPathInfoStoreProvider) {
+  public RepositoryLinkEnricher(Provider<ScmPathInfoStore> scmPathInfoStoreProvider, AvailableWebHookSpecifications availableSpecifications) {
     this.scmPathInfoStoreProvider = scmPathInfoStoreProvider;
+    this.availableSpecifications = availableSpecifications;
   }
 
   @Override
@@ -53,5 +59,14 @@ public class RepositoryLinkEnricher implements HalEnricher {
       WebHookConfigurationResourceLinks resourceLinks = new WebHookConfigurationResourceLinks(scmPathInfoStoreProvider.get().get());
       appender.appendLink("webHookConfig", resourceLinks.repositoryConfigurations.self(repository.getNamespace(), repository.getName()));
     }
+    if (WebHookContext.isWritePermitted(repository)) {
+      appender.appendEmbedded("supportedWebHookTypes", new SupportedWebhookTypesDto(availableSpecifications.getTypesFor(repository)));
+    }
+  }
+
+  @AllArgsConstructor
+  private static class SupportedWebhookTypesDto extends HalRepresentation {
+    @Getter
+    private final Collection<String> types;
   }
 }

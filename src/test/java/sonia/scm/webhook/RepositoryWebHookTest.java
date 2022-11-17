@@ -28,16 +28,11 @@ import com.google.common.collect.Sets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import sonia.scm.repository.Changeset;
 import sonia.scm.repository.PostReceiveRepositoryHookEvent;
 import sonia.scm.repository.Repository;
 import sonia.scm.repository.RepositoryTestData;
-import sonia.scm.repository.api.HookChangesetBuilder;
-import sonia.scm.repository.api.HookContext;
-import sonia.scm.repository.api.HookFeature;
 
 import java.util.Set;
 
@@ -57,10 +52,6 @@ class RepositoryWebHookTest {
 
   @Mock
   private PostReceiveRepositoryHookEvent event;
-  @Mock
-  private HookContext eventContext;
-  @Mock(answer = Answers.RETURNS_SELF)
-  private HookChangesetBuilder changesetBuilder;
 
   private final Repository repository = RepositoryTestData.createHeartOfGold();
   private final TestWebHookSpecification specification = new TestWebHookSpecification();
@@ -74,25 +65,27 @@ class RepositoryWebHookTest {
   @BeforeEach
   void initEvent() {
     when(event.getRepository()).thenReturn(repository);
-    when(event.getContext()).thenReturn(eventContext);
-    when(eventContext.isFeatureSupported(HookFeature.CHANGESET_PROVIDER)).thenReturn(true);
-    when(eventContext.getChangesetProvider()).thenReturn(changesetBuilder);
-    when(changesetBuilder.getChangesets())
-      .thenReturn(singletonList(new Changeset("23", 0L, null)));
-  }
-
-  @BeforeEach
-  void initWebHookContext() {
-    when(context.getAllConfigurations(repository))
-      .thenReturn(new WebHookConfiguration(singletonList(new WebHook(new TestWebHookConfiguration()))));
   }
 
   @Test
   void shouldExecuteEventWithCorrectSpecification() {
+    when(context.getAllConfigurations(repository))
+      .thenReturn(new WebHookConfiguration(singletonList(new WebHook(new TestWebHookConfiguration()))));
+
     hook.handleEvent(event);
 
     assertThat(specification.executedRepository).isSameAs(repository);
-    assertThat(specification.executedChangesets).extracting("id").contains("23");
+    assertThat(specification.executedEvent).isSameAs(event);
+  }
+
+  @Test
+  void shouldNotExecuteEventIfRepositoryNotSupportedBySpecification() {
+    when(context.getAllConfigurations(repository))
+      .thenReturn(new WebHookConfiguration(singletonList(new WebHook(new OtherWebHookConfiguration()))));
+
+    hook.handleEvent(event);
+
+    // this would fail if OtherWebHookSpecification#createExecutor would have been called
   }
 
   static class TestWebHookConfiguration implements SingleWebHookConfiguration {
@@ -102,7 +95,7 @@ class RepositoryWebHookTest {
 
     TestWebHookConfiguration executedConfiguration;
     Repository executedRepository;
-    Iterable<Changeset> executedChangesets;
+    PostReceiveRepositoryHookEvent executedEvent;
 
     @Override
     public Class<TestWebHookConfiguration> getSpecificationType() {
@@ -110,11 +103,11 @@ class RepositoryWebHookTest {
     }
 
     @Override
-    public WebHookExecutor createExecutor(TestWebHookConfiguration webHook, Repository repository, Iterable<Changeset> changesets) {
+    public WebHookExecutor createExecutor(TestWebHookConfiguration webHook, Repository repository, PostReceiveRepositoryHookEvent event) {
       return () -> {
         this.executedConfiguration = webHook;
         this.executedRepository = repository;
-        this.executedChangesets = changesets;
+        this.executedEvent = event;
       };
     }
   }
@@ -130,7 +123,12 @@ class RepositoryWebHookTest {
     }
 
     @Override
-    public WebHookExecutor createExecutor(OtherWebHookConfiguration webHook, Repository repository, Iterable<Changeset> changesets) {
+    public boolean supportsRepository(Repository repository) {
+      return false;
+    }
+
+    @Override
+    public WebHookExecutor createExecutor(OtherWebHookConfiguration webHook, Repository repository, PostReceiveRepositoryHookEvent changesets) {
       fail("this should not have been called");
       return null;
     }

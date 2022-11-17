@@ -36,14 +36,14 @@ type Props = WithTranslation & {
 
 class WebHookConfigurationComponent extends React.Component<Props> {
   render() {
-    const { t, link } = this.props;
+    const { t, link, repository } = this.props;
     return (
       <>
         {this.renderTitle()}
         {this.renderSubtitle()}
         <h2>{t("scm-webhook-plugin.helpText")}</h2>
         <br />
-        <Configuration link={link} render={props => <WebHookConfigurationsForm {...props} />} />
+        <Configuration link={link} render={props => <WebHookConfigurationsForm {...props} repository={repository} />} />
       </>
     );
   }

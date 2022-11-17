@@ -25,8 +25,11 @@
 package sonia.scm.webhook;
 
 import com.google.inject.Inject;
+import sonia.scm.repository.Repository;
 
+import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class AvailableWebHookSpecifications {
 
@@ -42,6 +45,14 @@ public class AvailableWebHookSpecifications {
       .filter(specification -> specification.getSpecificationType().getSimpleName().equals(name))
       .findFirst()
       .orElseThrow(() -> new UnknownWebHookException(name));
+  }
+
+  public Collection<String> getTypesFor(Repository repository) {
+    return specifications.stream()
+      .filter(specification -> specification.supportsRepository(repository))
+      .map(WebHookSpecification::getSpecificationType)
+      .map(Class::getSimpleName)
+      .collect(Collectors.toList());
   }
 
   public static String nameOf(WebHookSpecification specification) {

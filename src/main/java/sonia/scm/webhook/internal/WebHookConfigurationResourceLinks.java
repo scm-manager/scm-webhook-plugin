@@ -52,15 +52,15 @@ public class WebHookConfigurationResourceLinks {
 
   public class RepositoryConfigurationLinks {
 
-    public String self(String namespase, String name) {
+    public String self(String namespace, String name) {
       return linkBuilder
-        .method("getRepositoryConfiguration").parameters(namespase, name)
+        .method("getRepositoryConfiguration").parameters(namespace, name)
         .href();
     }
 
-    public String update(String namespase, String name) {
+    public String update(String namespace, String name) {
       return linkBuilder
-        .method("updateRepositoryConfiguration").parameters(namespase, name)
+        .method("updateRepositoryConfiguration").parameters(namespace, name)
         .href();
     }
   }
