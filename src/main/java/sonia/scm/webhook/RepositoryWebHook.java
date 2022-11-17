@@ -68,7 +68,6 @@ public class RepositoryWebHook {
     }
   }
 
-  @SuppressWarnings({"unchecked"})
   private void executeWebHooks(WebHookConfiguration configuration,
                                Repository repository,
                                PostReceiveRepositoryHookEvent event) {
@@ -77,15 +76,24 @@ public class RepositoryWebHook {
     }
 
     for (WebHook webHook : configuration.getWebhooks()) {
-      specifications
-        .stream()
-        .filter(provider -> provider.handles(webHook.getConfiguration().getClass()))
-        .findFirst()
-        .filter(specification -> specification.supportsRepository(repository))
-        .orElseGet(NoSpecificationFound::new)
-        .createExecutor(webHook.getConfiguration(), repository, event)
-        .run();
+      try {
+        runWebhook(repository, event, webHook);
+      } catch (Exception e) {
+        logger.error("error while running webhook of type {} in repository {}", webHook.configuration.getClass(), repository, e);
+      }
     }
+  }
+
+  @SuppressWarnings({"unchecked"})
+  private void runWebhook(Repository repository, PostReceiveRepositoryHookEvent event, WebHook webHook) {
+    specifications
+      .stream()
+      .filter(provider -> provider.handles(webHook.getConfiguration().getClass()))
+      .findFirst()
+      .filter(specification -> specification.supportsRepository(repository))
+      .orElseGet(NoSpecificationFound::new)
+      .createExecutor(webHook.getConfiguration(), repository, event)
+      .run();
   }
 
   private static class NoSpecificationFound implements WebHookSpecification<SingleWebHookConfiguration> {

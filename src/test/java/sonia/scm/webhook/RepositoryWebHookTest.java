@@ -58,7 +58,7 @@ class RepositoryWebHookTest {
 
   @BeforeEach
   void initHook() {
-    specifications = Sets.newHashSet(specification, new OtherWebHookSpecification());
+    specifications = Sets.newHashSet(specification, new OtherWebHookSpecification(), new MalfunctioningWebHookSpecification());
     hook = new RepositoryWebHook(context, specifications);
   }
 
@@ -86,6 +86,16 @@ class RepositoryWebHookTest {
     hook.handleEvent(event);
 
     // this would fail if OtherWebHookSpecification#createExecutor would have been called
+  }
+
+  @Test
+  void shouldNotFailCompletelyWithOneMalfunctioningSpecification() {
+    when(context.getAllConfigurations(repository))
+      .thenReturn(new WebHookConfiguration(singletonList(new WebHook(new MalfunctioningWebHookConfiguration()))));
+
+    hook.handleEvent(event);
+
+    // no exception should have been thrown
   }
 
   static class TestWebHookConfiguration implements SingleWebHookConfiguration {
@@ -131,6 +141,22 @@ class RepositoryWebHookTest {
     public WebHookExecutor createExecutor(OtherWebHookConfiguration webHook, Repository repository, PostReceiveRepositoryHookEvent changesets) {
       fail("this should not have been called");
       return null;
+    }
+  }
+
+  static class MalfunctioningWebHookConfiguration implements SingleWebHookConfiguration {
+  }
+
+  static class MalfunctioningWebHookSpecification implements WebHookSpecification<MalfunctioningWebHookConfiguration> {
+
+    @Override
+    public Class<MalfunctioningWebHookConfiguration> getSpecificationType() {
+      return MalfunctioningWebHookConfiguration.class;
+    }
+
+    @Override
+    public WebHookExecutor createExecutor(MalfunctioningWebHookConfiguration webHook, Repository repository, PostReceiveRepositoryHookEvent changesets) {
+      throw new RuntimeException("test");
     }
   }
 }
