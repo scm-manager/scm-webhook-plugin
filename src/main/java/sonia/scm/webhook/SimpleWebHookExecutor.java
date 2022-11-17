@@ -47,8 +47,11 @@ class SimpleWebHookExecutor implements WebHookExecutor {
   private final Repository repository;
   private final SimpleWebHook webHook;
 
-  SimpleWebHookExecutor(WebHookHttpClient httpClient, ElParser elParser,
-                               SimpleWebHook webHook, Repository repository, Iterable<Changeset> changesets) {
+  SimpleWebHookExecutor(WebHookHttpClient httpClient,
+                        ElParser elParser,
+                        SimpleWebHook webHook,
+                        Repository repository,
+                        Iterable<Changeset> changesets) {
     this.httpClient = httpClient;
     this.expression = elParser.parse(webHook.getUrlPattern());
     this.webHook = webHook;

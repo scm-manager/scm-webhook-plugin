@@ -29,11 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sonia.scm.EagerSingleton;
 import sonia.scm.plugin.Extension;
-import sonia.scm.repository.Changeset;
 import sonia.scm.repository.PostReceiveRepositoryHookEvent;
 import sonia.scm.repository.Repository;
-import sonia.scm.repository.api.HookContext;
-import sonia.scm.repository.api.HookFeature;
 
 import java.util.Set;
 
@@ -61,8 +58,7 @@ public class RepositoryWebHook {
       WebHookConfiguration configuration = context.getAllConfigurations(repository);
       if (configuration.isWebHookAvailable()) {
 
-        Iterable<Changeset> changesets = getChangesets(event, repository);
-        executeWebHooks(configuration, repository, changesets);
+        executeWebHooks(configuration, repository, event);
       } else if (logger.isDebugEnabled()) {
         logger.debug("no webhook defined for repository {}",
           repository.getName());
@@ -72,30 +68,10 @@ public class RepositoryWebHook {
     }
   }
 
-  private Iterable<Changeset> getChangesets(PostReceiveRepositoryHookEvent event, Repository repository) {
-    Iterable<Changeset> changesets = null;
-
-    if (event.getContext() != null) {
-      HookContext eventContext = event.getContext();
-
-      if (eventContext.isFeatureSupported(HookFeature.CHANGESET_PROVIDER)) {
-        changesets = eventContext.getChangesetProvider()
-          .setDisablePreProcessors(true)
-          .getChangesets();
-      } else {
-        logger.debug("{} does not support changeset provider",
-          repository.getType());
-      }
-    } else {
-      logger.debug("{} has no hook context support", repository.getType());
-    }
-
-    return changesets;
-  }
-
   @SuppressWarnings({"unchecked"})
   private void executeWebHooks(WebHookConfiguration configuration,
-                               Repository repository, Iterable<Changeset> changesets) {
+                               Repository repository,
+                               PostReceiveRepositoryHookEvent event) {
     if (logger.isDebugEnabled()) {
       logger.debug("execute webhooks for repository {}", repository.getName());
     }
@@ -106,7 +82,7 @@ public class RepositoryWebHook {
         .filter(provider -> provider.handles(webHook.getConfiguration().getClass()))
         .findFirst()
         .orElseGet(NoSpecificationFound::new)
-        .createExecutor(webHook.getConfiguration(), repository, changesets)
+        .createExecutor(webHook.getConfiguration(), repository, event)
         .run();
     }
   }
@@ -118,7 +94,7 @@ public class RepositoryWebHook {
     }
 
     @Override
-    public WebHookExecutor createExecutor(SingleWebHookConfiguration webHook, Repository repository, Iterable<Changeset> iterable) {
+    public WebHookExecutor createExecutor(SingleWebHookConfiguration webHook, Repository repository, PostReceiveRepositoryHookEvent iterable) {
       return () -> logger.warn("no executor found for webhook of type {} in hook for repository {}", webHook.getClass(), repository);
     }
   }

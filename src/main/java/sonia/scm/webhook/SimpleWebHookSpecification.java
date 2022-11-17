@@ -27,11 +27,16 @@ package sonia.scm.webhook;
 import com.cloudogu.scm.el.ElParser;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import lombok.extern.slf4j.Slf4j;
 import sonia.scm.plugin.Extension;
 import sonia.scm.repository.Changeset;
+import sonia.scm.repository.PostReceiveRepositoryHookEvent;
 import sonia.scm.repository.Repository;
+import sonia.scm.repository.api.HookContext;
+import sonia.scm.repository.api.HookFeature;
 
 @Extension
+@Slf4j
 public class SimpleWebHookSpecification implements WebHookSpecification<SimpleWebHook> {
 
   private final Provider<WebHookHttpClient> httpClientProvider;
@@ -49,7 +54,29 @@ public class SimpleWebHookSpecification implements WebHookSpecification<SimpleWe
   }
 
   @Override
-  public WebHookExecutor createExecutor(SimpleWebHook webHook, Repository repository, Iterable<Changeset> changesets) {
+  public WebHookExecutor createExecutor(SimpleWebHook webHook, Repository repository, PostReceiveRepositoryHookEvent event) {
+    Iterable<Changeset> changesets = getChangesets(event, repository);
     return new SimpleWebHookExecutor(httpClientProvider.get(), elParser, webHook, repository, changesets);
+  }
+
+  private Iterable<Changeset> getChangesets(PostReceiveRepositoryHookEvent event, Repository repository) {
+    Iterable<Changeset> changesets = null;
+
+    if (event.getContext() != null) {
+      HookContext eventContext = event.getContext();
+
+      if (eventContext.isFeatureSupported(HookFeature.CHANGESET_PROVIDER)) {
+        changesets = eventContext.getChangesetProvider()
+          .setDisablePreProcessors(true)
+          .getChangesets();
+      } else {
+        log.debug("{} does not support changeset provider",
+          repository.getType());
+      }
+    } else {
+      log.debug("{} has no hook context support", repository.getType());
+    }
+
+    return changesets;
   }
 }
