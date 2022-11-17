@@ -42,10 +42,10 @@ public class RepositoryWebHook {
 
   private final WebHookContext context;
 
-  private final Set<WebHookSpecification> specifications;
+  private final Set<DtoAdapterWebHookSpecification> specifications;
 
   @Inject
-  public RepositoryWebHook(WebHookContext context, Set<WebHookSpecification> specifications) {
+  public RepositoryWebHook(WebHookContext context, Set<DtoAdapterWebHookSpecification> specifications) {
     this.context = context;
     this.specifications = specifications;
   }

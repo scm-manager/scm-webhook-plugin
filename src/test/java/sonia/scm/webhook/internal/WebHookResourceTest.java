@@ -118,8 +118,8 @@ class WebHookResourceTest {
   @Test
   void shouldGetWebHookConfigurations() throws URISyntaxException, IOException {
     WebHookConfiguration configs = new WebHookConfiguration();
-    configs.getWebhooks().add(new WebHook(new SimpleWebHook("/url_1/pattern/{repository.id}", true, false, HttpMethod.GET)));
-    configs.getWebhooks().add(new WebHook(new SimpleWebHook("/url_2/pattern/{repository.id}", false, false, HttpMethod.POST)));
+    configs.getWebhooks().add(new WebHook(new SimpleWebHook("/url_1/pattern/{repository.id}", true, false, HttpMethod.GET), "1"));
+    configs.getWebhooks().add(new WebHook(new SimpleWebHook("/url_2/pattern/{repository.id}", false, false, HttpMethod.POST), "2"));
 
     when(context.getGlobalConfiguration()).thenReturn(configs);
     MockHttpRequest request = MockHttpRequest
@@ -135,6 +135,10 @@ class WebHookResourceTest {
     JsonNode webhookNode = jsonNode.get("webhooks");
     JsonNode webHook_1 = webhookNode.path(0);
     JsonNode webHook_2 = webhookNode.path(1);
+    assertThat(webHook_1.get("name").asText()).isEqualTo("SimpleWebHook");
+    assertThat(webHook_2.get("name").asText()).isEqualTo("SimpleWebHook");
+    assertThat(webHook_1.get("id").asText()).isIn("1", "2");
+    assertThat(webHook_2.get("id").asText()).isIn("1", "2");
     assertThat(webHook_1.get("configuration").get("urlPattern").asText()).isIn("/url_1/pattern/{repository.id}", "/url_2/pattern/{repository.id}");
     assertThat(webHook_2.get("configuration").get("urlPattern").asText()).isIn("/url_1/pattern/{repository.id}", "/url_2/pattern/{repository.id}");
 
@@ -182,8 +186,8 @@ class WebHookResourceTest {
   @Test
   void shouldGetRepoWebHookConfigurations() throws URISyntaxException, IOException {
     WebHookConfiguration configs = new WebHookConfiguration();
-    configs.getWebhooks().add(new WebHook(new SimpleWebHook("/url_1/pattern/{repository.id}", true, false, HttpMethod.GET)));
-    configs.getWebhooks().add(new WebHook(new SimpleWebHook("/url_2/pattern/{repository.id}", false, false, HttpMethod.POST)));
+    configs.getWebhooks().add(new WebHook(new SimpleWebHook("/url_1/pattern/{repository.id}", true, false, HttpMethod.GET), "1"));
+    configs.getWebhooks().add(new WebHook(new SimpleWebHook("/url_2/pattern/{repository.id}", false, false, HttpMethod.POST), "2"));
 
     when(context.getRepositoryConfigurations("space", "name")).thenReturn(configs);
     MockHttpRequest request = MockHttpRequest

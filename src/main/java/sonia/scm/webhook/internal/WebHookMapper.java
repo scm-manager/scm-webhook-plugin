@@ -33,7 +33,9 @@ import org.mapstruct.MappingTarget;
 import sonia.scm.api.v2.resources.InstantAttributeMapper;
 import sonia.scm.api.v2.resources.ScmPathInfoStore;
 import sonia.scm.repository.Repository;
+import sonia.scm.security.KeyGenerator;
 import sonia.scm.webhook.AvailableWebHookSpecifications;
+import sonia.scm.webhook.DtoAdapterWebHookSpecification;
 import sonia.scm.webhook.SingleWebHookConfiguration;
 import sonia.scm.webhook.WebHook;
 import sonia.scm.webhook.WebHookConfiguration;
@@ -56,6 +58,9 @@ public abstract class WebHookMapper implements InstantAttributeMapper {
   @Inject
   ConfigurationValidator configurationValidator;
 
+  @Inject
+  KeyGenerator keyGenerator;
+
   public abstract WebHookConfigurationDto map(WebHookConfiguration configuration, @Context Repository repository);
 
   public abstract GlobalWebHookConfigurationDto map(WebHookConfiguration configuration);
@@ -63,24 +68,27 @@ public abstract class WebHookMapper implements InstantAttributeMapper {
   public abstract WebHookConfiguration map(WebHookConfigurationDto configurationDto);
 
   WebHookDto map(WebHook webHook) {
+    DtoAdapterWebHookSpecification specification = availableSpecifications.specificationFor(webHook.getName());
     WebHookDto dto = new WebHookDto();
     dto.setName(webHook.getName());
-    dto.setConfiguration(new ObjectMapper().valueToTree(webHook.getConfiguration()));
+    dto.setId(webHook.getId());
+    dto.setConfiguration(new ObjectMapper().valueToTree(specification.mapToDto(webHook.getConfiguration())));
     return dto;
   }
 
   WebHook map(WebHookDto dto) {
     WebHook webHook = new WebHook();
-    WebHookSpecification specification = availableSpecifications.specificationFor(dto.getName());
+    DtoAdapterWebHookSpecification specification = availableSpecifications.specificationFor(dto.getName());
     webHook.setName(dto.getName());
-    webHook.setConfiguration(parseConfiguration(dto, specification, specification.getSpecificationType()));
+    webHook.setId(dto.getId());
+    webHook.setConfiguration(parseConfiguration(dto, specification));
     return webHook;
   }
 
-  private SingleWebHookConfiguration parseConfiguration(WebHookDto dto, WebHookSpecification specification, Class<? extends SingleWebHookConfiguration> configurationType) {
+  private SingleWebHookConfiguration parseConfiguration(WebHookDto dto, DtoAdapterWebHookSpecification specification) {
     SingleWebHookConfiguration configuration;
     try {
-      configuration = new ObjectMapper().treeToValue(dto.getConfiguration(), configurationType);
+      configuration = specification.mapFromDto(new ObjectMapper().treeToValue(dto.getConfiguration(), specification.getDtoType()));
       configurationValidator.validate(configuration);
       return configuration;
     } catch (JsonProcessingException e) {

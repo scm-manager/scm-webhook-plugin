@@ -42,8 +42,8 @@ class XmlConfigurationTest {
   void shouldSerializeAndDeserializeWebHooks() {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     JAXB.marshal(new WebHookConfiguration(Arrays.asList(
-      new WebHook(new SimpleWebHook("https://example.com", true, true, HttpMethod.AUTO)),
-      new WebHook(new SimpleWebHook("https://hog/trigger", false, false, HttpMethod.GET))
+      new WebHook(new SimpleWebHook("https://example.com", true, true, HttpMethod.AUTO), "1"),
+      new WebHook(new SimpleWebHook("https://hog/trigger", false, false, HttpMethod.GET), "2")
     )), baos);
 
     byte[] bytes = baos.toByteArray();
@@ -56,5 +56,8 @@ class XmlConfigurationTest {
         new SimpleWebHook("https://example.com", true, true, HttpMethod.AUTO),
         new SimpleWebHook("https://hog/trigger", false, false, HttpMethod.GET)
       );
+    assertThat(configuration.getWebhooks())
+      .extracting("id")
+      .contains("1", "2");
   }
 }

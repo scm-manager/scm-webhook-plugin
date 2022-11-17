@@ -33,14 +33,14 @@ import java.util.stream.Collectors;
 
 public class AvailableWebHookSpecifications {
 
-  private final Set<WebHookSpecification> specifications;
+  private final Set<DtoAdapterWebHookSpecification> specifications;
 
   @Inject
-  public AvailableWebHookSpecifications(Set<WebHookSpecification> specifications) {
+  public AvailableWebHookSpecifications(Set<DtoAdapterWebHookSpecification> specifications) {
     this.specifications = specifications;
   }
 
-  public WebHookSpecification specificationFor(String name) {
+  public DtoAdapterWebHookSpecification specificationFor(String name) {
     return specifications.stream()
       .filter(specification -> specification.getSpecificationType().getSimpleName().equals(name))
       .findFirst()
@@ -50,16 +50,16 @@ public class AvailableWebHookSpecifications {
   public Collection<String> getTypesFor(Repository repository) {
     return specifications.stream()
       .filter(specification -> specification.supportsRepository(repository))
-      .map(WebHookSpecification::getSpecificationType)
+      .map(DtoAdapterWebHookSpecification::getSpecificationType)
       .map(Class::getSimpleName)
       .collect(Collectors.toList());
   }
 
-  public static String nameOf(WebHookSpecification specification) {
+  public static String nameOf(DtoAdapterWebHookSpecification specification) {
     return nameOf(specification.getClass());
   }
 
-  public static String nameOf(Class<? extends WebHookSpecification> specificationClass) {
+  public static String nameOf(Class<? extends DtoAdapterWebHookSpecification> specificationClass) {
     return specificationClass.getSimpleName();
   }
 }

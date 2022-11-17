@@ -24,21 +24,19 @@
 
 package sonia.scm.webhook;
 
-import sonia.scm.plugin.ExtensionPoint;
-import sonia.scm.repository.PostReceiveRepositoryHookEvent;
-import sonia.scm.repository.Repository;
-
-@ExtensionPoint
-public interface WebHookSpecification<T extends SingleWebHookConfiguration> {
-  Class<T> getSpecificationType();
-
-  default boolean handles(Class<WebHook> webHookClass) {
-    return getSpecificationType().isAssignableFrom(webHookClass);
+public interface WebHookSpecification<T extends SingleWebHookConfiguration> extends DtoAdapterWebHookSpecification<T, T> {
+  @Override
+  default T mapToDto(T configuration) {
+    return configuration;
   }
 
-  default boolean supportsRepository(Repository repository) {
-    return true;
+  @Override
+  default T mapFromDto(T dto) {
+    return dto;
   }
 
-  WebHookExecutor createExecutor(T webHook, Repository repository, PostReceiveRepositoryHookEvent event);
+  @Override
+  default Class<T> getDtoType() {
+    return getSpecificationType();
+  }
 }

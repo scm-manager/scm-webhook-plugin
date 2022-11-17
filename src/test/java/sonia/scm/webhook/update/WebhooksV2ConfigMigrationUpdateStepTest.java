@@ -27,7 +27,9 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import sonia.scm.security.KeyGenerator;
 import sonia.scm.store.ConfigurationStore;
 import sonia.scm.store.InMemoryConfigurationStoreFactory;
 import sonia.scm.update.V1PropertyDaoTestUtil;
@@ -38,6 +40,7 @@ import sonia.scm.webhook.WebHookConfiguration;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class WebhooksV2ConfigMigrationUpdateStepTest {
@@ -52,10 +55,13 @@ class WebhooksV2ConfigMigrationUpdateStepTest {
 
   private final InMemoryConfigurationStoreFactory storeFactory = new InMemoryConfigurationStoreFactory();
 
+  @Mock
+  private KeyGenerator keyGenerator;
+
   @BeforeEach
   void initSetup() {
     configStore = storeFactory.withType(WebHookConfiguration.class).withName("webhook").forRepository(REPO_NAME).build();
-    updateStep = new WebhooksV2ConfigMigrationUpdateStep(testUtil.getPropertyDAO(), storeFactory);
+    updateStep = new WebhooksV2ConfigMigrationUpdateStep(testUtil.getPropertyDAO(), storeFactory, keyGenerator);
   }
 
   @Test
@@ -65,12 +71,15 @@ class WebhooksV2ConfigMigrationUpdateStepTest {
         "webhooks", "http://example.com/${repositoryName};true;true;POST|"
       );
     testUtil.mockRepositoryProperties(new V1PropertyDaoTestUtil.PropertiesForRepository(REPO_NAME, mockedValues));
+    when(keyGenerator.createKey()).thenReturn("42");
 
     updateStep.doUpdate();
 
     SimpleWebHook v2Webhook = new SimpleWebHook("http://example.com/${repositoryName}", true, true, HttpMethod.POST);
 
     assertThat(configStore.get().getWebhooks()).extracting("configuration").contains(v2Webhook);
+    assertThat(configStore.get().getWebhooks()).extracting("id").contains("42");
+    assertThat(configStore.get().getWebhooks()).extracting("name").contains("SimpleWebHook");
   }
 
   @Test
