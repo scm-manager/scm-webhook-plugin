@@ -67,18 +67,25 @@ class RepositoryWebHookTest {
     when(event.getRepository()).thenReturn(repository);
   }
 
-  @BeforeEach
-  void initWebHookContext() {
-    when(context.getAllConfigurations(repository))
-      .thenReturn(new WebHookConfiguration(singletonList(new WebHook(new TestWebHookConfiguration()))));
-  }
-
   @Test
   void shouldExecuteEventWithCorrectSpecification() {
+    when(context.getAllConfigurations(repository))
+      .thenReturn(new WebHookConfiguration(singletonList(new WebHook(new TestWebHookConfiguration()))));
+
     hook.handleEvent(event);
 
     assertThat(specification.executedRepository).isSameAs(repository);
     assertThat(specification.executedEvent).isSameAs(event);
+  }
+
+  @Test
+  void shouldNotExecuteEventIfRepositoryNotSupportedBySpecification() {
+    when(context.getAllConfigurations(repository))
+      .thenReturn(new WebHookConfiguration(singletonList(new WebHook(new OtherWebHookConfiguration()))));
+
+    hook.handleEvent(event);
+
+    // this would fail if OtherWebHookSpecification#createExecutor would have been called
   }
 
   static class TestWebHookConfiguration implements SingleWebHookConfiguration {
@@ -113,6 +120,11 @@ class RepositoryWebHookTest {
     @Override
     public Class<OtherWebHookConfiguration> getSpecificationType() {
       return OtherWebHookConfiguration.class;
+    }
+
+    @Override
+    public boolean supportsRepository(Repository repository) {
+      return false;
     }
 
     @Override

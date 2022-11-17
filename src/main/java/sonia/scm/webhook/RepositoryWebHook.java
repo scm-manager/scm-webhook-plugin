@@ -81,6 +81,7 @@ public class RepositoryWebHook {
         .stream()
         .filter(provider -> provider.handles(webHook.getConfiguration().getClass()))
         .findFirst()
+        .filter(specification -> specification.supportsRepository(repository))
         .orElseGet(NoSpecificationFound::new)
         .createExecutor(webHook.getConfiguration(), repository, event)
         .run();

@@ -36,5 +36,9 @@ public interface WebHookSpecification<T extends SingleWebHookConfiguration> {
     return getSpecificationType().isAssignableFrom(webHookClass);
   }
 
+  default boolean supportsRepository(Repository repository) {
+    return true;
+  }
+
   WebHookExecutor createExecutor(T webHook, Repository repository, PostReceiveRepositoryHookEvent event);
 }

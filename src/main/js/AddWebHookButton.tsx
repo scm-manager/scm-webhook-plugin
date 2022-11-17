@@ -25,8 +25,10 @@ import React, { FC, useState } from "react";
 import { AddButton, Select } from "@scm-manager/ui-components";
 import { useTranslation } from "react-i18next";
 import { ExtensionPointDefinition, useBinder } from "@scm-manager/ui-extensions";
+import { Repository } from "@scm-manager/ui-types";
 
 type Props = {
+  repository?: Repository;
   readOnly: boolean;
   onAdd: (webHookName: string) => void;
 };
@@ -39,16 +41,19 @@ export type WebHookConfiguration = ExtensionPointDefinition<
   }
 >;
 
-const AddWebHookButton: FC<Props> = ({ readOnly, onAdd }) => {
+const AddWebHookButton: FC<Props> = ({ readOnly, onAdd, repository }) => {
   const { t } = useTranslation("plugins");
   const binder = useBinder();
   const [selectedWebHook, setSelectedWebHook] = useState(0);
 
-  const availableWebHooks = binder.getExtensions<WebHookConfiguration>("webhook.configurations");
+  const allWebHooks = binder.getExtensions<WebHookConfiguration>("webhook.configurations");
+  const availableWebHooks = repository
+    ? repository._embedded.supportedWebHookTypes.types
+    : allWebHooks.map(type => type.name);
   const options = availableWebHooks.map(hook => {
     return {
-      value: hook.name,
-      label: t(`webhooks.${hook.name}.name`)
+      value: hook,
+      label: t(`webhooks.${hook}.name`)
     };
   });
 
@@ -57,13 +62,13 @@ const AddWebHookButton: FC<Props> = ({ readOnly, onAdd }) => {
       <Select
         className={"mr-2"}
         options={options}
-        value={availableWebHooks[selectedWebHook].name}
+        value={allWebHooks[selectedWebHook].name}
         onChange={selected => setSelectedWebHook(options.findIndex(option => option.value === selected))}
       />
       <AddButton
         disabled={readOnly}
         label={t("scm-webhook-plugin.add")}
-        action={() => onAdd(availableWebHooks[selectedWebHook])}
+        action={() => onAdd(allWebHooks[selectedWebHook])}
       />
     </div>
   );
