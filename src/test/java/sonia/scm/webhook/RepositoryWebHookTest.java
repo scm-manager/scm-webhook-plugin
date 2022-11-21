@@ -46,7 +46,7 @@ class RepositoryWebHookTest {
 
   @Mock
   private WebHookContext context;
-  private Set<WebHookSpecification> specifications;
+  private Set<DtoAdapterWebHookSpecification> specifications;
 
   private RepositoryWebHook hook;
 
@@ -70,7 +70,7 @@ class RepositoryWebHookTest {
   @Test
   void shouldExecuteEventWithCorrectSpecification() {
     when(context.getAllConfigurations(repository))
-      .thenReturn(new WebHookConfiguration(singletonList(new WebHook(new TestWebHookConfiguration()))));
+      .thenReturn(new WebHookConfiguration(singletonList(new WebHook(new TestWebHookConfiguration(), "42"))));
 
     hook.handleEvent(event);
 
@@ -81,7 +81,7 @@ class RepositoryWebHookTest {
   @Test
   void shouldNotExecuteEventIfRepositoryNotSupportedBySpecification() {
     when(context.getAllConfigurations(repository))
-      .thenReturn(new WebHookConfiguration(singletonList(new WebHook(new OtherWebHookConfiguration()))));
+      .thenReturn(new WebHookConfiguration(singletonList(new WebHook(new OtherWebHookConfiguration(), "42"))));
 
     hook.handleEvent(event);
 
@@ -91,7 +91,7 @@ class RepositoryWebHookTest {
   @Test
   void shouldNotFailCompletelyWithOneMalfunctioningSpecification() {
     when(context.getAllConfigurations(repository))
-      .thenReturn(new WebHookConfiguration(singletonList(new WebHook(new MalfunctioningWebHookConfiguration()))));
+      .thenReturn(new WebHookConfiguration(singletonList(new WebHook(new MalfunctioningWebHookConfiguration(), "42"))));
 
     hook.handleEvent(event);
 

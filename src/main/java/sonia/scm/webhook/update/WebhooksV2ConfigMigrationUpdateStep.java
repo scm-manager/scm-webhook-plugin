@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sonia.scm.migration.UpdateStep;
 import sonia.scm.plugin.Extension;
+import sonia.scm.security.KeyGenerator;
 import sonia.scm.store.ConfigurationStore;
 import sonia.scm.store.ConfigurationStoreFactory;
 import sonia.scm.update.V1Properties;
@@ -58,11 +59,13 @@ public class WebhooksV2ConfigMigrationUpdateStep implements UpdateStep {
 
   private final V1PropertyDAO v1PropertyDAO;
   private final ConfigurationStoreFactory storeFactory;
+  private final KeyGenerator keyGenerator;
 
   @Inject
-  public WebhooksV2ConfigMigrationUpdateStep(V1PropertyDAO v1PropertyDAO, ConfigurationStoreFactory storeFactory) {
+  public WebhooksV2ConfigMigrationUpdateStep(V1PropertyDAO v1PropertyDAO, ConfigurationStoreFactory storeFactory, KeyGenerator keyGenerator) {
     this.v1PropertyDAO = v1PropertyDAO;
     this.storeFactory = storeFactory;
+    this.keyGenerator = keyGenerator;
   }
 
   @Override public void doUpdate() {
@@ -86,7 +89,7 @@ public class WebhooksV2ConfigMigrationUpdateStep implements UpdateStep {
 
     Set<WebHook> webhooksSet = stream(splittedWebhooks)
       .map(this::createWebHook)
-      .map(WebHook::new)
+      .map(config -> new WebHook(config, keyGenerator.createKey()))
       .collect(toSet());
 
     return of(new WebHookConfiguration(webhooksSet));

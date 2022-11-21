@@ -21,31 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package sonia.scm.webhook;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import sonia.scm.plugin.ExtensionPoint;
+import sonia.scm.repository.PostReceiveRepositoryHookEvent;
+import sonia.scm.repository.Repository;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+@ExtensionPoint
+public interface DtoAdapterWebHookSpecification<T extends SingleWebHookConfiguration, D> {
 
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
-@Getter
-@Setter
-@NoArgsConstructor
-public class WebHook {
-  String name;
-  String id;
-  @XmlJavaTypeAdapter(XmlConfiguration.WebHookConfigurationXmlAdapter.class)
-  SingleWebHookConfiguration configuration;
+  Class<T> getSpecificationType();
 
-  public WebHook(SingleWebHookConfiguration configuration, String id) {
-    this.name = configuration.getClass().getSimpleName();
-    this.id = id;
-    this.configuration = configuration;
+  Class<D> getDtoType();
+
+  default boolean handles(Class<WebHook> webHookClass) {
+    return getSpecificationType().isAssignableFrom(webHookClass);
+  }
+
+  default boolean supportsRepository(Repository repository) {
+    return true;
+  }
+
+  WebHookExecutor createExecutor(T webHook, Repository repository, PostReceiveRepositoryHookEvent event);
+
+  D mapToDto(T configuration);
+
+  T mapFromDto(D dto);
+
+  default void updateBeforeStore(T oldConfiguration, T newConfiguration) {
   }
 }

@@ -28,6 +28,7 @@ import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import sonia.scm.migration.UpdateStep;
 import sonia.scm.plugin.Extension;
+import sonia.scm.security.KeyGenerator;
 import sonia.scm.store.ConfigurationStore;
 import sonia.scm.store.ConfigurationStoreFactory;
 import sonia.scm.update.RepositoryUpdateIterator;
@@ -55,11 +56,13 @@ public class WebhooksExtensibleUpdateStep implements UpdateStep {
 
   private final ConfigurationStoreFactory storeFactory;
   private final RepositoryUpdateIterator repositoryUpdateIterator;
+  private final KeyGenerator keyGenerator;
 
   @Inject
-  public WebhooksExtensibleUpdateStep(ConfigurationStoreFactory storeFactory, RepositoryUpdateIterator repositoryUpdateIterator) {
+  public WebhooksExtensibleUpdateStep(ConfigurationStoreFactory storeFactory, RepositoryUpdateIterator repositoryUpdateIterator, KeyGenerator keyGenerator) {
     this.storeFactory = storeFactory;
     this.repositoryUpdateIterator = repositoryUpdateIterator;
+    this.keyGenerator = keyGenerator;
   }
 
   @Override
@@ -97,7 +100,7 @@ public class WebhooksExtensibleUpdateStep implements UpdateStep {
   }
 
   private WebHook convert(OldWebHook webHook) {
-    return new WebHook(new SimpleWebHook(webHook.urlPattern, webHook.executeOnEveryCommit, webHook.sendCommitData, webHook.method));
+    return new WebHook(new SimpleWebHook(webHook.urlPattern, webHook.executeOnEveryCommit, webHook.sendCommitData, webHook.method), keyGenerator.createKey());
   }
 
   @Override

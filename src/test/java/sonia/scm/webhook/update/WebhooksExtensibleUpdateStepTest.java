@@ -27,12 +27,14 @@ package sonia.scm.webhook.update;
 import org.assertj.core.api.AbstractListAssert;
 import org.assertj.core.api.ObjectAssert;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import sonia.scm.security.KeyGenerator;
 import sonia.scm.store.ConfigurationStore;
 import sonia.scm.store.ConfigurationStoreFactory;
 import sonia.scm.store.TypedStoreParameters;
@@ -55,6 +57,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class WebhooksExtensibleUpdateStepTest {
@@ -63,6 +66,8 @@ class WebhooksExtensibleUpdateStepTest {
   private ConfigurationStoreFactory storeFactory = new InMemoryConfigurationStoreFactory();
   @Mock
   private RepositoryUpdateIterator repositoryUpdateIterator;
+  @Mock
+  private KeyGenerator keyGenerator;
 
   @InjectMocks
   WebhooksExtensibleUpdateStep updateStep;
@@ -85,7 +90,7 @@ class WebhooksExtensibleUpdateStepTest {
   @Test
   void shouldDoNothingIfConfigIsNewAlready() {
     WebHookConfiguration newConfiguration = new WebHookConfiguration(
-      singletonList(new WebHook(new SimpleWebHook("https://hog.org/", false, false, HttpMethod.PUT)))
+      singletonList(new WebHook(new SimpleWebHook("https://hog.org/", false, false, HttpMethod.PUT), "42"))
     );
     storeFactory
       .withType(WebHookConfiguration.class)
@@ -99,78 +104,93 @@ class WebhooksExtensibleUpdateStepTest {
     verify(storeFactory, never()).withType(WebHookConfiguration.class);
   }
 
-  @Test
-  void shouldConvertOldGlobalConfig() {
-    WebhooksExtensibleUpdateStep.OldWebHookConfiguration oldConfiguration = new WebhooksExtensibleUpdateStep.OldWebHookConfiguration();
-    HashSet<WebhooksExtensibleUpdateStep.OldWebHook> webhooks = new HashSet<>();
-    WebhooksExtensibleUpdateStep.OldWebHook webHook = new WebhooksExtensibleUpdateStep.OldWebHook();
-    webHook.urlPattern = "https://hog.org/";
-    webHook.method = HttpMethod.PUT;
-    webhooks.add(webHook);
-    oldConfiguration.webhooks = webhooks;
-    storeFactory
-      .withType(WebhooksExtensibleUpdateStep.OldWebHookConfiguration.class)
-      .withName("webhook")
-      .build()
-      .set(oldConfiguration);
+  @Nested
+  class WithConfigurations {
 
-    updateStep.doUpdate();
+    @BeforeEach
+    void initKeyGenerator() {
+      when(keyGenerator.createKey()).thenReturn("42");
+    }
 
-    Optional<WebHookConfiguration> newConfiguration = storeFactory
-      .withType(WebHookConfiguration.class)
-      .withName("webhook")
-      .build()
-      .getOptional();
+    @Test
+    void shouldConvertOldGlobalConfig() {
+      WebhooksExtensibleUpdateStep.OldWebHookConfiguration oldConfiguration = new WebhooksExtensibleUpdateStep.OldWebHookConfiguration();
+      HashSet<WebhooksExtensibleUpdateStep.OldWebHook> webhooks = new HashSet<>();
+      WebhooksExtensibleUpdateStep.OldWebHook webHook = new WebhooksExtensibleUpdateStep.OldWebHook();
+      webHook.urlPattern = "https://hog.org/";
+      webHook.method = HttpMethod.PUT;
+      webhooks.add(webHook);
+      oldConfiguration.webhooks = webhooks;
+      storeFactory
+        .withType(WebhooksExtensibleUpdateStep.OldWebHookConfiguration.class)
+        .withName("webhook")
+        .build()
+        .set(oldConfiguration);
 
-    AbstractListAssert<?, List<?>, Object, ObjectAssert<Object>> webhooksAssertion = assertThat(newConfiguration)
-      .isPresent()
-      .get()
-      .extracting("webhooks")
-      .asList();
-    webhooksAssertion
-      .extracting("name")
-      .containsExactly("SimpleWebHook");
-    webhooksAssertion
-      .extracting("configuration")
-      .containsExactly(new SimpleWebHook("https://hog.org/", false, false, HttpMethod.PUT));
-  }
+      updateStep.doUpdate();
 
-  @Test
-  void shouldConvertOldRepositoryConfig() {
-    WebhooksExtensibleUpdateStep.OldWebHookConfiguration oldConfiguration = new WebhooksExtensibleUpdateStep.OldWebHookConfiguration();
-    HashSet<WebhooksExtensibleUpdateStep.OldWebHook> webhooks = new HashSet<>();
-    WebhooksExtensibleUpdateStep.OldWebHook webHook = new WebhooksExtensibleUpdateStep.OldWebHook();
-    webHook.urlPattern = "https://hog.org/";
-    webHook.method = HttpMethod.PUT;
-    webhooks.add(webHook);
-    oldConfiguration.webhooks = webhooks;
-    storeFactory
-      .withType(WebhooksExtensibleUpdateStep.OldWebHookConfiguration.class)
-      .withName("webhook")
-      .forRepository("42")
-      .build()
-      .set(oldConfiguration);
+      Optional<WebHookConfiguration> newConfiguration = storeFactory
+        .withType(WebHookConfiguration.class)
+        .withName("webhook")
+        .build()
+        .getOptional();
 
-    updateStep.doUpdate();
+      AbstractListAssert<?, List<?>, Object, ObjectAssert<Object>> webhooksAssertion = assertThat(newConfiguration)
+        .isPresent()
+        .get()
+        .extracting("webhooks")
+        .asList();
+      webhooksAssertion
+        .extracting("name")
+        .containsExactly("SimpleWebHook");
+      webhooksAssertion
+        .extracting("id")
+        .containsExactly("42");
+      webhooksAssertion
+        .extracting("configuration")
+        .containsExactly(new SimpleWebHook("https://hog.org/", false, false, HttpMethod.PUT));
+    }
 
-    Optional<WebHookConfiguration> newConfiguration = storeFactory
-      .withType(WebHookConfiguration.class)
-      .withName("webhook")
-      .forRepository("42")
-      .build()
-      .getOptional();
+    @Test
+    void shouldConvertOldRepositoryConfig() {
+      WebhooksExtensibleUpdateStep.OldWebHookConfiguration oldConfiguration = new WebhooksExtensibleUpdateStep.OldWebHookConfiguration();
+      HashSet<WebhooksExtensibleUpdateStep.OldWebHook> webhooks = new HashSet<>();
+      WebhooksExtensibleUpdateStep.OldWebHook webHook = new WebhooksExtensibleUpdateStep.OldWebHook();
+      webHook.urlPattern = "https://hog.org/";
+      webHook.method = HttpMethod.PUT;
+      webhooks.add(webHook);
+      oldConfiguration.webhooks = webhooks;
+      storeFactory
+        .withType(WebhooksExtensibleUpdateStep.OldWebHookConfiguration.class)
+        .withName("webhook")
+        .forRepository("42")
+        .build()
+        .set(oldConfiguration);
 
-    AbstractListAssert<?, List<?>, Object, ObjectAssert<Object>> webhooksAssertion = assertThat(newConfiguration)
-      .isPresent()
-      .get()
-      .extracting("webhooks")
-      .asList();
-    webhooksAssertion
-      .extracting("name")
-      .containsExactly("SimpleWebHook");
-    webhooksAssertion
-      .extracting("configuration")
-      .containsExactly(new SimpleWebHook("https://hog.org/", false, false, HttpMethod.PUT));
+      updateStep.doUpdate();
+
+      Optional<WebHookConfiguration> newConfiguration = storeFactory
+        .withType(WebHookConfiguration.class)
+        .withName("webhook")
+        .forRepository("42")
+        .build()
+        .getOptional();
+
+      AbstractListAssert<?, List<?>, Object, ObjectAssert<Object>> webhooksAssertion = assertThat(newConfiguration)
+        .isPresent()
+        .get()
+        .extracting("webhooks")
+        .asList();
+      webhooksAssertion
+        .extracting("name")
+        .containsExactly("SimpleWebHook");
+      webhooksAssertion
+        .extracting("id")
+        .containsExactly("42");
+      webhooksAssertion
+        .extracting("configuration")
+        .containsExactly(new SimpleWebHook("https://hog.org/", false, false, HttpMethod.PUT));
+    }
   }
 
   @Test

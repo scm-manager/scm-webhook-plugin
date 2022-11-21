@@ -50,13 +50,15 @@ public class WebHookContext {
   private final ConfigurationStoreFactory storeFactory;
   private final ClassLoader uberClassLoader;
   private final RepositoryManager repositoryManager;
+  private final ConfigurationUpdater configurationUpdater;
 
   @Inject
-  public WebHookContext(ConfigurationStoreFactory storeFactory, RepositoryManager repositoryManager, PluginLoader pluginLoader) {
+  public WebHookContext(ConfigurationStoreFactory storeFactory, RepositoryManager repositoryManager, PluginLoader pluginLoader, ConfigurationUpdater configurationUpdater) {
     this.storeFactory = storeFactory;
     this.store = storeFactory.withType(WebHookConfiguration.class).withName(STORE_NAME).build();
     this.repositoryManager = repositoryManager;
     this.uberClassLoader = pluginLoader.getUberClassLoader();
+    this.configurationUpdater = configurationUpdater;
   }
 
   public static boolean isReadPermitted() {
@@ -96,7 +98,7 @@ public class WebHookContext {
   }
 
   public void setGlobalConfiguration(WebHookConfiguration globalConfiguration) {
-    store.set(globalConfiguration);
+    store.set(configurationUpdater.update(store.get(), globalConfiguration));
   }
 
   public WebHookConfiguration getRepositoryConfigurations(String namespace, String name) {
@@ -112,7 +114,7 @@ public class WebHookContext {
 
   public void setRepositoryConfiguration(WebHookConfiguration configuration, String namespace, String name) {
     ConfigurationStore<WebHookConfiguration> repositoryStore = getRepositoryStore(namespace, name);
-    repositoryStore.set(configuration);
+    repositoryStore.set(configurationUpdater.update(repositoryStore.get(), configuration));
   }
 
   private ConfigurationStore<WebHookConfiguration> getRepositoryStore(String namespace, String name) {
