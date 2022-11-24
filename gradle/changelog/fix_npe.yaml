@@ -1,0 +1,2 @@
+- type: fixed
+  description: Exception for new configuration ([#52](https://github.com/scm-manager/scm-webhook-plugin/pull/52))
