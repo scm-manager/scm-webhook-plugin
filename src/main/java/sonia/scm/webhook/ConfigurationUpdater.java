@@ -55,6 +55,9 @@ class ConfigurationUpdater {
   }
 
   Optional<SingleWebHookConfiguration> find(WebHookConfiguration oldConfiguration, String id) {
+    if (oldConfiguration == null || oldConfiguration.getWebhooks() == null) {
+      return Optional.empty();
+    }
     return oldConfiguration.getWebhooks()
       .stream()
       .filter(webHook -> id.equals(webHook.getId()))
