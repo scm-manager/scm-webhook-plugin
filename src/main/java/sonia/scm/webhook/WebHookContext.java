@@ -114,7 +114,10 @@ public class WebHookContext {
 
   public void setRepositoryConfiguration(WebHookConfiguration configuration, String namespace, String name) {
     ConfigurationStore<WebHookConfiguration> repositoryStore = getRepositoryStore(namespace, name);
-    repositoryStore.set(configurationUpdater.update(repositoryStore.get(), configuration));
+    withUberClassLoader(() -> {
+      repositoryStore.set(configurationUpdater.update(repositoryStore.get(), configuration));
+      return null;
+    });
   }
 
   private ConfigurationStore<WebHookConfiguration> getRepositoryStore(String namespace, String name) {
