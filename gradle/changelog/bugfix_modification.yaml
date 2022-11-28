@@ -1,2 +1,0 @@
-- type: fixed
-  description: Error on webhook modifications in repositories ([#53](https://github.com/scm-manager/scm-webhook-plugin/pull/53))
