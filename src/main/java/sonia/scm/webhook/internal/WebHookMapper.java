@@ -40,9 +40,9 @@ import sonia.scm.webhook.SingleWebHookConfiguration;
 import sonia.scm.webhook.WebHook;
 import sonia.scm.webhook.WebHookConfiguration;
 import sonia.scm.webhook.WebHookContext;
-import sonia.scm.webhook.WebHookSpecification;
 
 import javax.inject.Inject;
+import java.util.Optional;
 
 import static de.otto.edison.hal.Link.link;
 
@@ -68,20 +68,24 @@ public abstract class WebHookMapper implements InstantAttributeMapper {
   public abstract WebHookConfiguration map(WebHookConfigurationDto configurationDto);
 
   WebHookDto map(WebHook webHook) {
-    DtoAdapterWebHookSpecification specification = availableSpecifications.specificationFor(webHook.getName());
     WebHookDto dto = new WebHookDto();
     dto.setName(webHook.getName());
     dto.setId(webHook.getId());
-    dto.setConfiguration(new ObjectMapper().valueToTree(specification.mapToDto(webHook.getConfiguration())));
+    Optional<DtoAdapterWebHookSpecification> specification = availableSpecifications.specificationFor(webHook.getName());
+    specification
+      .map(spec -> spec.mapToDto(webHook.getConfiguration()))
+      .ifPresent(dtoSpec -> dto.setConfiguration(new ObjectMapper().valueToTree(dtoSpec)));
+    dto.setUnknown(!specification.isPresent());
     return dto;
   }
 
   WebHook map(WebHookDto dto) {
     WebHook webHook = new WebHook();
-    DtoAdapterWebHookSpecification specification = availableSpecifications.specificationFor(dto.getName());
     webHook.setName(dto.getName());
     webHook.setId(dto.getId());
-    webHook.setConfiguration(parseConfiguration(dto, specification));
+    availableSpecifications.specificationFor(dto.getName())
+      .map(spec -> parseConfiguration(dto, spec))
+      .ifPresent(spec -> webHook.setConfiguration(spec));
     return webHook;
   }
 

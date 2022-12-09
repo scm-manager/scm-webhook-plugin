@@ -28,6 +28,7 @@ import com.google.inject.Inject;
 import sonia.scm.repository.Repository;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -40,11 +41,10 @@ public class AvailableWebHookSpecifications {
     this.specifications = specifications;
   }
 
-  public DtoAdapterWebHookSpecification specificationFor(String name) {
+  public Optional<DtoAdapterWebHookSpecification> specificationFor(String name) {
     return specifications.stream()
       .filter(specification -> specification.getSpecificationType().getSimpleName().equals(name))
-      .findFirst()
-      .orElseThrow(() -> new UnknownWebHookException(name));
+      .findFirst();
   }
 
   public Collection<String> getTypesFor(Repository repository) {

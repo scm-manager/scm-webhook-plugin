@@ -25,6 +25,7 @@
 export type WebHookConfiguration = {
   name: string;
   configuration: any;
+  unknown: boolean;
 };
 
 export type SimpleWebHookConfiguration = {

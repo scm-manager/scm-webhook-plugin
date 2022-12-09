@@ -79,13 +79,17 @@ public class RepositoryWebHook {
       try {
         runWebhook(repository, event, webHook);
       } catch (Exception e) {
-        logger.error("error while running webhook of type {} in repository {}", webHook.configuration.getClass(), repository, e);
+        logger.error("error while running webhook of type {} in repository {}", webHook.name, repository, e);
       }
     }
   }
 
   @SuppressWarnings({"unchecked"})
   private void runWebhook(Repository repository, PostReceiveRepositoryHookEvent event, WebHook webHook) {
+    if (webHook.getConfiguration() == null) {
+      logger.warn("skipping webhook with unknown configuration type {} for repository {}", webHook.getName(), repository);
+      return;
+    }
     specifications
       .stream()
       .filter(provider -> provider.handles(webHook.getConfiguration().getClass()))

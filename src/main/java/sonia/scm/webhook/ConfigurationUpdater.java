@@ -28,6 +28,7 @@ import org.apache.commons.lang.StringUtils;
 import sonia.scm.security.KeyGenerator;
 
 import javax.inject.Inject;
+import java.util.Objects;
 import java.util.Optional;
 
 class ConfigurationUpdater {
@@ -48,13 +49,14 @@ class ConfigurationUpdater {
           webHook.setId(keyGenerator.createKey());
         }
         Optional<? extends SingleWebHookConfiguration> oldSingleConfiguration = find(oldConfiguration, webHook.getId());
-        DtoAdapterWebHookSpecification specification = specifications.specificationFor(webHook.getName());
-        oldSingleConfiguration.ifPresent(configuration -> specification.updateBeforeStore(configuration, webHook.getConfiguration()));
+        specifications.specificationFor(webHook.getName())
+          .ifPresent(spec ->
+            oldSingleConfiguration.ifPresent(configuration -> spec.updateBeforeStore(configuration, webHook.getConfiguration())));
       });
     return newConfiguration;
   }
 
-  Optional<SingleWebHookConfiguration> find(WebHookConfiguration oldConfiguration, String id) {
+  private Optional<SingleWebHookConfiguration> find(WebHookConfiguration oldConfiguration, String id) {
     if (oldConfiguration == null || oldConfiguration.getWebhooks() == null) {
       return Optional.empty();
     }
@@ -62,6 +64,7 @@ class ConfigurationUpdater {
       .stream()
       .filter(webHook -> id.equals(webHook.getId()))
       .map(WebHook::getConfiguration)
+      .filter(Objects::nonNull)
       .findFirst();
   }
 }

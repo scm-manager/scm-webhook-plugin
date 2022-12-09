@@ -39,6 +39,7 @@ import java.util.Set;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -92,6 +93,16 @@ class RepositoryWebHookTest {
   void shouldNotFailCompletelyWithOneMalfunctioningSpecification() {
     when(context.getAllConfigurations(repository))
       .thenReturn(new WebHookConfiguration(singletonList(new WebHook(new MalfunctioningWebHookConfiguration(), "42"))));
+
+    hook.handleEvent(event);
+
+    // no exception should have been thrown
+  }
+
+  @Test
+  void shouldIgnoreUnknownConfiguration() {
+    when(context.getAllConfigurations(repository))
+      .thenReturn(new WebHookConfiguration(singletonList(mock(WebHook.class))));
 
     hook.handleEvent(event);
 

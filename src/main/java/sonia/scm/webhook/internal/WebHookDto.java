@@ -47,4 +47,6 @@ public class WebHookDto {
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
   private JsonNode configuration;
+
+  private boolean unknown;
 }

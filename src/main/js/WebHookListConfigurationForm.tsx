@@ -47,20 +47,23 @@ export const WebHookListConfigurationForm: FC<Props> = ({ editorStates, readOnly
               <i className="fas fa-trash" />
             </Button>
           );
+          const editor = webHook.unknown ? (
+            <Notification type={"warning"}>{t("scm-webhook-plugin.form.unknownConfigurationType")}</Notification>
+          ) : (
+            <ExtensionPoint
+              name={`webhook.configuration.${webHook.name}`}
+              renderAll={false}
+              props={{
+                webHook: webHook,
+                readOnly: readOnly,
+                onChange: (changedWebHook, valid) => onChange(changedWebHook, index, valid)
+              }}
+            />
+          );
           return (
             <>
               <div className={"columns is-vcentered"} key={`config-${index}`}>
-                <div className={"column"}>
-                  <ExtensionPoint
-                    name={`webhook.configuration.${webHook.name}`}
-                    renderAll={false}
-                    props={{
-                      webHook: webHook,
-                      readOnly: readOnly,
-                      onChange: (changedWebHook, valid) => onChange(changedWebHook, index, valid)
-                    }}
-                  />
-                </div>
+                <div className={"column"}>{editor}</div>
                 <div className={"column is-narrow"}>{deleteIcon}</div>
               </div>
               <hr />

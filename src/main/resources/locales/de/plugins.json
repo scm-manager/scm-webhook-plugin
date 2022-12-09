@@ -11,7 +11,8 @@
       "sendCommitData": "Commit Daten senden",
       "sendCommitDataHelp": "Wenn die \"Commit Daten senden\" Checkbox ausgewählt ist, werden die Commit Daten als json Body mit dem Request gesendet.",
       "method": "Http Methode",
-      "methodHelp": "Wenn die http Methode AUTO ausgewählt ist, benutzt das Plugin einen GET Request. Nur wenn \"Commit Daten senden\" ausgewählt ist benutzt das Plugin POST."
+      "methodHelp": "Wenn die http Methode AUTO ausgewählt ist, benutzt das Plugin einen GET Request. Nur wenn \"Commit Daten senden\" ausgewählt ist benutzt das Plugin POST.",
+      "unknownConfigurationType": "Diese Konfiguration kann nicht angezeigt werden, da sie einen unbekannten Typen hat. Wahrscheinlich stammt sie aus einen anderen Plugin, das in der Zwischenzeit entfernt wurde. Diese Konfiguration kommt nicht zur Anwendung."
     },
     "confirm-delete": {
       "title": "Webhook löschen",

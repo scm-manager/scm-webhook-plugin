@@ -94,7 +94,7 @@ public class WebHookContext {
   }
 
   public WebHookConfiguration getGlobalConfiguration() {
-    return withUberClassLoader(() -> store.getOptional().orElse(new WebHookConfiguration()));
+    return getFromStore(store).orElse(new WebHookConfiguration());
   }
 
   public void setGlobalConfiguration(WebHookConfiguration globalConfiguration) {
@@ -103,12 +103,11 @@ public class WebHookContext {
 
   public WebHookConfiguration getRepositoryConfigurations(String namespace, String name) {
     ConfigurationStore<WebHookConfiguration> repositoryStore = getRepositoryStore(namespace, name);
-    return withUberClassLoader(() -> Optional.ofNullable(repositoryStore.get()).orElse(new WebHookConfiguration()));
+    return getFromStore(repositoryStore).orElse(new WebHookConfiguration());
   }
 
   public WebHookConfiguration getAllConfigurations(Repository repository) {
-    ConfigurationStore<WebHookConfiguration> repositoryStore = getRepositoryStore(repository);
-    WebHookConfiguration repositoryConfiguration = repositoryStore.getOptional().orElse(new WebHookConfiguration());
+    WebHookConfiguration repositoryConfiguration = getRepositoryConfigurations(repository.getNamespace(), repository.getName());
     return getGlobalConfiguration().merge(repositoryConfiguration);
   }
 
@@ -123,6 +122,10 @@ public class WebHookContext {
   private ConfigurationStore<WebHookConfiguration> getRepositoryStore(String namespace, String name) {
     Repository repository = repositoryManager.get(new NamespaceAndName(namespace, name));
     return getRepositoryStore(repository);
+  }
+
+  private Optional<WebHookConfiguration> getFromStore(ConfigurationStore<WebHookConfiguration> store) {
+    return withUberClassLoader(store::getOptional);
   }
 
   private <T> T withUberClassLoader(Supplier<T> runnable) {
