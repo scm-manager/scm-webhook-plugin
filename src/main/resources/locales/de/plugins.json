@@ -12,7 +12,17 @@
       "sendCommitDataHelp": "Wenn die \"Commit Daten senden\" Checkbox ausgewählt ist, werden die Commit Daten als json Body mit dem Request gesendet.",
       "method": "Http Methode",
       "methodHelp": "Wenn die http Methode AUTO ausgewählt ist, benutzt das Plugin einen GET Request. Nur wenn \"Commit Daten senden\" ausgewählt ist benutzt das Plugin POST.",
-      "unknownConfigurationType": "Diese Konfiguration kann nicht angezeigt werden, da sie einen unbekannten Typen hat. Wahrscheinlich stammt sie aus einen anderen Plugin, das in der Zwischenzeit entfernt wurde. Diese Konfiguration kommt nicht zur Anwendung."
+      "unknownConfigurationType": "Diese Konfiguration kann nicht angezeigt werden, da sie einen unbekannten Typen hat. Wahrscheinlich stammt sie aus einen anderen Plugin, das in der Zwischenzeit entfernt wurde. Diese Konfiguration kommt nicht zur Anwendung.",
+      "deleteWebhook": "Webhook löschen",
+      "removeHeader": "Header löschen",
+      "additionalHeaders": "Zusätzliche Header",
+      "headerKey": "Header Schlüssel",
+      "headerKeyHelpText": "Der Schlüsselname des Header Eintrags",
+      "headerKeyValidation": "Der Schlüssel existiert bereits",
+      "headerValue": "Header Wert",
+      "headerValueHelpText": "Der Wert des Header Eintrags",
+      "headerConcealed": "Verschlüsselt",
+      "headerConcealedHelpText": "Verschlüsselt den Header Wert beim Speichern. Der Wert kann nicht mehr ausgelesen werden."
     },
     "confirm-delete": {
       "title": "Webhook löschen",

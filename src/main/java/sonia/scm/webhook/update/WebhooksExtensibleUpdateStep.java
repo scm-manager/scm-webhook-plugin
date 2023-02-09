@@ -47,6 +47,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.emptyList;
 import static sonia.scm.version.Version.parse;
 
 @Extension
@@ -100,7 +101,7 @@ public class WebhooksExtensibleUpdateStep implements UpdateStep {
   }
 
   private WebHook convert(OldWebHook webHook) {
-    return new WebHook(new SimpleWebHook(webHook.urlPattern, webHook.executeOnEveryCommit, webHook.sendCommitData, webHook.method), keyGenerator.createKey());
+    return new WebHook(new SimpleWebHook(webHook.urlPattern, webHook.executeOnEveryCommit, webHook.sendCommitData, webHook.method, emptyList()), keyGenerator.createKey());
   }
 
   @Override

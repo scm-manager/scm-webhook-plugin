@@ -46,7 +46,6 @@ public class WebHookContext {
   private static final String WEB_HOOK_ID = "webhook";
   private static final String STORE_NAME = "webhook";
 
-  private final ConfigurationStore<WebHookConfiguration> store;
   private final ConfigurationStoreFactory storeFactory;
   private final ClassLoader uberClassLoader;
   private final RepositoryManager repositoryManager;
@@ -55,7 +54,6 @@ public class WebHookContext {
   @Inject
   public WebHookContext(ConfigurationStoreFactory storeFactory, RepositoryManager repositoryManager, PluginLoader pluginLoader, ConfigurationUpdater configurationUpdater) {
     this.storeFactory = storeFactory;
-    this.store = storeFactory.withType(WebHookConfiguration.class).withName(STORE_NAME).build();
     this.repositoryManager = repositoryManager;
     this.uberClassLoader = pluginLoader.getUberClassLoader();
     this.configurationUpdater = configurationUpdater;
@@ -94,11 +92,15 @@ public class WebHookContext {
   }
 
   public WebHookConfiguration getGlobalConfiguration() {
-    return getFromStore(store).orElse(new WebHookConfiguration());
+    return getFromStore(getGlobalStore()).orElse(new WebHookConfiguration());
   }
 
   public void setGlobalConfiguration(WebHookConfiguration globalConfiguration) {
-    store.set(configurationUpdater.update(store.get(), globalConfiguration));
+    ConfigurationStore<WebHookConfiguration> store = getGlobalStore();
+    withUberClassLoader(() -> {
+      store.set(configurationUpdater.update(store.get(), globalConfiguration));
+      return null;
+    });
   }
 
   public WebHookConfiguration getRepositoryConfigurations(String namespace, String name) {
@@ -126,6 +128,10 @@ public class WebHookContext {
 
   private Optional<WebHookConfiguration> getFromStore(ConfigurationStore<WebHookConfiguration> store) {
     return withUberClassLoader(store::getOptional);
+  }
+
+  private ConfigurationStore<WebHookConfiguration> getGlobalStore() {
+    return storeFactory.withType(WebHookConfiguration.class).withName(STORE_NAME).build();
   }
 
   private <T> T withUberClassLoader(Supplier<T> runnable) {

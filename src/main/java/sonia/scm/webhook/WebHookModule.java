@@ -30,7 +30,6 @@ import com.google.inject.AbstractModule;
 
 import org.mapstruct.factory.Mappers;
 import sonia.scm.plugin.Extension;
-import sonia.scm.webhook.impl.AhcWebHookHttpClient;
 import sonia.scm.webhook.internal.WebHookMapper;
 
 /**
@@ -49,7 +48,6 @@ public class WebHookModule extends AbstractModule
   protected void configure()
   {
     bind(WebHookContext.class);
-    bind(WebHookHttpClient.class).to(AhcWebHookHttpClient.class);
     bind(WebHookMapper.class).to(Mappers.getMapper(WebHookMapper.class).getClass());
   }
 }

@@ -29,6 +29,7 @@ import de.otto.edison.hal.Links;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import sonia.scm.api.v2.resources.InstantAttributeMapper;
 import sonia.scm.api.v2.resources.ScmPathInfoStore;
@@ -61,10 +62,13 @@ public abstract class WebHookMapper implements InstantAttributeMapper {
   @Inject
   KeyGenerator keyGenerator;
 
+  @Mapping(ignore = true, target = "attributes")
   public abstract WebHookConfigurationDto map(WebHookConfiguration configuration, @Context Repository repository);
 
+  @Mapping(ignore = true, target = "attributes")
   public abstract GlobalWebHookConfigurationDto map(WebHookConfiguration configuration);
 
+  @Mapping(ignore = true, target = "merge")
   public abstract WebHookConfiguration map(WebHookConfigurationDto configurationDto);
 
   WebHookDto map(WebHook webHook) {
@@ -75,7 +79,7 @@ public abstract class WebHookMapper implements InstantAttributeMapper {
     specification
       .map(spec -> spec.mapToDto(webHook.getConfiguration()))
       .ifPresent(dtoSpec -> dto.setConfiguration(new ObjectMapper().valueToTree(dtoSpec)));
-    dto.setUnknown(!specification.isPresent());
+    dto.setUnknown(specification.isEmpty());
     return dto;
   }
 
@@ -85,7 +89,7 @@ public abstract class WebHookMapper implements InstantAttributeMapper {
     webHook.setId(dto.getId());
     availableSpecifications.specificationFor(dto.getName())
       .map(spec -> parseConfiguration(dto, spec))
-      .ifPresent(spec -> webHook.setConfiguration(spec));
+      .ifPresent(webHook::setConfiguration);
     return webHook;
   }
 

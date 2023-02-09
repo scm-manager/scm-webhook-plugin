@@ -33,6 +33,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,8 +43,8 @@ class XmlConfigurationTest {
   void shouldSerializeAndDeserializeWebHooks() {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     JAXB.marshal(new WebHookConfiguration(Arrays.asList(
-      new WebHook(new SimpleWebHook("https://example.com", true, true, HttpMethod.AUTO), "1"),
-      new WebHook(new SimpleWebHook("https://hog/trigger", false, false, HttpMethod.GET), "2")
+      new WebHook(new SimpleWebHook("https://example.com", true, true, HttpMethod.AUTO, emptyList()), "1"),
+      new WebHook(new SimpleWebHook("https://hog/trigger", false, false, HttpMethod.GET, emptyList()), "2")
     )), baos);
 
     byte[] bytes = baos.toByteArray();
@@ -53,8 +54,8 @@ class XmlConfigurationTest {
     assertThat(configuration.getWebhooks())
       .extracting("configuration")
       .contains(
-        new SimpleWebHook("https://example.com", true, true, HttpMethod.AUTO),
-        new SimpleWebHook("https://hog/trigger", false, false, HttpMethod.GET)
+        new SimpleWebHook("https://example.com", true, true, HttpMethod.AUTO,emptyList()),
+        new SimpleWebHook("https://hog/trigger", false, false, HttpMethod.GET, emptyList())
       );
     assertThat(configuration.getWebhooks())
       .extracting("id")

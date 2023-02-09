@@ -46,6 +46,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static java.util.Arrays.stream;
+import static java.util.Collections.emptyList;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.stream.Collectors.toSet;
@@ -109,7 +110,8 @@ public class WebhooksV2ConfigMigrationUpdateStep implements UpdateStep {
       splitProperties[0],
       Boolean.parseBoolean(splitProperties[1]),
       Boolean.parseBoolean(splitProperties[2]),
-      Enum.valueOf(HttpMethod.class, splitProperties[3])
+      Enum.valueOf(HttpMethod.class, splitProperties[3]),
+      emptyList()
     );
   }
 

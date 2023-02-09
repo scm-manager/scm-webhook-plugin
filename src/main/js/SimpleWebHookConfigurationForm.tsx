@@ -21,107 +21,169 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React from "react";
-import { WithTranslation, withTranslation } from "react-i18next";
-import styled from "styled-components";
-import { DropDown, Help, InputField, Checkbox } from "@scm-manager/ui-components";
-import { SimpleWebHookConfiguration, WebHookConfiguration } from "./WebHookConfiguration";
+import React, { FC, useState } from "react";
+import { Checkbox, Help, HelpIcon, Icon, InputField, Select, Tooltip } from "@scm-manager/ui-components";
+import { SimpleWebHookConfiguration, WebHookConfiguration, WebhookHeader } from "./WebHookConfiguration";
+import { useTranslation } from "react-i18next";
+import { Button } from "@scm-manager/ui-buttons";
 
-const DeleteIcon = styled.a`
-  margin: 0.55rem 0 0 0.75rem;
-`;
-
-const DropDownWrapper = styled.div`
-  margin-right: 1.5rem;
-`;
-
-type Props = WithTranslation & {
+type Props = {
   webHook: WebHookConfiguration;
   readOnly: boolean;
-  onChange: (p: WebHookConfiguration) => void;
-  onDelete: (p: WebHookConfiguration) => void;
+  onChange: (p: SimpleWebHookConfiguration, isValid: boolean) => void;
 };
 
-type State = SimpleWebHookConfiguration;
+const SimpleWebHookConfigurationForm: FC<Props> = ({ webHook, readOnly, onChange }) => {
+  const [t] = useTranslation("plugins");
+  const [webhookConfig, setWebhookConfig] = useState({
+    ...(webHook.configuration as SimpleWebHookConfiguration),
+    headers: webHook.configuration.headers || []
+  });
+  const [newHeader, setNewHeader] = useState<WebhookHeader>({ key: "", value: "", concealed: false });
+  const [showTable, setShowTable] = useState(false);
 
-class SimpleWebHookConfigurationForm extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = props.webHook.configuration;
-  }
-
-  componentWillReceiveProps(nextProps) {
-    // update the webhook in the state if the prop are changed
-    // The prop can be modified if webhooks are deleted
-    if (nextProps.webHook !== this.props.webHook) {
-      this.state = nextProps.webHook.configuration;
-    }
-  }
-
-  isValid = () => {
-    const { urlPattern, method } = this.state;
-    return urlPattern.trim() !== "" && method.trim() !== "";
+  const isValid = () => {
+    return webhookConfig.urlPattern.trim() !== "" && webhookConfig.method.trim() !== "";
   };
 
-  handleChange = (value: any, name: string) => {
-    this.setState(
-      {
-        [name]: value
-      },
-      () => this.props.onChange(this.state, this.isValid())
-    );
+  const handleChange = (value: any, name: string) => {
+    setWebhookConfig({ ...webhookConfig, [name]: value });
+    onChange({ ...webhookConfig, [name]: value }, isValid());
   };
 
-  renderHttpMethodDropDown = () => {
-    const { readOnly } = this.props;
+  const renderHeaderTable = () => {
     return (
-      <div className="field control">
-        <DropDown
-          options={["GET", "POST", "AUTO", "PUT"]}
-          optionSelected={this.handleDropDownChange}
-          preselectedOption={this.state.method}
-          disabled={readOnly}
-        />
-        <Help message={this.props.t("scm-webhook-plugin.form.methodHelp")} />
+      <div className="table-container">
+        <table className="table">
+          <thead>
+            <th>
+              {t("scm-webhook-plugin.form.headerKey")}
+              <Tooltip location="bottom" multiline={true} message={t("scm-webhook-plugin.form.headerKeyHelpText")}>
+                <HelpIcon />
+              </Tooltip>
+            </th>
+            <th>
+              {t("scm-webhook-plugin.form.headerValue")}
+              <Tooltip location="bottom" multiline={true} message={t("scm-webhook-plugin.form.headerValueHelpText")}>
+                <HelpIcon />
+              </Tooltip>
+            </th>
+            <th>
+              {t("scm-webhook-plugin.form.headerConcealed")}
+              <Tooltip
+                location="bottom"
+                multiline={true}
+                message={t("scm-webhook-plugin.form.headerConcealedHelpText")}
+              >
+                <HelpIcon />
+              </Tooltip>
+            </th>
+            <th />
+          </thead>
+          <tbody>
+            {webhookConfig.headers?.map((header: WebhookHeader, index) => (
+              <tr key={header?.key || `header_${index}`}>
+                <th>{header.key}</th>
+                <td>{header.concealed ? "●●●●●●●●●●●" : header.value}</td>
+                <td>{header.concealed ? <Icon name="check" /> : null}</td>
+                <td>
+                  <Button
+                    onClick={() => {
+                      setWebhookConfig({
+                        ...webhookConfig,
+                        headers: webhookConfig.headers.filter(h => h.key != header.key)
+                      });
+                      onChange(webhookConfig, isValid());
+                    }}
+                    title={t("scm-webhook-plugin.form.removeHeader")}
+                  >
+                    <Icon name="times" />
+                  </Button>
+                </td>
+              </tr>
+            ))}
+            <tr>
+              <td>
+                <InputField
+                  value={newHeader.key}
+                  onChange={key => setNewHeader({ ...newHeader, key: key.replace(" ", "") })}
+                  validationError={webhookConfig.headers.some(h => h.key === newHeader.key)}
+                  errorMessage={t("scm-webhook-plugin.form.headerKeyValidation")}
+                />
+              </td>
+              <td>
+                <InputField value={newHeader.value} onChange={value => setNewHeader({ ...newHeader, value })} />
+              </td>
+              <td>
+                <Checkbox
+                  checked={newHeader.concealed}
+                  onChange={concealed => setNewHeader({ ...newHeader, concealed })}
+                />
+              </td>
+              <td>
+                <Button
+                  onClick={() => {
+                    setWebhookConfig({ ...webhookConfig, headers: [...webhookConfig.headers, newHeader] });
+                    setNewHeader({ key: "", value: "", concealed: false });
+                    onChange({ ...webhookConfig, headers: [...webhookConfig.headers, newHeader] }, isValid());
+                  }}
+                  disabled={
+                    !newHeader.key || !newHeader.value || webhookConfig?.headers?.find(h => h?.key === newHeader?.key)
+                  }
+                  title={t("scm-webhook-plugin.form.addNewHeader")}
+                >
+                  <Icon name="plus" />
+                </Button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     );
   };
 
-  handleDropDownChange = (selection: string) => {
-    this.setState({
-      ...this.state,
-      method: selection
-    });
-    this.handleChange(selection, "method");
-  };
-
-  render() {
-    const { readOnly, t } = this.props;
-    const { urlPattern, executeOnEveryCommit, sendCommitData } = this.state;
-    return (
+  return (
+    <>
       <article className="media">
-        <DropDownWrapper className="media-left">{this.renderHttpMethodDropDown()}</DropDownWrapper>
+        <div className="media-left mr-2">
+          {
+            <div className="field control is-flex">
+              <Select
+                options={[
+                  { value: "GET", label: "GET" },
+                  { value: "POST", label: "POST" },
+                  { value: "AUTO", label: "AUTO" },
+                  { value: "PUT", label: "PUT" }
+                ]}
+                onChange={value => setWebhookConfig({ ...webhookConfig, method: value })}
+                value={webhookConfig.method}
+                disabled={readOnly}
+              />
+              <Help message={t("scm-webhook-plugin.form.methodHelp")} />
+            </div>
+          }
+        </div>
         <div className="media-content">
           <InputField
             name="urlPattern"
             placeholder={t("scm-webhook-plugin.form.urlPattern")}
-            value={urlPattern}
-            onChange={this.handleChange}
+            value={webhookConfig.urlPattern}
+            onChange={handleChange}
             disabled={readOnly}
           />
           <Checkbox
             name="executeOnEveryCommit"
             label={t("scm-webhook-plugin.form.executeOnEveryCommit")}
-            checked={executeOnEveryCommit}
-            onChange={this.handleChange}
+            checked={webhookConfig.executeOnEveryCommit}
+            onChange={handleChange}
             disabled={readOnly}
             helpText={t("scm-webhook-plugin.form.executeOnEveryCommitHelp")}
           />
           <Checkbox
             name="sendCommitData"
             label={t("scm-webhook-plugin.form.sendCommitData")}
-            checked={sendCommitData}
-            onChange={this.handleChange}
+            checked={webhookConfig.sendCommitData}
+            onChange={handleChange}
             disabled={readOnly}
             helpText={t("scm-webhook-plugin.form.sendCommitDataHelp")}
           />
@@ -130,8 +192,15 @@ class SimpleWebHookConfigurationForm extends React.Component<Props, State> {
           <Help message={t("scm-webhook-plugin.form.urlPatternHelp")} />
         </div>
       </article>
-    );
-  }
-}
+      <div className="panel">
+        <div className="panel-heading is-size-6 is-clickable" onClick={() => setShowTable(!showTable)}>
+          {showTable ? <Icon name="chevron-down" className="mr-1" /> : <Icon name="chevron-right" className="mr-1" />}
+          {t("scm-webhook-plugin.form.additionalHeaders")}
+        </div>
+        {showTable ? <div className="panel-block">{showTable ? renderHeaderTable() : null}</div> : null}
+      </div>
+    </>
+  );
+};
 
-export default withTranslation("plugins")(SimpleWebHookConfigurationForm);
+export default SimpleWebHookConfigurationForm;

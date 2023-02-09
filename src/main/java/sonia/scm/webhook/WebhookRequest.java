@@ -24,34 +24,40 @@
 
 package sonia.scm.webhook;
 
-//~--- JDK imports ------------------------------------------------------------
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import sonia.scm.net.ahc.BaseHttpRequest;
+import sonia.scm.xml.EncryptionUtil;
 
-import javax.ws.rs.core.MediaType;
 import java.io.IOException;
-import java.io.Writer;
+import java.util.List;
 
-/**
- *
- * @author Sebastian Sdorra
- */
-public interface WebHookMarshaller
-{
+class WebhookRequest<T extends BaseHttpRequest<T>> {
 
-  /**
-   * Method description
-   *
-   *
-   * @param writer
-   * @param data
-   *
-   * @throws IOException
-   */
-  void marshall(Writer writer, Object data) throws IOException;
+  private static final String SPAN_KIND = "Webhook";
+  private static final Logger LOG = LoggerFactory.getLogger(WebhookRequest.class);
 
-  /**
-   * Returns the Content-Type of marshaled data.
-   *
-   * @return content type of data
-   */
-  MediaType getContentType();
+  private final T request;
+
+  WebhookRequest(T request) {
+    this.request = request;
+  }
+
+  WebhookRequest<T> headers(List<WebhookHeader> headers) {
+    for (WebhookHeader header : headers) {
+      request.header(header.getKey(), EncryptionUtil.decrypt(header.getValue()));
+    }
+    return this;
+  }
+
+  void execute() throws IOException {
+    String url = request.getUrl();
+    int statusCode = request.spanKind(SPAN_KIND).request().getStatus();
+
+    if ((statusCode >= 200) && (statusCode < 300)) {
+      LOG.info("webhook {} ended successfully with status code {}", url, statusCode);
+    } else {
+      LOG.warn("webhook {} failed with statusCode {}", url, statusCode);
+    }
+  }
 }

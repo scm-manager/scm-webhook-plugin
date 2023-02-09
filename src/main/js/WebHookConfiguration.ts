@@ -33,7 +33,14 @@ export type SimpleWebHookConfiguration = {
   executeOnEveryCommit: boolean;
   sendCommitData: boolean;
   method: string;
+  headers: WebhookHeader[]
 };
+
+export type WebhookHeader = {
+  key: string;
+  value: string;
+  concealed: boolean
+}
 
 export type WebHookConfigurations = {
   webhooks: WebHookConfiguration[];

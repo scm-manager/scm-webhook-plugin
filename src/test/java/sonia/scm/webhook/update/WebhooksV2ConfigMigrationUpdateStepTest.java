@@ -39,6 +39,7 @@ import sonia.scm.webhook.WebHookConfiguration;
 
 import java.util.Map;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -75,7 +76,7 @@ class WebhooksV2ConfigMigrationUpdateStepTest {
 
     updateStep.doUpdate();
 
-    SimpleWebHook v2Webhook = new SimpleWebHook("http://example.com/${repositoryName}", true, true, HttpMethod.POST);
+    SimpleWebHook v2Webhook = new SimpleWebHook("http://example.com/${repositoryName}", true, true, HttpMethod.POST, emptyList());
 
     assertThat(configStore.get().getWebhooks()).extracting("configuration").contains(v2Webhook);
     assertThat(configStore.get().getWebhooks()).extracting("id").contains("42");
@@ -92,9 +93,9 @@ class WebhooksV2ConfigMigrationUpdateStepTest {
 
     updateStep.doUpdate();
 
-    SimpleWebHook v2Webhook1 = new SimpleWebHook("http://example.com/${repositoryName}", true, true, HttpMethod.POST);
-    SimpleWebHook v2Webhook2 = new SimpleWebHook("http://example.com/${zweiterWebhook}", false, true, HttpMethod.AUTO);
-    SimpleWebHook v2Webhook3 = new SimpleWebHook("http://example.com/${dritteWebhook}", false, false, HttpMethod.PUT);
+    SimpleWebHook v2Webhook1 = new SimpleWebHook("http://example.com/${repositoryName}", true, true, HttpMethod.POST,emptyList());
+    SimpleWebHook v2Webhook2 = new SimpleWebHook("http://example.com/${zweiterWebhook}", false, true, HttpMethod.AUTO, emptyList());
+    SimpleWebHook v2Webhook3 = new SimpleWebHook("http://example.com/${dritteWebhook}", false, false, HttpMethod.PUT, emptyList());
 
     assertThat(configStore.get().getWebhooks())
       .extracting("configuration")
@@ -125,7 +126,7 @@ class WebhooksV2ConfigMigrationUpdateStepTest {
 
     updateStep.doUpdate();
 
-    SimpleWebHook v2Webhook = new SimpleWebHook("http://example.com/${repositoryName}", true, true, HttpMethod.AUTO);
+    SimpleWebHook v2Webhook = new SimpleWebHook("http://example.com/${repositoryName}", true, true, HttpMethod.AUTO,emptyList());
 
     assertThat(configStore.get().getWebhooks()).extracting("configuration").contains(v2Webhook);
   }

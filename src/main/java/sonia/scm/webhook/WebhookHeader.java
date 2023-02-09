@@ -24,39 +24,17 @@
 
 package sonia.scm.webhook;
 
-//~--- JDK imports ------------------------------------------------------------
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.io.IOException;
-
-/**
- *
- * @author Sebastian Sdorra
- */
-public interface WebHookHttpClient
-{
-
-  /**
-   * Method description
-   *
-   *
-   * @param method
-   * @param url
-   * @param data
-   *
-   * @throws IOException
-   */
-  public void execute(HttpMethod method, String url, Object data) throws IOException;
-
-  //~--- get methods ----------------------------------------------------------
-
-  /**
-   * Method description
-   *
-   *
-   * @param method
-   * @param url
-   *
-   * @throws IOException
-   */
-  public void execute(HttpMethod method, String url) throws IOException;
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class WebhookHeader {
+  private String key;
+  private String value;
+  private boolean concealed;
 }

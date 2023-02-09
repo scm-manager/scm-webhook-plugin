@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 import React, { FC } from "react";
-import { Button, Notification } from "@scm-manager/ui-components";
+import { Button, Level, Notification } from "@scm-manager/ui-components";
 import { ExtensionPoint } from "@scm-manager/ui-extensions";
 import { EditorStates } from "./WebHookConfigurationsForm";
 import { useTranslation } from "react-i18next";
@@ -40,12 +40,12 @@ export const WebHookListConfigurationForm: FC<Props> = ({ editorStates, readOnly
     return (
       <>
         {editorStates.map((webHook, index) => {
-          const deleteIcon = readOnly ? (
-            ""
-          ) : (
-            <Button className="level-item" action={() => onDelete(index)}>
-              <i className="fas fa-trash" />
-            </Button>
+          const deleteButton = readOnly ? null : (
+            <Button
+              icon="trash"
+              action={() => onDelete(index)}
+              label={t("scm-webhook-plugin.form.deleteWebhook")}
+            />
           );
           const editor = webHook.unknown ? (
             <Notification type={"warning"}>{t("scm-webhook-plugin.form.unknownConfigurationType")}</Notification>
@@ -62,9 +62,9 @@ export const WebHookListConfigurationForm: FC<Props> = ({ editorStates, readOnly
           );
           return (
             <>
-              <div className={"columns is-vcentered"} key={`config-${index}`}>
-                <div className={"column"}>{editor}</div>
-                <div className={"column is-narrow"}>{deleteIcon}</div>
+              <div key={`config-${index}`}>
+                {editor}
+                <Level right={deleteButton} />
               </div>
               <hr />
             </>

@@ -33,6 +33,8 @@ import lombok.ToString;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
+import java.util.List;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -47,4 +49,5 @@ public class SimpleWebHook implements SingleWebHookConfiguration {
   private boolean executeOnEveryCommit;
   private boolean sendCommitData;
   private HttpMethod method = HttpMethod.AUTO;
+  private List<WebhookHeader> headers = new ArrayList<>();
 }

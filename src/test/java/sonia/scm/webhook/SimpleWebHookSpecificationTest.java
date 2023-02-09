@@ -25,8 +25,9 @@
 package sonia.scm.webhook;
 
 import com.cloudogu.scm.el.ElParser;
-import com.google.inject.Provider;
+import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
@@ -48,7 +49,7 @@ import static org.mockito.Mockito.when;
 class SimpleWebHookSpecificationTest {
 
   @Mock
-  private Provider<WebHookHttpClient> httpClientProvider;
+  private WebhookHttpClient client;
   @Mock
   private ElParser elParser;
 
@@ -61,25 +62,69 @@ class SimpleWebHookSpecificationTest {
 
   private final Repository repository = RepositoryTestData.createHeartOfGold();
 
-  @BeforeEach
-  void initEvent() {
-    when(event.getContext()).thenReturn(eventContext);
-    when(eventContext.isFeatureSupported(HookFeature.CHANGESET_PROVIDER)).thenReturn(true);
-    when(eventContext.getChangesetProvider()).thenReturn(changesetBuilder);
-    when(changesetBuilder.getChangesets())
-      .thenReturn(singletonList(new Changeset("42", 0L, null)));
+
+  @Nested
+  class EventTest {
+    @BeforeEach
+    void initEvent() {
+      when(event.getContext()).thenReturn(eventContext);
+      when(eventContext.isFeatureSupported(HookFeature.CHANGESET_PROVIDER)).thenReturn(true);
+      when(eventContext.getChangesetProvider()).thenReturn(changesetBuilder);
+      when(changesetBuilder.getChangesets())
+        .thenReturn(singletonList(new Changeset("42", 0L, null)));
+    }
+
+    @Test
+    void shouldGetChangesetsFromEvent() {
+      SimpleWebHookSpecification specification = new SimpleWebHookSpecification(client, elParser);
+
+      SimpleWebHookExecutor executor = (SimpleWebHookExecutor) specification.createExecutor(new SimpleWebHook(), repository, event);
+
+      assertThat(executor).extracting("repository").isSameAs(repository);
+      assertThat(executor).extracting("changesets")
+        .asList()
+        .extracting("id")
+        .containsExactly("42");
+    }
+  }
+
+
+  @Test
+  void shouldEncryptSecretsOnDtoMapping() {
+    SimpleWebHook simpleWebHook = new SimpleWebHook();
+    simpleWebHook.setHeaders(
+      ImmutableList.of(
+        new WebhookHeader("X-token", "mySecret", true),
+        new WebhookHeader("simple_header", "no_secret", false)
+      )
+    );
+
+    SimpleWebHook mappedHook =  new SimpleWebHookSpecification(client, elParser).mapToDto(simpleWebHook);
+
+    assertThat(mappedHook.getHeaders().get(0).getValue()).isEqualTo("__DUMMY__");
+    assertThat(mappedHook.getHeaders().get(1).getValue()).isEqualTo("no_secret");
   }
 
   @Test
-  void shouldGetChangesetsFromEvent() {
-    SimpleWebHookSpecification specification = new SimpleWebHookSpecification(httpClientProvider, elParser);
+  void shouldRestoreSecretsForDummyBeforeStorage() {
+    SimpleWebHook oldSimpleWebHook = new SimpleWebHook();
+    oldSimpleWebHook.setHeaders(
+      ImmutableList.of(
+        new WebhookHeader("X-token", "mySecret", true)
+      )
+    );
 
-    SimpleWebHookExecutor executor = (SimpleWebHookExecutor) specification.createExecutor(new SimpleWebHook(), repository, event);
+    SimpleWebHook newSimpleWebHook = new SimpleWebHook();
+    newSimpleWebHook.setHeaders(
+      ImmutableList.of(
+        new WebhookHeader("X-token", "__DUMMY__", true),
+        new WebhookHeader("new token", "secret2", true)
+      )
+    );
 
-    assertThat(executor).extracting("repository").isSameAs(repository);
-    assertThat(executor).extracting("changesets")
-      .asList()
-      .extracting("id")
-      .containsExactly("42");
+    new SimpleWebHookSpecification(client, elParser).updateBeforeStore(oldSimpleWebHook, newSimpleWebHook);
+
+    assertThat(newSimpleWebHook.getHeaders().get(0).getValue()).isEqualTo("mySecret");
+    assertThat(newSimpleWebHook.getHeaders().get(1).getValue()).isEqualTo("secret2");
   }
 }

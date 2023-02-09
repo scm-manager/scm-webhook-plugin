@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 @Getter
 @Setter
 public class WebHookConfigurationDto extends HalRepresentation {

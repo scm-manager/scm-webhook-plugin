@@ -26,6 +26,7 @@ package sonia.scm.webhook.update;
 
 import org.assertj.core.api.AbstractListAssert;
 import org.assertj.core.api.ObjectAssert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -50,8 +51,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
@@ -90,7 +94,7 @@ class WebhooksExtensibleUpdateStepTest {
   @Test
   void shouldDoNothingIfConfigIsNewAlready() {
     WebHookConfiguration newConfiguration = new WebHookConfiguration(
-      singletonList(new WebHook(new SimpleWebHook("https://hog.org/", false, false, HttpMethod.PUT), "42"))
+      singletonList(new WebHook(new SimpleWebHook("https://hog.org/", false, false, HttpMethod.PUT, emptyList()), "42"))
     );
     storeFactory
       .withType(WebHookConfiguration.class)
@@ -148,7 +152,7 @@ class WebhooksExtensibleUpdateStepTest {
         .containsExactly("42");
       webhooksAssertion
         .extracting("configuration")
-        .containsExactly(new SimpleWebHook("https://hog.org/", false, false, HttpMethod.PUT));
+        .containsExactly(new SimpleWebHook("https://hog.org/", false, false, HttpMethod.PUT, emptyList()));
     }
 
     @Test
@@ -189,7 +193,7 @@ class WebhooksExtensibleUpdateStepTest {
         .containsExactly("42");
       webhooksAssertion
         .extracting("configuration")
-        .containsExactly(new SimpleWebHook("https://hog.org/", false, false, HttpMethod.PUT));
+        .containsExactly(new SimpleWebHook("https://hog.org/", false, false, HttpMethod.PUT, emptyList()));
     }
   }
 
@@ -202,7 +206,7 @@ class WebhooksExtensibleUpdateStepTest {
       .build()
       .set(oldConfiguration);
 
-    updateStep.doUpdate();
+    assertDoesNotThrow(() -> updateStep.doUpdate());
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})

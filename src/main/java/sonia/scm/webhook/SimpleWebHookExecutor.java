@@ -29,10 +29,10 @@ import com.cloudogu.scm.el.env.ImmutableEncodedChangeset;
 import com.cloudogu.scm.el.env.ImmutableEncodedRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sonia.scm.net.ahc.BaseHttpRequest;
 import sonia.scm.repository.Changeset;
 import sonia.scm.repository.Repository;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -41,13 +41,13 @@ class SimpleWebHookExecutor implements WebHookExecutor {
 
   private static final Logger LOG = LoggerFactory.getLogger(SimpleWebHookExecutor.class);
 
-  private final Iterable<Changeset> changesets;
+  private final WebhookHttpClient httpClient;
   private final Expression expression;
-  private final WebHookHttpClient httpClient;
-  private final Repository repository;
   private final SimpleWebHook webHook;
+  private final Repository repository;
+  private final Iterable<Changeset> changesets;
 
-  SimpleWebHookExecutor(WebHookHttpClient httpClient,
+  SimpleWebHookExecutor(WebhookHttpClient httpClient,
                         ElParser elParser,
                         SimpleWebHook webHook,
                         Repository repository,
@@ -64,32 +64,32 @@ class SimpleWebHookExecutor implements WebHookExecutor {
     LOG.debug("execute webhook: {}", webHook);
 
     if (webHook.isExecuteOnEveryCommit()) {
-      for (Changeset c : changesets) {
-        String url = createUrl(repository, c);
-
-        if (webHook.isSendCommitData()) {
-          execute(webHook.getMethod(), url, c);
-        } else {
-          execute(webHook.getMethod(), url, null);
-        }
-      }
+      handleEachCommit();
     } else {
-      String url = createUrl(repository, changesets);
-
-      if (webHook.isSendCommitData()) {
-        execute(webHook.getMethod(), url, new Changesets(changesets));
-      } else {
-        execute(webHook.getMethod(), url, null);
-      }
+      handleAllCommitsAtOnce();
     }
   }
 
-  private Map<String, Object> createBaseEnvironment(Repository repository) {
-    Map<String, Object> env = new HashMap<>();
+  private void handleAllCommitsAtOnce() {
+    String url = createUrl(repository, changesets);
 
-    env.put("repository", new ImmutableEncodedRepository(repository));
+    if (webHook.isSendCommitData()) {
+      execute(webHook, url, new Changesets(changesets));
+    } else {
+      execute(webHook, url, null);
+    }
+  }
 
-    return env;
+  private void handleEachCommit() {
+    for (Changeset changeset : changesets) {
+      String url = createUrl(repository, changeset);
+
+      if (webHook.isSendCommitData()) {
+        execute(webHook, url, changeset);
+      } else {
+        execute(webHook, url, null);
+      }
+    }
   }
 
   private String createUrl(Repository repository, Changeset changeset) {
@@ -120,15 +120,40 @@ class SimpleWebHookExecutor implements WebHookExecutor {
     return expression.evaluate(env);
   }
 
-  private void execute(HttpMethod method, String url, Object data) {
+  private Map<String, Object> createBaseEnvironment(Repository repository) {
+    Map<String, Object> env = new HashMap<>();
+
+    env.put("repository", new ImmutableEncodedRepository(repository));
+
+    return env;
+  }
+
+  private void execute(SimpleWebHook webHook, String url, Object data) {
     if (LOG.isInfoEnabled()) {
       LOG.info("execute webhook for url {}", url);
     }
 
     try {
-      httpClient.execute(method, url, data);
-    } catch (IOException ex) {
+      createWebhookRequest(webHook.getMethod(), url, data)
+      .headers(webHook.getHeaders())
+        .execute();
+    } catch (Exception ex) {
       LOG.error("error during webhook execution for ".concat(url), ex);
+    }
+  }
+
+  private WebhookRequest<? extends BaseHttpRequest<? extends BaseHttpRequest<?>>> createWebhookRequest(HttpMethod method, String url, Object data) {
+    switch (method) {
+      case AUTO:
+        return httpClient.auto(url, data);
+      case POST:
+        return httpClient.post(url, data);
+      case PUT:
+        return httpClient.put(url, data);
+      case GET:
+        return httpClient.get(url);
+      default:
+        throw new IllegalArgumentException("Invalid webhook method:" + method.name());
     }
   }
 }
