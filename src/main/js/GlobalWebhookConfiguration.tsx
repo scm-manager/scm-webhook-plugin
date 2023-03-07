@@ -21,21 +21,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React from "react";
-import WebHookConfigurationComponent from "./WebHookConfigurationComponent";
-import { WithTranslation, withTranslation } from "react-i18next";
+import React, { FC } from "react";
+import WebHookConfigurationForm from "./WebHookConfiguration";
+import { useTranslation } from "react-i18next";
 
-type Props = WithTranslation & {
+type Props = {
   link: string;
 };
 
-class GlobalWebhookConfigurationComponent extends React.Component<Props> {
-  render() {
-    const props = this.props;
-    const { t } = props;
+const GlobalWebhookConfiguration: FC<Props> = props => {
+  const [t] = useTranslation("plugins");
 
-    return <WebHookConfigurationComponent title={t("scm-webhook-plugin.form.header")} {...props} />;
-  }
-}
+  return <WebHookConfigurationForm title={t("scm-webhook-plugin.config.header")} {...props} />;
+};
 
-export default withTranslation("plugins")(GlobalWebhookConfigurationComponent);
+export default GlobalWebhookConfiguration;

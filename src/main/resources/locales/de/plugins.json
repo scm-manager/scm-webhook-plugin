@@ -1,37 +1,58 @@
 {
   "scm-webhook-plugin": {
-    "add": "Webhook hinzufügen",
     "nav-link": "Webhooks",
-    "form" : {
+    "config": {
       "header" : "Webhooks",
-      "urlPattern": "URL",
-      "urlPatternHelp": "Die URL Muster Spalte gibt die URL der remote Webseite an. Es können Muster wie ${repository.name} benutzt werden.",
-      "executeOnEveryCommit": "Bei jedem Commit ausführen",
-      "executeOnEveryCommitHelp": "Wenn die \"Bei jedem Commit ausführen\" Checkbox ausgewählt ist, wird die URL bei jedem Commit aus dem Push getriggert. Wenn die Checkbox nicht ausgewählt ist, wird die URL nur ein Mal durch den Push getriggert.",
-      "sendCommitData": "Commit Daten senden",
-      "sendCommitDataHelp": "Wenn die \"Commit Daten senden\" Checkbox ausgewählt ist, werden die Commit Daten als json Body mit dem Request gesendet.",
-      "method": "Http Methode",
-      "methodHelp": "Wenn die http Methode AUTO ausgewählt ist, benutzt das Plugin einen GET Request. Nur wenn \"Commit Daten senden\" ausgewählt ist benutzt das Plugin POST.",
+      "helpText" : "Webhooks für das Repository hinzufügen und entfernen.",
+      "noHooksConfigured": "Es wurden noch keine Webhooks angelegt.",
       "unknownConfigurationType": "Diese Konfiguration kann nicht angezeigt werden, da sie einen unbekannten Typen hat. Wahrscheinlich stammt sie aus einen anderen Plugin, das in der Zwischenzeit entfernt wurde. Diese Konfiguration kommt nicht zur Anwendung.",
-      "deleteWebhook": "Webhook löschen",
-      "removeHeader": "Header löschen",
-      "additionalHeaders": "Zusätzliche Header",
-      "headerKey": "Header Schlüssel",
-      "headerKeyHelpText": "Der Schlüsselname des Header Eintrags",
-      "headerKeyValidation": "Der Schlüssel existiert bereits",
-      "headerValue": "Header Wert",
-      "headerValueHelpText": "Der Wert des Header Eintrags",
-      "headerConcealed": "Verschlüsselt",
-      "headerConcealedHelpText": "Verschlüsselt den Header Wert beim Speichern. Der Wert kann nicht mehr ausgelesen werden."
-    },
-    "confirm-delete": {
-      "title": "Webhook löschen",
-      "message": "Soll der Webhook wirklich gelöscht werden?",
-      "submit": "Ja (nicht das Speichern vergessen)",
-      "cancel": "Nein"
-    },
-    "helpText" : "Webhooks für das Repository hinzufügen und entfernen.",
-    "noHooksConfigured": "Es wurden noch keine Webhooks angelegt."
+      "form": {
+        "webhooks": {
+          "name": {
+            "label": "Typ"
+          },
+          "configuration": {
+            "urlPattern": {
+              "label": "URL",
+              "helpText": "Die URL Muster Spalte gibt die URL der remote Webseite an. Es können Muster wie ${repository.name} benutzt werden."
+            },
+            "executeOnEveryCommit": {
+              "label": "Bei jedem Commit ausführen",
+              "helpText": "Wenn die \"Bei jedem Commit ausführen\" Checkbox ausgewählt ist, wird die URL bei jedem Commit aus dem Push getriggert. Wenn die Checkbox nicht ausgewählt ist, wird die URL nur ein Mal durch den Push getriggert."
+            },
+            "sendCommitData": {
+              "label": "Commit Daten senden",
+              "helpText": "Wenn die \"Commit Daten senden\" Checkbox ausgewählt ist, werden die Commit Daten als json Body mit dem Request gesendet."
+            },
+            "method": {
+              "label": "Http Methode",
+              "helpText": "Wenn die http Methode AUTO ausgewählt ist, benutzt das Plugin einen GET Request. Nur wenn \"Commit Daten senden\" ausgewählt ist benutzt das Plugin POST."
+            },
+            "headers": {
+              "key": {
+                "label": "Header Schlüssel",
+                "helpText": "Der Schlüsselname des Header Eintrags",
+                "errors": {
+                  "validate": "Der Schlüssel existiert bereits",
+                  "required": "Dies ist ein Pflichtfeld"
+                }
+              },
+              "value": {
+                "label": "Header Wert",
+                "helpText": "Der Wert des Header Eintrags"
+              },
+              "concealed": {
+                "label": "Verschlüsselt",
+                "helpText": "Verschlüsselt den Header Wert beim Speichern. Der Wert kann nicht mehr ausgelesen werden."
+              },
+              "entity": "Header",
+              "title": "Zusätzliche Header"
+            }
+          },
+          "entity": "Webhook"
+        }
+      }
+    }
   },
   "webhooks": {
     "SimpleWebHook": {

@@ -1,37 +1,58 @@
 {
   "scm-webhook-plugin": {
-    "add": "Add Webhook",
     "nav-link": "Webhooks",
-    "form" : {
+    "config": {
       "header" : "Webhooks",
-      "urlPattern": "URL",
-      "urlPatternHelp": "The Url Pattern column specifies the url of the remote website. You can use patterns like ${repository.name} for the url.",
-      "executeOnEveryCommit": "Execute on every commit",
-      "executeOnEveryCommitHelp": "If you enable the \"Execute on every commit\" checkbox, then the specified url is triggered for each commit in a push. If the checkbox is disabled, the url is triggered once in a push.",
-      "sendCommitData": "Send commit data",
-      "sendCommitDataHelp": "If the \"Send commit data\" checkbox is enabled, the plugin will send the commit data as json body with in the request.",
-      "method": "Http Method",
-      "methodHelp": "If the http method AUTO is chosen, the plugin will use a GET request, except when \"Send commit data\" is checked, then the plugin will use POST.",
+      "helpText" : "Add and remove webhooks for your repositories.",
+      "noHooksConfigured": "There are no hooks configured yet.",
       "unknownConfigurationType": "This configuration cannot be shown, because the type of the configuration is unknown. Probably this came from a plugin, that has been removed in the meantime. This configuration will not be used.",
-      "deleteWebhook": "Delete webhook",
-      "removeHeader": "Delete header entry",
-      "additionalHeaders": "Additional headers",
-      "headerKey": "Header key",
-      "headerKeyHelpText": "The key of the header entry",
-      "headerKeyValidation": "Key already exists",
-      "headerValue": "Header value",
-      "headerValueHelpText": "The value of the header entry",
-      "headerConcealed": "Concealed",
-      "headerConcealedHelpText": "Encrypt the header value on storage. The header value cannot be read by any user."
-    },
-    "confirm-delete": {
-      "title": "Delete Webhook",
-      "message": "Do you really want to delete the Webhook?",
-      "submit": "Yes (do not forget to submit)",
-      "cancel": "No"
-    },
-    "helpText" : "Add and remove webhooks for your repositories.",
-    "noHooksConfigured": "There are no hooks configured yet."
+      "form": {
+        "webhooks": {
+          "name": {
+            "label": "Type"
+          },
+          "configuration": {
+            "urlPattern": {
+              "label": "URL Pattern",
+              "helpText": "The Url Pattern column specifies the url of the remote website. You can use patterns like ${repository.name} for the url."
+            },
+            "executeOnEveryCommit": {
+              "label": "Execute on every commit",
+              "helpText": "If you enable the \"Execute on every commit\" checkbox, then the specified url is triggered for each commit in a push. If the checkbox is disabled, the url is triggered once in a push."
+            },
+            "sendCommitData": {
+              "label": "Send commit data",
+              "helpText": "If the \"Send commit data\" checkbox is enabled, the plugin will send the commit data as json body with in the request."
+            },
+            "method": {
+              "label": "Http Method",
+              "helpText": "If the http method AUTO is chosen, the plugin will use a GET request, except when \"Send commit data\" is checked, then the plugin will use POST."
+            },
+            "headers": {
+              "key": {
+                "label": "Key",
+                "helpText": "The key of the header entry",
+                "errors": {
+                  "validate": "Duplicate keys are not allowed",
+                  "required": "This field is required"
+                }
+              },
+              "value": {
+                "label": "Value",
+                "helpText": "The value of the header entry"
+              },
+              "concealed": {
+                "label": "Concealed",
+                "helpText": "Encrypt the header value on storage. The header value cannot be read by any user."
+              },
+              "entity": "Header",
+              "title": "Additional Headers"
+            }
+          },
+          "entity": "Webhook"
+        }
+      }
+    }
   },
   "webhooks": {
     "SimpleWebHook": {

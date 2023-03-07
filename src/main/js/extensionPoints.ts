@@ -21,21 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React from "react";
-import WebHookConfigurationComponent from "./WebHookConfigurationComponent";
-import { WithTranslation, withTranslation } from "react-i18next";
 
-type Props = WithTranslation & {
-  link: string;
-};
+import { ExtensionPointDefinition } from "@scm-manager/ui-extensions";
+import { ComponentType } from "react";
 
-class RepositoryWebhookConfigurationComponent extends React.Component<Props> {
-  render() {
-    const props = this.props;
-    const { t } = props;
-
-    return <WebHookConfigurationComponent subtitle={t("scm-webhook-plugin.form.header")} {...props} />;
-  }
-}
-
-export default withTranslation("plugins")(RepositoryWebhookConfigurationComponent);
+export type WebhookConfiguration<ConfigType = never> = ExtensionPointDefinition<
+  "webhook.configuration",
+  {
+    name: string;
+    defaultConfiguration: ConfigType;
+    FormComponent: ComponentType<{ webhook: ConfigType }>;
+  },
+  never
+>;

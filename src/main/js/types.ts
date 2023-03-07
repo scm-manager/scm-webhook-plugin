@@ -24,23 +24,9 @@
 
 export type WebHookConfiguration = {
   name: string;
-  configuration: any;
+  configuration: unknown;
   unknown: boolean;
 };
-
-export type SimpleWebHookConfiguration = {
-  urlPattern: string;
-  executeOnEveryCommit: boolean;
-  sendCommitData: boolean;
-  method: string;
-  headers: WebhookHeader[]
-};
-
-export type WebhookHeader = {
-  key: string;
-  value: string;
-  concealed: boolean
-}
 
 export type WebHookConfigurations = {
   webhooks: WebHookConfiguration[];

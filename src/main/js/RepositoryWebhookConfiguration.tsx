@@ -21,46 +21,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React from "react";
-import { Configuration, Title, Subtitle } from "@scm-manager/ui-components";
-import { WithTranslation, withTranslation } from "react-i18next";
-import WebHookConfigurationsForm from "./WebHookConfigurationsForm";
+import React, { FC } from "react";
+import WebHookConfigurationForm from "./WebHookConfiguration";
+import { useTranslation } from "react-i18next";
 import { Repository } from "@scm-manager/ui-types";
 
-type Props = WithTranslation & {
-  repository?: Repository;
-  title?: string;
-  subtitle?: string;
+type Props = {
   link: string;
+  repository: Repository;
 };
 
-class WebHookConfigurationComponent extends React.Component<Props> {
-  render() {
-    const { t, link, repository } = this.props;
-    return (
-      <>
-        {this.renderTitle()}
-        {this.renderSubtitle()}
-        <h2>{t("scm-webhook-plugin.helpText")}</h2>
-        <br />
-        <Configuration link={link} render={props => <WebHookConfigurationsForm {...props} repository={repository} />} />
-      </>
-    );
-  }
+const RepositoryWebhookConfiguration: FC<Props> = props => {
+  const [t] = useTranslation("plugins");
 
-  renderTitle = () => {
-    if (!this.props.title) {
-      return null;
-    }
-    return <Title title={this.props.title} />;
-  };
+  return <WebHookConfigurationForm subtitle={t("scm-webhook-plugin.config.header")} {...props} />;
+};
 
-  renderSubtitle = () => {
-    if (!this.props.subtitle) {
-      return null;
-    }
-    return <Subtitle subtitle={this.props.subtitle} />;
-  };
-}
-
-export default withTranslation("plugins")(WebHookConfigurationComponent);
+export default RepositoryWebhookConfiguration;
