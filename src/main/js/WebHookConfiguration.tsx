@@ -91,7 +91,9 @@ const WebHookConfiguration: FC<Props> = ({ repository, title, subtitle, link }) 
                 append({ name: data.name, configuration: defaultConfiguration });
               }}
             >
-              <Form.Select name="name" options={options} />
+              <Form.Row>
+                <Form.Select name="name" options={options} />
+              </Form.Row>
             </Form.AddListEntryForm>
           </Form.ListContext>
         )}

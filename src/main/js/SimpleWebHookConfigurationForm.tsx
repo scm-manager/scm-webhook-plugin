@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React, { FC, useState } from "react";
+import React, { FC } from "react";
 import { Form } from "@scm-manager/ui-forms";
 import { Icon } from "@scm-manager/ui-components";
 import { useTranslation } from "react-i18next";
@@ -84,15 +84,21 @@ const SimpleWebHookConfigurationForm: FC<Props> = ({ webhook }) => {
                 </Form.Table.Column>
               </Form.Table>
               <Form.AddListEntryForm defaultValues={{ key: "", value: "", concealed: false }}>
-                <Form.Input
-                  name="key"
-                  rules={{
-                    validate: newKey => !webhook.headers.some(({ key }) => newKey === key),
-                    required: true
-                  }}
-                />
-                <Form.Input name="value" />
-                <Form.Checkbox name="concealed" />
+                <Form.Row>
+                  <Form.Input
+                    name="key"
+                    rules={{
+                      validate: newKey => !webhook.headers.some(({ key }) => newKey === key),
+                      required: true
+                    }}
+                  />
+                </Form.Row>
+                <Form.Row>
+                  <Form.Input name="value" />
+                </Form.Row>
+                <Form.Row>
+                  <Form.Checkbox name="concealed" />
+                </Form.Row>
               </Form.AddListEntryForm>
             </Form.ListContext>
           }
