@@ -22,19 +22,19 @@
  * SOFTWARE.
  */
 import React, { FC } from "react";
-import WebHookConfigurationForm from "./WebHookConfiguration";
-import { useTranslation } from "react-i18next";
 import { Repository } from "@scm-manager/ui-types";
+import MasterDetailsView from "./MasterDetailsView";
 
 type Props = {
   link: string;
   repository: Repository;
 };
 
-const RepositoryWebhookConfiguration: FC<Props> = props => {
-  const [t] = useTranslation("plugins");
-
-  return <WebHookConfigurationForm subtitle={t("scm-webhook-plugin.config.header")} {...props} />;
-};
+const RepositoryWebhookConfiguration: FC<Props> = props => (
+  <MasterDetailsView
+    baseRoute={`/repo/${props.repository.namespace}/${props.repository.name}/settings/webhook`}
+    {...props}
+  />
+);
 
 export default RepositoryWebhookConfiguration;

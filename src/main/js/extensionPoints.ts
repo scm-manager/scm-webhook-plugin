@@ -31,6 +31,8 @@ export type WebhookConfiguration<ConfigType = never> = ExtensionPointDefinition<
     name: string;
     defaultConfiguration: ConfigType;
     FormComponent: ComponentType<{ webhook: ConfigType }>;
+    OverviewCardTop?: ComponentType<{ webhook: ConfigType }>;
+    OverviewCardBottom?: ComponentType<{ webhook: ConfigType }>;
   },
-  never
+  any
 >;

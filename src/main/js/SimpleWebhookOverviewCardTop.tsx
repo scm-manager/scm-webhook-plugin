@@ -22,25 +22,24 @@
  * SOFTWARE.
  */
 
-plugins {
-  id 'org.scm-manager.smp' version '0.15.0'
-}
+import React, { FC } from "react";
+import { useTranslation } from "react-i18next";
+import { SimpleWebHookConfiguration } from "./SimpleWebHookConfigurationForm";
+import SecondaryInformation from "./SecondaryInformation";
 
-dependencies {
-  plugin "sonia.scm.plugins:scm-el-plugin:1.0.0"
-  testImplementation "sonia.scm:scm-test:${scmPlugin.scmVersion}"
-}
+const SimpleWebhookOverviewCardTop: FC<{ webhook: SimpleWebHookConfiguration }> = ({ webhook }) => {
+  const [t] = useTranslation("plugins");
 
-scmPlugin {
-  scmVersion = "2.43.1-SNAPSHOT"
-  displayName = "Webhook"
-  description = "Notifies a remote webserver whenever a repository is pushed to"
-  author = "Cloudogu GmbH"
-  category = "Workflow"
+  return (
+    <>
+      <SecondaryInformation>
+        {t("scm-webhook-plugin.simple.method")}: {webhook.method}
+      </SecondaryInformation>
+      <SecondaryInformation>
+        {t("scm-webhook-plugin.simple.headers")}: {webhook.headers.length}
+      </SecondaryInformation>
+    </>
+  );
+};
 
-  openapi {
-    packages = [
-      "sonia.scm.webhook.internal",
-    ]
-  }
-}
+export default SimpleWebhookOverviewCardTop;

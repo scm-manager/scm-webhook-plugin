@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 import React, { FC } from "react";
-import WebHookConfigurationForm from "./WebHookConfiguration";
+import MasterDetailsView from "./MasterDetailsView";
 import { useTranslation } from "react-i18next";
 
 type Props = {
@@ -31,8 +31,9 @@ type Props = {
 
 const GlobalWebhookConfiguration: FC<Props> = props => {
   const [t] = useTranslation("plugins");
-
-  return <WebHookConfigurationForm title={t("scm-webhook-plugin.config.header")} {...props} />;
+  return (
+    <MasterDetailsView title={t("scm-webhook-plugin.config.title")} baseRoute="/admin/settings/webhook" {...props} />
+  );
 };
 
 export default GlobalWebhookConfiguration;

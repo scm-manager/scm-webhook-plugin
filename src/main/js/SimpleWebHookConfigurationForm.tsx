@@ -59,6 +59,8 @@ const SimpleWebHookConfigurationForm: FC<Props> = ({ webhook }) => {
             { value: "PUT", label: "PUT" }
           ]}
         />
+      </Form.Row>
+      <Form.Row>
         <Form.Input name="urlPattern" rules={{ required: true }} className="is-flex-grow-1" />
       </Form.Row>
       <Form.Row>
@@ -69,7 +71,7 @@ const SimpleWebHookConfigurationForm: FC<Props> = ({ webhook }) => {
       </Form.Row>
       <details className="panel">
         <summary className="panel-heading is-size-6 is-clickable">
-          {t("config.form.webhooks.configuration.headers.title")}
+          {t("config.form.webhooks.configuration.headers.sectionTitle")}: {webhook?.headers?.length || 0}
         </summary>
         <div className="panel-block p-5">
           {

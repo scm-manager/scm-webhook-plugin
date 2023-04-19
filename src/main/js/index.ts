@@ -27,18 +27,24 @@ import GlobalWebhookConfiguration from "./GlobalWebhookConfiguration";
 import RepositoryWebhookConfigurationComponent from "./RepositoryWebhookConfiguration";
 import { binder } from "@scm-manager/ui-extensions";
 import SimpleWebHookConfigurationForm, { SimpleWebHookConfiguration } from "./SimpleWebHookConfigurationForm";
+import SimpleWebhookOverviewCardTop from "./SimpleWebhookOverviewCardTop";
+import SimpleWebhookOverviewCardBottom from "./SimpleWebhookOverviewCardBottom";
 
 binder.bind<WebhookConfiguration<SimpleWebHookConfiguration>>("webhook.configuration", {
   name: "SimpleWebHook",
   defaultConfiguration: {
-    urlPattern: "https://example.com/",
+    urlPattern: "",
     executeOnEveryCommit: false,
     sendCommitData: false,
     method: "AUTO",
     headers: []
   },
-  FormComponent: SimpleWebHookConfigurationForm
+  FormComponent: SimpleWebHookConfigurationForm,
+  OverviewCardTop: SimpleWebhookOverviewCardTop,
+  OverviewCardBottom: SimpleWebhookOverviewCardBottom
 });
+
+
 
 cfgBinder.bindGlobal("/webhook", "scm-webhook-plugin.nav-link", "webHookConfig", GlobalWebhookConfiguration);
 

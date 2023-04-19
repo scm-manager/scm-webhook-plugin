@@ -22,12 +22,15 @@
  * SOFTWARE.
  */
 
+import { HalRepresentation } from "@scm-manager/ui-types";
+
 export type WebHookConfiguration = {
+  id: string;
   name: string;
-  configuration: unknown;
-  unknown: boolean;
+  configuration: Record<string, unknown>;
+  unknown?: boolean;
 };
 
-export type WebHookConfigurations = {
+export type WebHookConfigurations = HalRepresentation & {
   webhooks: WebHookConfiguration[];
 };

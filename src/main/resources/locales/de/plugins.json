@@ -2,10 +2,24 @@
   "scm-webhook-plugin": {
     "nav-link": "Webhooks",
     "config": {
-      "header" : "Webhooks",
-      "helpText" : "Webhooks für das Repository hinzufügen und entfernen.",
+      "title": "Webhooks",
+      "createSubtitle": "Webhook hinzufügen",
+      "editSubtitle": "{{name}} bearbeiten",
       "noHooksConfigured": "Es wurden noch keine Webhooks angelegt.",
+      "noHooksForFilter": "Es gibt keine Webhooks, die den eingestellten Filtern entsprechen",
       "unknownConfigurationType": "Diese Konfiguration kann nicht angezeigt werden, da sie einen unbekannten Typen hat. Wahrscheinlich stammt sie aus einen anderen Plugin, das in der Zwischenzeit entfernt wurde. Diese Konfiguration kommt nicht zur Anwendung.",
+      "filter": {
+        "label": "Filtern nach",
+        "all": "Alle"
+      },
+      "button": {
+        "add": "Webhook hinzufügen",
+        "edit": "Bearbeiten",
+        "delete": "Löschen"
+      },
+      "type": {
+        "label": "Typ"
+      },
       "form": {
         "webhooks": {
           "name": {
@@ -46,12 +60,17 @@
                 "helpText": "Verschlüsselt den Header Wert beim Speichern. Der Wert kann nicht mehr ausgelesen werden."
               },
               "entity": "Header",
-              "title": "Zusätzliche Header"
+              "sectionTitle": "Zusätzliche Header"
             }
           },
           "entity": "Webhook"
         }
       }
+    },
+    "simple": {
+      "method": "Methode",
+      "headers": "Zusätzliche Header",
+      "url": "URL"
     }
   },
   "webhooks": {
