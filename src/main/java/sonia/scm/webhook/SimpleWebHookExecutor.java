@@ -81,13 +81,14 @@ class SimpleWebHookExecutor implements WebHookExecutor {
   }
 
   private void handleEachCommit() {
-    for (Changeset changeset : changesets) {
-      String url = createUrl(repository, changeset);
-
-      if (webHook.isSendCommitData()) {
-        execute(webHook, url, changeset);
-      } else {
-        execute(webHook, url, null);
+    if (changesets != null) {
+      for (Changeset changeset : changesets) {
+        String url = createUrl(repository, changeset);
+        if (webHook.isSendCommitData()) {
+          execute(webHook, url, changeset);
+        } else {
+          execute(webHook, url, null);
+        }
       }
     }
   }
@@ -95,10 +96,12 @@ class SimpleWebHookExecutor implements WebHookExecutor {
   private String createUrl(Repository repository, Changeset changeset) {
     Map<String, Object> env = createBaseEnvironment(repository);
 
-    ImmutableEncodedChangeset iec = new ImmutableEncodedChangeset(changeset);
+    if (changeset != null) {
+      ImmutableEncodedChangeset iec = new ImmutableEncodedChangeset(changeset);
 
-    env.put("changeset", iec);
-    env.put("commit", iec);
+      env.put("changeset", iec);
+      env.put("commit", iec);
+    }
 
     return expression.evaluate(env);
   }
@@ -106,16 +109,18 @@ class SimpleWebHookExecutor implements WebHookExecutor {
   private String createUrl(Repository repository,
                            Iterable<Changeset> changesets) {
     Map<String, Object> env = createBaseEnvironment(repository);
-    Iterator<Changeset> it = changesets.iterator();
-    Changeset changeset = it.next();
+    if (changesets != null) {
+      Iterator<Changeset> it = changesets.iterator();
+      Changeset changeset = it.next();
 
-    env.put("last", new ImmutableEncodedChangeset(changeset));
+      env.put("last", new ImmutableEncodedChangeset(changeset));
 
-    while (it.hasNext()) {
-      changeset = it.next();
+      while (it.hasNext()) {
+        changeset = it.next();
+      }
+
+      env.put("first", new ImmutableEncodedChangeset(changeset));
     }
-
-    env.put("first", new ImmutableEncodedChangeset(changeset));
 
     return expression.evaluate(env);
   }
@@ -135,7 +140,7 @@ class SimpleWebHookExecutor implements WebHookExecutor {
 
     try {
       createWebhookRequest(webHook.getMethod(), url, data)
-      .headers(webHook.getHeaders())
+        .headers(webHook.getHeaders())
         .execute();
     } catch (Exception ex) {
       LOG.error("error during webhook execution for ".concat(url), ex);

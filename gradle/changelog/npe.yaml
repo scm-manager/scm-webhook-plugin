@@ -1,0 +1,2 @@
+- type: fixed
+  description: Null Pointer Exception for simple webhooks without changesets

@@ -26,8 +26,11 @@ package sonia.scm.webhook;
 
 import com.cloudogu.scm.el.ElParser;
 import com.cloudogu.scm.el.Expression;
+import com.cloudogu.scm.el.env.ImmutableEncodedChangeset;
+import com.cloudogu.scm.el.env.ImmutableEncodedRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -42,6 +45,7 @@ import sonia.scm.repository.Repository;
 import java.io.IOException;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.util.Lists.list;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -108,6 +112,63 @@ class SimpleWebHookExecutorTest {
 
       verifyResult(httpMethod, true);
     }
+
+    @Test
+    void shouldNotFailIfChangesetsAreNull() {
+      mockWebhook("http://test.com", HttpMethod.AUTO, HEADERS, true);
+
+      new SimpleWebHookExecutor(httpClient, elParser, webHook, repository, null).run();
+
+      verify(expression).evaluate(any());
+    }
+  }
+
+  @Test
+  void shouldHandleForEachCommit() {
+    mockWebhook("http://test.com", HttpMethod.AUTO, HEADERS, false);
+    when(webHook.isExecuteOnEveryCommit()).thenReturn(true);
+
+    new SimpleWebHookExecutor(httpClient, elParser, webHook, repository, CHANGESETS).run();
+
+    // Once per changeset
+    verify(expression, times(3)).evaluate(argThat(arg -> {
+      assertThat(arg.values()).hasSize(3);
+      assertThat(arg.values()).allMatch(v -> v instanceof ImmutableEncodedRepository || v instanceof ImmutableEncodedChangeset);
+      return true;
+    }));
+  }
+
+  @Test
+  void shouldHandleForEachCommitWithData() {
+    mockWebhook("http://test.com", HttpMethod.AUTO, HEADERS, true);
+    when(webHook.isExecuteOnEveryCommit()).thenReturn(true);
+
+    new SimpleWebHookExecutor(httpClient, elParser, webHook, repository, CHANGESETS).run();
+
+    // Once per changeset
+    verify(expression, times(3)).evaluate(argThat(arg -> {
+      assertThat(arg.values()).hasSize(3);
+      assertThat(arg.values()).allMatch(v -> v instanceof ImmutableEncodedRepository || v instanceof ImmutableEncodedChangeset);
+      return true;
+    }));
+  }
+
+  @Test
+  void shouldNotFailIfChangesetsAreNullForEachCommit() {
+    SimpleWebHook webHook = mock(SimpleWebHook.class);
+    when(webHook.isExecuteOnEveryCommit()).thenReturn(true);
+
+    new SimpleWebHookExecutor(httpClient, elParser, webHook, repository, null).run();
+
+    verifyNoInteractions(expression);
+  }
+
+  @Test
+  void shouldNotFailIfChangesetIsNull() {
+    mockWebhook("http://test.com", HttpMethod.AUTO, HEADERS, true, true);
+
+    new SimpleWebHookExecutor(httpClient, elParser, webHook, repository, null).run();
+    verify(expression).evaluate(any());
   }
 
   void verifyResult(HttpMethod httpMethod) throws IOException {
