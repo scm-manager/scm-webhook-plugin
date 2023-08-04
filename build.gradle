@@ -32,7 +32,7 @@ dependencies {
 }
 
 scmPlugin {
-  scmVersion = "2.43.1-SNAPSHOT"
+  scmVersion = "2.44.0"
   displayName = "Webhook"
   description = "Notifies a remote webserver whenever a repository is pushed to"
   author = "Cloudogu GmbH"
