@@ -2,7 +2,7 @@
     "name": "@scm-manager/scm-webhook-plugin",
     "private": false,
     "version": "3.0.1-SNAPSHOT",
-    "license": "AGPLv3",
+    "license": "AGPL-3.0-only",
     "main": "./src/main/js/index.ts",
     "scripts": {
         "build": "plugin-scripts build",
