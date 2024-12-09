@@ -16,20 +16,19 @@
 
 package sonia.scm.webhook;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import sonia.scm.net.ahc.AdvancedHttpRequestWithBody;
 
-/**
- * This WebhookHeader is supposed to be utilized for persistence purposes, as compared to the WebHookExecutionHeader.
- */
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public class WebhookHeader {
-  private String key;
-  private String value;
-  private boolean concealed;
+class WebhookRequestWithContent extends WebhookRequest {
+  private final AdvancedHttpRequestWithBody request;
+
+  WebhookRequestWithContent(AdvancedHttpRequestWithBody request) {
+    super(request);
+    this.request = request;
+  }
+
+  @Override
+  WebhookRequest addHeader(WebHookExecutionHeader header) {
+    request.header(header.getKey(), header.getValue(request.getContent()));
+    return this;
+  }
 }

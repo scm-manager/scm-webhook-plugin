@@ -41,4 +41,8 @@ public class WebHook {
     this.id = id;
     this.configuration = configuration;
   }
+
+  boolean isConfigurationFor(Class<? extends SingleWebHookConfiguration> clazz) {
+    return configuration.getClass().isAssignableFrom(clazz);
+  }
 }

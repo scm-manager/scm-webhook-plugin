@@ -19,26 +19,36 @@ package sonia.scm.webhook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sonia.scm.net.ahc.BaseHttpRequest;
-import sonia.scm.xml.EncryptionUtil;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Consumer;
 
-class WebhookRequest<T extends BaseHttpRequest<T>> {
+class WebhookRequest {
 
   private static final String SPAN_KIND = "Webhook";
   private static final Logger LOG = LoggerFactory.getLogger(WebhookRequest.class);
 
-  private final T request;
+  private final BaseHttpRequest<?> request;
 
-  WebhookRequest(T request) {
+  WebhookRequest(BaseHttpRequest<?> request) {
     this.request = request;
   }
 
-  WebhookRequest<T> headers(List<WebhookHeader> headers) {
-    for (WebhookHeader header : headers) {
-      request.header(header.getKey(), EncryptionUtil.decrypt(header.getValue()));
+  WebhookRequest headers(List<WebHookExecutionHeader> headers) {
+    for (WebHookExecutionHeader header : headers) {
+      addHeader(header);
     }
+    return this;
+  }
+
+  WebhookRequest addHeader(WebHookExecutionHeader header) {
+    request.header(header.getKey(), header.getValue());
+    return this;
+  }
+
+  WebhookRequest accept(Consumer<BaseHttpRequest<?>> function) {
+    function.accept(request);
     return this;
   }
 

@@ -20,27 +20,42 @@ import com.cloudogu.scm.el.ElParser;
 import com.cloudogu.scm.el.Expression;
 import com.cloudogu.scm.el.env.ImmutableEncodedChangeset;
 import com.cloudogu.scm.el.env.ImmutableEncodedRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.mockito.Answers;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import sonia.scm.net.ahc.AdvancedHttpRequest;
-import sonia.scm.net.ahc.AdvancedHttpRequestWithBody;
-import sonia.scm.net.ahc.BaseHttpRequest;
 import sonia.scm.repository.Changeset;
 import sonia.scm.repository.Repository;
+import sonia.scm.webhook.execution.WebHookExecution;
 
 import java.io.IOException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.util.Lists.list;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class SimpleWebHookExecutorTest {
@@ -60,11 +75,12 @@ class SimpleWebHookExecutorTest {
   @Mock
   private Expression expression;
 
-  @Mock
-  private WebhookRequest<AdvancedHttpRequestWithBody> requestWithBody;
+  @Mock(answer = Answers.RETURNS_SELF)
+  private WebhookRequest request;
 
-  @Mock
-  private WebhookRequest<AdvancedHttpRequest> request;
+  @InjectMocks
+  @Spy
+  private WebHookSender sender;
 
   private static final List<Changeset> CHANGESETS = list(
     new Changeset("42", 0L, null),
@@ -72,10 +88,26 @@ class SimpleWebHookExecutorTest {
     new Changeset("6", 33L, null)
   );
 
-  private static final List<WebhookHeader> HEADERS = list(
+  private static final List<WebhookHeader> HEADERS = spy(list(
     new WebhookHeader("thing", "input", false),
     new WebhookHeader("secret", "password", true)
+  ));
+
+  private static final List<WebHookExecutionHeader> EXECUTION_HEADERS = list(
+    new WebHookExecutionHeader("thing", "input"),
+    new WebHookExecutionHeader("secret", "password")
   );
+  private MockedStatic<WebHookExecutionHeader> mockedExecutionHeaderStatic;
+
+  @BeforeEach
+  void setup() {
+    mockedExecutionHeaderStatic = mockStatic(WebHookExecutionHeader.class);
+  }
+
+  @AfterEach
+  void tearDown() {
+    mockedExecutionHeaderStatic.close();
+  }
 
   @Nested
   class AllAtOnce {
@@ -88,28 +120,29 @@ class SimpleWebHookExecutorTest {
     @EnumSource(value = HttpMethod.class)
     void shouldAttachHeadersToGetRequest(HttpMethod httpMethod) throws IOException {
 
-      mockWebhook("http://test.com", httpMethod, HEADERS);
+      mockWebhook("http://test.com", httpMethod, HEADERS, EXECUTION_HEADERS);
 
-      new SimpleWebHookExecutor(httpClient, elParser, webHook, repository, CHANGESETS).run();
+      new SimpleWebHookExecutor(sender, elParser, webHook, repository, CHANGESETS).run();
 
-      verifyResult(httpMethod);
+      verifyResult();
     }
 
     @ParameterizedTest
     @EnumSource(value = HttpMethod.class)
     void shouldSendCommitData(HttpMethod httpMethod) throws IOException {
-      mockWebhook("http://test.com", httpMethod, HEADERS, true);
+      mockWebhook("http://test.com", httpMethod, HEADERS, EXECUTION_HEADERS, true);
+      when(webHook.isExecuteOnEveryCommit()).thenReturn(false);
 
-      new SimpleWebHookExecutor(httpClient, elParser, webHook, repository, CHANGESETS).run();
+      new SimpleWebHookExecutor(sender, elParser, webHook, repository, CHANGESETS).run();
 
-      verifyResult(httpMethod, true);
+      verifyResult(true);
     }
 
     @Test
     void shouldNotFailIfChangesetsAreNull() {
-      mockWebhook("http://test.com", HttpMethod.AUTO, HEADERS, true);
+      mockWebhook("http://test.com", HttpMethod.AUTO, HEADERS, EXECUTION_HEADERS, true);
 
-      new SimpleWebHookExecutor(httpClient, elParser, webHook, repository, null).run();
+      new SimpleWebHookExecutor(sender, elParser, webHook, repository, null).run();
 
       verify(expression).evaluate(any());
     }
@@ -117,10 +150,10 @@ class SimpleWebHookExecutorTest {
 
   @Test
   void shouldHandleForEachCommit() {
-    mockWebhook("http://test.com", HttpMethod.AUTO, HEADERS, false);
+    mockWebhook("http://test.com", HttpMethod.AUTO, HEADERS, EXECUTION_HEADERS, false);
     when(webHook.isExecuteOnEveryCommit()).thenReturn(true);
 
-    new SimpleWebHookExecutor(httpClient, elParser, webHook, repository, CHANGESETS).run();
+    new SimpleWebHookExecutor(sender, elParser, webHook, repository, CHANGESETS).run();
 
     // Once per changeset
     verify(expression, times(3)).evaluate(argThat(arg -> {
@@ -132,10 +165,10 @@ class SimpleWebHookExecutorTest {
 
   @Test
   void shouldHandleForEachCommitWithData() {
-    mockWebhook("http://test.com", HttpMethod.AUTO, HEADERS, true);
+    mockWebhook("http://test.com", HttpMethod.AUTO, HEADERS, EXECUTION_HEADERS, true, true);
     when(webHook.isExecuteOnEveryCommit()).thenReturn(true);
 
-    new SimpleWebHookExecutor(httpClient, elParser, webHook, repository, CHANGESETS).run();
+    new SimpleWebHookExecutor(sender, elParser, webHook, repository, CHANGESETS).run();
 
     // Once per changeset
     verify(expression, times(3)).evaluate(argThat(arg -> {
@@ -147,63 +180,48 @@ class SimpleWebHookExecutorTest {
 
   @Test
   void shouldNotFailIfChangesetsAreNullForEachCommit() {
-    SimpleWebHook webHook = mock(SimpleWebHook.class);
-    when(webHook.isExecuteOnEveryCommit()).thenReturn(true);
+    SimpleWebHook localWebHookMock = mock(SimpleWebHook.class);
+    when(localWebHookMock.isExecuteOnEveryCommit()).thenReturn(true);
 
-    new SimpleWebHookExecutor(httpClient, elParser, webHook, repository, null).run();
+    new SimpleWebHookExecutor(sender, elParser, localWebHookMock, repository, null).run();
 
     verifyNoInteractions(expression);
   }
 
   @Test
   void shouldNotFailIfChangesetIsNull() {
-    mockWebhook("http://test.com", HttpMethod.AUTO, HEADERS, true, true);
+    mockWebhook("http://test.com", HttpMethod.AUTO, HEADERS, EXECUTION_HEADERS, true);
 
-    new SimpleWebHookExecutor(httpClient, elParser, webHook, repository, null).run();
+    new SimpleWebHookExecutor(sender, elParser, webHook, repository, null).run();
     verify(expression).evaluate(any());
   }
 
-  void verifyResult(HttpMethod httpMethod) throws IOException {
-    verifyResult(httpMethod, false);
+  void verifyResult() throws IOException {
+    verifyResult(false);
   }
 
-  void verifyResult(HttpMethod httpMethod, boolean sendCommitData) throws IOException {
-    verifyResult(httpMethod, sendCommitData, false);
-  }
-
-  void verifyResult(HttpMethod httpMethod, boolean sendCommitData, boolean singleCommit) throws IOException {
-    WebhookRequest<? extends BaseHttpRequest<?>> webhookRequest = getRequest(httpMethod, sendCommitData);
-
-    verify(webhookRequest).headers(HEADERS);
+  void verifyResult(boolean sendCommitData) throws IOException {
+    verify(request).headers(EXECUTION_HEADERS);
 
     if (sendCommitData) {
-      if (singleCommit) {
-        verify(expression, times(3)).evaluate(argThat(map ->
-          map.containsKey("changeset") && map.containsKey("commit") && map.containsKey("repository")
-        ));
-      } else {
-        verify(expression).evaluate(argThat(map ->
-          map.containsKey("first") && map.containsKey("last") && map.containsKey("repository")
-        ));
-      }
+      verify(expression).evaluate(argThat(map ->
+        map.containsKey("first") && map.containsKey("last") && map.containsKey("repository")
+      ));
     }
 
-    if (singleCommit) {
-      verify(webhookRequest, times(3)).execute();
-    } else {
-      verify(webhookRequest).execute();
-    }
+    verify(request).execute();
+    verify(sender).execute(any(WebHookExecution.class));
   }
 
-  void mockWebhook(String url, HttpMethod httpMethod, List<WebhookHeader> headers) {
-    mockWebhook(url, httpMethod, headers, false);
+  void mockWebhook(String url, HttpMethod httpMethod, List<WebhookHeader> headers, List<WebHookExecutionHeader> executionHeaders) {
+    mockWebhook(url, httpMethod, headers, executionHeaders, false);
   }
 
-  void mockWebhook(String url, HttpMethod httpMethod, List<WebhookHeader> headers, boolean sendCommitData) {
-    mockWebhook(url, httpMethod, headers, sendCommitData, false);
+  void mockWebhook(String url, HttpMethod httpMethod, List<WebhookHeader> headers, List<WebHookExecutionHeader> executionHeaders, boolean sendCommitData) {
+    mockWebhook(url, httpMethod, headers, executionHeaders, sendCommitData, false);
   }
 
-  void mockWebhook(String url, HttpMethod httpMethod, List<WebhookHeader> headers, boolean sendCommitData, boolean singleCommit) {
+  void mockWebhook(String url, HttpMethod httpMethod, List<WebhookHeader> headers, List<WebHookExecutionHeader> executionHeaders, boolean sendCommitData, boolean singleCommit) {
     when(webHook.getMethod()).thenReturn(httpMethod);
     when(webHook.getHeaders()).thenReturn(headers);
     when(webHook.isSendCommitData()).thenReturn(sendCommitData);
@@ -211,12 +229,21 @@ class SimpleWebHookExecutorTest {
     when(elParser.parse(url)).thenReturn(expression);
     when(expression.evaluate(anyMap())).thenReturn(url);
 
+    if (headers.size() != executionHeaders.size()) {
+      fail("Size of header list needs to match execution header list.");
+    }
+
+    for (int i = 0; i < executionHeaders.size(); i++) {
+      int finalI = i;
+      mockedExecutionHeaderStatic.when(() -> WebHookExecutionHeader.from(headers.get(finalI))).thenReturn(executionHeaders.get(i));
+    }
+
     switch (httpMethod) {
       case PUT:
         mockRequestWithBody(httpClient::put, url, sendCommitData, singleCommit);
         break;
       case AUTO:
-        mockAuto(url, sendCommitData, singleCommit);
+        mockRequestWithBody(httpClient::auto, url, sendCommitData, singleCommit);
         break;
       case POST:
         mockRequestWithBody(httpClient::post, url, sendCommitData, singleCommit);
@@ -230,14 +257,14 @@ class SimpleWebHookExecutorTest {
   private void mockRequestWithBody(RequestWithBodyProvider provider, String url, boolean sendCommitData, boolean singleCommit) {
     if (sendCommitData) {
       if (singleCommit) {
-        when(provider.provide(eq(url), isA(Changeset.class))).thenReturn(requestWithBody);
+        when(provider.provide(eq(url), isA(Changeset.class))).thenReturn(request);
       } else {
-        when(provider.provide(eq(url), isA(Changesets.class))).thenReturn(requestWithBody);
+        when(provider.provide(eq(url), isA(Changesets.class))).thenReturn(request);
       }
     } else {
-      when(provider.provide(url, null)).thenReturn(requestWithBody);
+      when(provider.provide(url, null)).thenReturn(request);
     }
-    when(requestWithBody.headers(anyList())).thenReturn(requestWithBody);
+    when(request.headers(anyList())).thenReturn(request);
   }
 
   private void mockRequest(RequestProvider provider, String url) {
@@ -245,27 +272,11 @@ class SimpleWebHookExecutorTest {
     when(request.headers(anyList())).thenReturn(request);
   }
 
-  private void mockAuto(String url, boolean sendCommitData, boolean singleCommit) {
-    if (sendCommitData) {
-      mockRequestWithBody(((a, b) -> (WebhookRequest<AdvancedHttpRequestWithBody>) httpClient.auto(a, b)), url, sendCommitData, singleCommit);
-    } else {
-      mockRequest((a -> (WebhookRequest<AdvancedHttpRequest>) httpClient.auto(a, null)), url);
-    }
-  }
-
   private interface RequestWithBodyProvider {
-    WebhookRequest<AdvancedHttpRequestWithBody> provide(String url, Object data);
+    WebhookRequest provide(String url, Object data);
   }
 
   private interface RequestProvider {
-    WebhookRequest<AdvancedHttpRequest> provide(String url);
+    WebhookRequest provide(String url);
   }
-
-  WebhookRequest<? extends BaseHttpRequest<?>> getRequest(HttpMethod httpMethod, boolean sendCommitData) {
-    if (httpMethod == HttpMethod.GET || (httpMethod == HttpMethod.AUTO && !sendCommitData)) {
-      return request;
-    }
-    return requestWithBody;
-  }
-
 }

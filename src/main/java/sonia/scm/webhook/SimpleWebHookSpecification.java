@@ -35,12 +35,12 @@ import java.util.List;
 public class SimpleWebHookSpecification implements WebHookSpecification<SimpleWebHook> {
 
   public static final String DUMMY_SECRET = "__DUMMY__";
-  private final WebhookHttpClient client;
+  private final WebHookSender sender;
   private final ElParser elParser;
 
   @Inject
-  public SimpleWebHookSpecification(WebhookHttpClient client, ElParser elParser) {
-    this.client = client;
+  public SimpleWebHookSpecification(WebHookSender sender, ElParser elParser) {
+    this.sender = sender;
     this.elParser = elParser;
   }
 
@@ -52,7 +52,7 @@ public class SimpleWebHookSpecification implements WebHookSpecification<SimpleWe
   @Override
   public WebHookExecutor createExecutor(SimpleWebHook webHook, Repository repository, PostReceiveRepositoryHookEvent event) {
     Iterable<Changeset> changesets = getChangesets(event, repository);
-    return new SimpleWebHookExecutor(client, elParser, webHook, repository, changesets);
+    return new SimpleWebHookExecutor(sender, elParser, webHook, repository, changesets);
   }
 
   @Override

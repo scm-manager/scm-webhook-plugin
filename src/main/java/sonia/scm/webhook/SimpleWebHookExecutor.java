@@ -22,9 +22,9 @@ import com.cloudogu.scm.el.env.ImmutableEncodedChangeset;
 import com.cloudogu.scm.el.env.ImmutableEncodedRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sonia.scm.net.ahc.BaseHttpRequest;
 import sonia.scm.repository.Changeset;
 import sonia.scm.repository.Repository;
+import sonia.scm.webhook.execution.WebHookExecution;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,18 +34,18 @@ class SimpleWebHookExecutor implements WebHookExecutor {
 
   private static final Logger LOG = LoggerFactory.getLogger(SimpleWebHookExecutor.class);
 
-  private final WebhookHttpClient httpClient;
   private final Expression expression;
   private final SimpleWebHook webHook;
   private final Repository repository;
   private final Iterable<Changeset> changesets;
+  private final WebHookSender sender;
 
-  SimpleWebHookExecutor(WebhookHttpClient httpClient,
+  SimpleWebHookExecutor(WebHookSender sender,
                         ElParser elParser,
                         SimpleWebHook webHook,
                         Repository repository,
                         Iterable<Changeset> changesets) {
-    this.httpClient = httpClient;
+    this.sender = sender;
     this.expression = elParser.parse(webHook.getUrlPattern());
     this.webHook = webHook;
     this.repository = repository;
@@ -127,31 +127,14 @@ class SimpleWebHookExecutor implements WebHookExecutor {
   }
 
   private void execute(SimpleWebHook webHook, String url, Object data) {
-    if (LOG.isInfoEnabled()) {
-      LOG.info("execute webhook for url {}", url);
-    }
-
-    try {
-      createWebhookRequest(webHook.getMethod(), url, data)
-        .headers(webHook.getHeaders())
-        .execute();
-    } catch (Exception ex) {
-      LOG.error("error during webhook execution for ".concat(url), ex);
-    }
-  }
-
-  private WebhookRequest<? extends BaseHttpRequest<? extends BaseHttpRequest<?>>> createWebhookRequest(HttpMethod method, String url, Object data) {
-    switch (method) {
-      case AUTO:
-        return httpClient.auto(url, data);
-      case POST:
-        return httpClient.post(url, data);
-      case PUT:
-        return httpClient.put(url, data);
-      case GET:
-        return httpClient.get(url);
-      default:
-        throw new IllegalArgumentException("Invalid webhook method:" + method.name());
-    }
+    WebHookExecution.WebHookExecutionBuilder builder =
+      WebHookExecution
+        .builder()
+        .httpMethod(webHook.getMethod())
+        .url(url)
+        .headers(webHook.getHeaders().stream().map(WebHookExecutionHeader::from).toList())
+        .payload(data);
+    WebHookExecution execution = builder.build();
+    sender.execute(execution);
   }
 }

@@ -16,11 +16,31 @@
 
 package sonia.scm.webhook;
 
-/**
- *
- * @author Sebastian Sdorra
- */
-public enum HttpMethod
-{
-  AUTO, GET, POST, PUT;
+public enum HttpMethod {
+  AUTO {
+    @Override
+    WebhookRequest create(WebhookHttpClient httpClient, String url, Object data) {
+      return httpClient.auto(url, data);
+    }
+  },
+  GET {
+    @Override
+    WebhookRequest create(WebhookHttpClient httpClient, String url, Object data) {
+      return httpClient.get(url);
+    }
+  },
+  POST {
+    @Override
+    WebhookRequest create(WebhookHttpClient httpClient, String url, Object data) {
+      return httpClient.post(url, data);
+    }
+  },
+  PUT {
+    @Override
+    WebhookRequest create(WebhookHttpClient httpClient, String url, Object data) {
+      return httpClient.put(url, data);
+    }
+  };
+
+  abstract WebhookRequest create(WebhookHttpClient httpClient, String url, Object data);
 }

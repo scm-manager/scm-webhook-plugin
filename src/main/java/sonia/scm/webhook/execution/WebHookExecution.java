@@ -14,22 +14,34 @@
  * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
-package sonia.scm.webhook;
+package sonia.scm.webhook.execution;
 
+import jakarta.ws.rs.core.MediaType;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import sonia.scm.net.ahc.BaseHttpRequest;
+import sonia.scm.webhook.HttpMethod;
+import sonia.scm.webhook.WebHookExecutionHeader;
 
-/**
- * This WebhookHeader is supposed to be utilized for persistence purposes, as compared to the WebHookExecutionHeader.
- */
-@Getter
-@Setter
+import java.util.List;
+import java.util.function.Consumer;
+
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class WebhookHeader {
-  private String key;
-  private String value;
-  private boolean concealed;
+@Builder
+public class WebHookExecution {
+
+  private HttpMethod httpMethod;
+  private String url;
+  private List<WebHookExecutionHeader> headers;
+  private Object payload;
+  private MediaType payloadType;
+  private Consumer<BaseHttpRequest<?>> prepare;
+
+  public Consumer<BaseHttpRequest<?>> getPrepare() {
+    return prepare == null?  request -> {} : prepare;
+  }
 }

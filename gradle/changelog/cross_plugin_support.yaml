@@ -1,0 +1,2 @@
+- type: added
+  description: Interface for external webhooks with dynamic headers

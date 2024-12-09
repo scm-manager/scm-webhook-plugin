@@ -17,12 +17,12 @@
 package sonia.scm.webhook;
 
 import com.cloudogu.scm.el.ElParser;
-import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sonia.scm.repository.Changeset;
@@ -33,6 +33,8 @@ import sonia.scm.repository.api.HookChangesetBuilder;
 import sonia.scm.repository.api.HookContext;
 import sonia.scm.repository.api.HookFeature;
 
+import java.util.List;
+
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -42,6 +44,7 @@ class SimpleWebHookSpecificationTest {
 
   @Mock
   private WebhookHttpClient client;
+
   @Mock
   private ElParser elParser;
 
@@ -54,6 +57,8 @@ class SimpleWebHookSpecificationTest {
 
   private final Repository repository = RepositoryTestData.createHeartOfGold();
 
+  @InjectMocks
+  private WebHookSender sender;
 
   @Nested
   class EventTest {
@@ -68,7 +73,7 @@ class SimpleWebHookSpecificationTest {
 
     @Test
     void shouldGetChangesetsFromEvent() {
-      SimpleWebHookSpecification specification = new SimpleWebHookSpecification(client, elParser);
+      SimpleWebHookSpecification specification = new SimpleWebHookSpecification(sender, elParser);
 
       SimpleWebHookExecutor executor = (SimpleWebHookExecutor) specification.createExecutor(new SimpleWebHook(), repository, event);
 
@@ -85,13 +90,13 @@ class SimpleWebHookSpecificationTest {
   void shouldEncryptSecretsOnDtoMapping() {
     SimpleWebHook simpleWebHook = new SimpleWebHook();
     simpleWebHook.setHeaders(
-      ImmutableList.of(
+      List.of(
         new WebhookHeader("X-token", "mySecret", true),
         new WebhookHeader("simple_header", "no_secret", false)
       )
     );
 
-    SimpleWebHook mappedHook =  new SimpleWebHookSpecification(client, elParser).mapToDto(simpleWebHook);
+    SimpleWebHook mappedHook =  new SimpleWebHookSpecification(sender, elParser).mapToDto(simpleWebHook);
 
     assertThat(mappedHook.getHeaders().get(0).getValue()).isEqualTo("__DUMMY__");
     assertThat(mappedHook.getHeaders().get(1).getValue()).isEqualTo("no_secret");
@@ -101,20 +106,20 @@ class SimpleWebHookSpecificationTest {
   void shouldRestoreSecretsForDummyBeforeStorage() {
     SimpleWebHook oldSimpleWebHook = new SimpleWebHook();
     oldSimpleWebHook.setHeaders(
-      ImmutableList.of(
+      List.of(
         new WebhookHeader("X-token", "mySecret", true)
       )
     );
 
     SimpleWebHook newSimpleWebHook = new SimpleWebHook();
     newSimpleWebHook.setHeaders(
-      ImmutableList.of(
+      List.of(
         new WebhookHeader("X-token", "__DUMMY__", true),
         new WebhookHeader("new token", "secret2", true)
       )
     );
 
-    new SimpleWebHookSpecification(client, elParser).updateBeforeStore(oldSimpleWebHook, newSimpleWebHook);
+    new SimpleWebHookSpecification(sender, elParser).updateBeforeStore(oldSimpleWebHook, newSimpleWebHook);
 
     assertThat(newSimpleWebHook.getHeaders().get(0).getValue()).isEqualTo("mySecret");
     assertThat(newSimpleWebHook.getHeaders().get(1).getValue()).isEqualTo("secret2");

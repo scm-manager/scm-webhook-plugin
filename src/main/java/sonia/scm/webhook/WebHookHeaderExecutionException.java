@@ -16,20 +16,8 @@
 
 package sonia.scm.webhook;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-/**
- * This WebhookHeader is supposed to be utilized for persistence purposes, as compared to the WebHookExecutionHeader.
- */
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public class WebhookHeader {
-  private String key;
-  private String value;
-  private boolean concealed;
+public class WebHookHeaderExecutionException extends RuntimeException {
+  public WebHookHeaderExecutionException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }
