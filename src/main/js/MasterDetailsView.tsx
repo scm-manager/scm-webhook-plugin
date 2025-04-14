@@ -24,7 +24,7 @@ import { Repository } from "@scm-manager/ui-types";
 import { useTranslation } from "react-i18next";
 import { useConfigLink } from "@scm-manager/ui-api";
 import { WebHookConfiguration, WebHookConfigurations } from "./types";
-import { Loading, Subtitle, Title } from "@scm-manager/ui-components";
+import { Loading, Title } from "@scm-manager/ui-core";
 import EditPage from "./EditPage";
 
 type Props = {
@@ -37,39 +37,39 @@ type Props = {
 const MasterDetailsView: FC<Props> = ({ repository, link, title, baseRoute }) => {
   const [t] = useTranslation("plugins");
   const binder = useBinder();
-  const { initialConfiguration, isReadOnly, update, isLoading, isUpdating } = useConfigLink<WebHookConfigurations>(
-    link
-  );
+  const { initialConfiguration, isReadOnly, update, isLoading, isUpdating } =
+    useConfigLink<WebHookConfigurations>(link);
   const allWebHooks = binder.getExtensions<WebhookConfiguration>("webhook.configuration");
+
   const create = useCallback(
     (name: string, configuration: unknown) => {
       const newWebhook = {
         name,
-        configuration
+        configuration,
       } as WebHookConfiguration;
       initialConfiguration.webhooks.push(newWebhook);
       return update(initialConfiguration);
     },
-    [initialConfiguration, update]
+    [initialConfiguration, update],
   );
 
   const updateWebhook = useCallback(
     (webhook: WebHookConfiguration) => {
-      initialConfiguration.webhooks[initialConfiguration.webhooks.findIndex(wh => wh.id === webhook.id)] = webhook;
+      initialConfiguration.webhooks[initialConfiguration.webhooks.findIndex((wh) => wh.id === webhook.id)] = webhook;
       return update(initialConfiguration);
     },
-    [initialConfiguration, update]
+    [initialConfiguration, update],
   );
 
   const deleteWebhook = useCallback(
     (webhook: WebHookConfiguration) => {
       initialConfiguration.webhooks.splice(
-        initialConfiguration.webhooks.findIndex(wh => wh.id === webhook.id),
-        1
+        initialConfiguration.webhooks.findIndex((wh) => wh.id === webhook.id),
+        1,
       );
       return update(initialConfiguration);
     },
-    [initialConfiguration, update]
+    [initialConfiguration, update],
   );
 
   const webhookMap = useMemo<Record<string, WebhookConfiguration["type"]>>(
@@ -78,16 +78,16 @@ const MasterDetailsView: FC<Props> = ({ repository, link, title, baseRoute }) =>
         prev[cur.name] = cur;
         return prev;
       }, {}),
-    [allWebHooks]
+    [allWebHooks],
   );
 
   const typeOptions = useMemo(
     () =>
-      (repository?._embedded?.supportedWebHookTypes.types ?? allWebHooks.map(({ name }) => name)).map(name => ({
+      (repository?._embedded?.supportedWebHookTypes.types ?? allWebHooks.map(({ name }) => name)).map((name) => ({
         value: name,
-        label: t(`webhooks.${name}.name`)
+        label: t(`webhooks.${name}.name`),
       })),
-    [allWebHooks, repository, t]
+    [allWebHooks, repository, t],
   );
 
   if (isLoading || isUpdating) {

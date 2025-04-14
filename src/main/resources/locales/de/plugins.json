@@ -6,7 +6,7 @@
       "createSubtitle": "Webhook hinzufügen",
       "editSubtitle": "{{name}} bearbeiten",
       "noHooksConfigured": "Es wurden noch keine Webhooks angelegt.",
-      "noHooksForFilter": "Es gibt keine Webhooks, die den eingestellten Filtern entsprechen",
+      "noHooksForFilter": "Es gibt keine Webhooks, die den eingestellten Filtern entsprechen.",
       "unknownConfigurationType": "Diese Konfiguration kann nicht angezeigt werden, da sie einen unbekannten Typen hat. Wahrscheinlich stammt sie aus einen anderen Plugin, das in der Zwischenzeit entfernt wurde. Diese Konfiguration kommt nicht zur Anwendung.",
       "filter": {
         "label": "Filtern nach",
@@ -28,36 +28,36 @@
           "configuration": {
             "urlPattern": {
               "label": "URL",
-              "helpText": "Die URL Muster Spalte gibt die URL der remote Webseite an. Es können Muster wie ${repository.name} benutzt werden."
+              "helpText": "Die URL-Vorlagen-Spalte gibt die URL der Remote-Webseite an. Es können Vorlagen wie ${repository.name} benutzt werden."
             },
             "executeOnEveryCommit": {
               "label": "Bei jedem Commit ausführen",
               "helpText": "Wenn die \"Bei jedem Commit ausführen\" Checkbox ausgewählt ist, wird die URL bei jedem Commit aus dem Push getriggert. Wenn die Checkbox nicht ausgewählt ist, wird die URL nur ein Mal durch den Push getriggert."
             },
             "sendCommitData": {
-              "label": "Commit Daten senden",
-              "helpText": "Wenn die \"Commit Daten senden\" Checkbox ausgewählt ist, werden die Commit Daten als json Body mit dem Request gesendet."
+              "label": "Commit-Daten senden",
+              "helpText": "Wenn die \"Commit Daten senden\" Checkbox ausgewählt ist, werden die Commit-Daten als json-Body mit dem Request gesendet."
             },
             "method": {
-              "label": "Http Methode",
-              "helpText": "Wenn die http Methode AUTO ausgewählt ist, benutzt das Plugin einen GET Request. Nur wenn \"Commit Daten senden\" ausgewählt ist benutzt das Plugin POST."
+              "label": "Http-Methode",
+              "helpText": "Wenn die Http-Methode AUTO ausgewählt ist, benutzt das Plugin einen GET-Request. Nur, wenn \"Commit-Daten senden\" ausgewählt ist, benutzt das Plugin stattdessen POST."
             },
             "headers": {
               "key": {
-                "label": "Header Schlüssel",
-                "helpText": "Der Schlüsselname des Header Eintrags",
+                "label": "Header-Schlüssel",
+                "helpText": "Der Schlüsselname des Header-Eintrags",
                 "errors": {
                   "validate": "Der Schlüssel existiert bereits",
                   "required": "Dies ist ein Pflichtfeld"
                 }
               },
               "value": {
-                "label": "Header Wert",
-                "helpText": "Der Wert des Header Eintrags"
+                "label": "Header-Wert",
+                "helpText": "Der Wert des Header-Eintrags"
               },
               "concealed": {
                 "label": "Verschlüsselt",
-                "helpText": "Verschlüsselt den Header Wert beim Speichern. Der Wert kann nicht mehr ausgelesen werden."
+                "helpText": "Verschlüsselt den Header-Wert beim Speichern. Der Wert kann nicht mehr ausgelesen werden."
               },
               "entity": "Header",
               "sectionTitle": "Zusätzliche Header"

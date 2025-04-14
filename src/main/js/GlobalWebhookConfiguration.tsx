@@ -22,8 +22,9 @@ type Props = {
   link: string;
 };
 
-const GlobalWebhookConfiguration: FC<Props> = props => {
+const GlobalWebhookConfiguration: FC<Props> = (props) => {
   const [t] = useTranslation("plugins");
+
   return (
     <MasterDetailsView title={t("scm-webhook-plugin.config.title")} baseRoute="/admin/settings/webhook" {...props} />
   );

@@ -15,7 +15,7 @@
  */
 
 import React, { FC, useMemo, useState } from "react";
-import { Notification, Subtitle } from "@scm-manager/ui-components";
+import { Notification, Subtitle, useDocumentTitle } from "@scm-manager/ui-core";
 import { useTranslation } from "react-i18next";
 import { WebhookConfiguration } from "./extensionPoints";
 import PrimaryInformation from "./PrimaryInformation";
@@ -37,14 +37,19 @@ type Props = {
 const Overview: FC<Props> = ({ repository, webhooks, webhookMap, typeOptions, isReadOnly, onDelete }) => {
   const [t] = useTranslation("plugins");
   const [type, setType] = useState("ALL");
+
+  // We can't use useDocumentTitleForRepository here since this would mean conditional hooks.
+  // TODO Needs to be fixed with a future SCM-Core version.
+  useDocumentTitle(t("scm-webhook-plugin.config.title"));
+
   const filteredWebhooks = useMemo(
-    () => (type === "ALL" ? webhooks : webhooks.filter(webhook => webhook.name === type)),
-    [type, webhooks]
+    () => (type === "ALL" ? webhooks : webhooks.filter((webhook) => webhook.name === type)),
+    [type, webhooks],
   );
 
   const options = useMemo(
     () => [{ label: t("scm-webhook-plugin.config.filter.all"), value: "ALL" }, ...typeOptions],
-    [typeOptions]
+    [typeOptions],
   );
 
   return (
@@ -53,11 +58,7 @@ const Overview: FC<Props> = ({ repository, webhooks, webhookMap, typeOptions, is
       <div className="columns is-justify-content-space-between is-align-items-center">
         <div className="column is-flex is-align-items-baseline">
           <strong className="mr-3">{t("scm-webhook-plugin.config.filter.label")}</strong>
-          <Select
-            value={type}
-            onChange={event => setType(event.target.value)}
-            options={options}
-          />
+          <Select value={type} onChange={(event) => setType(event.target.value)} options={options} />
         </div>
         {!isReadOnly ? (
           <div className="column is-flex is-justify-content-flex-end">
@@ -79,7 +80,7 @@ const Overview: FC<Props> = ({ repository, webhooks, webhookMap, typeOptions, is
                       <PrimaryInformation>{webhook.name}</PrimaryInformation>
                       {webhookMap[webhook.name].OverviewCardTop
                         ? React.createElement(webhookMap[webhook.name].OverviewCardTop, {
-                            webhook: webhook.configuration
+                            webhook: webhook.configuration,
                           })
                         : null}
                     </div>
@@ -97,7 +98,7 @@ const Overview: FC<Props> = ({ repository, webhooks, webhookMap, typeOptions, is
                   <div>
                     {webhookMap[webhook.name].OverviewCardBottom
                       ? React.createElement(webhookMap[webhook.name].OverviewCardBottom, {
-                          webhook: webhook.configuration
+                          webhook: webhook.configuration,
                         })
                       : null}
                   </div>
@@ -112,7 +113,7 @@ const Overview: FC<Props> = ({ repository, webhooks, webhookMap, typeOptions, is
             {t(
               webhooks.length > 0
                 ? "scm-webhook-plugin.config.noHooksForFilter"
-                : "scm-webhook-plugin.config.noHooksConfigured"
+                : "scm-webhook-plugin.config.noHooksConfigured",
             )}
           </Notification>
         )}

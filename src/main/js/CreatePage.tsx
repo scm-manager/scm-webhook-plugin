@@ -14,13 +14,13 @@
  * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
-import { Form } from "@scm-manager/ui-forms";
+import { Form, SelectField } from "@scm-manager/ui-forms";
 import React, { FC, useMemo, useState } from "react";
 import { WebhookConfiguration } from "./extensionPoints";
-import { SelectField } from "@scm-manager/ui-forms";
 import { useHistory } from "react-router-dom";
-import { Subtitle } from "@scm-manager/ui-components";
+import { Subtitle, useDocumentTitle } from "@scm-manager/ui-core";
 import { useTranslation } from "react-i18next";
+import { useRepositoryContext } from "@scm-manager/ui-api";
 
 type Props = {
   webhookMap: Record<string, WebhookConfiguration["type"]>;
@@ -34,18 +34,30 @@ const CreatePage: FC<Props> = ({ webhookMap, onCreate, typeOptions, baseRoute })
   const [type, setType] = useState("");
   const extension = useMemo(() => webhookMap[type], [type, webhookMap]);
   const history = useHistory();
+  const repository = useRepositoryContext();
+
+  // We can't use useDocumentTitleForRepository here since this would mean conditional hooks.
+  // TODO Needs to be fixed with a future SCM-Core version.
+  useDocumentTitle(
+    t("scm-webhook-plugin.config.createSubtitle"),
+  );
 
   const options = useMemo(() => [{ label: "", value: "" }, ...typeOptions], [typeOptions]);
 
   return (
     <>
       <Subtitle>{t("scm-webhook-plugin.config.createSubtitle")}</Subtitle>
-      <SelectField label={t("scm-webhook-plugin.config.type.label")} value={type} onChange={event => setType(event.target.value)} options={options} />
+      <SelectField
+        label={t("scm-webhook-plugin.config.type.label")}
+        value={type}
+        onChange={(event) => setType(event.target.value)}
+        options={options}
+      />
       {type ? (
         <>
           <hr />
           <Form
-            onSubmit={formValue => onCreate(type, formValue).then(() => history.push(baseRoute))}
+            onSubmit={(formValue) => onCreate(type, formValue).then(() => history.push(baseRoute))}
             defaultValues={extension.defaultConfiguration}
             translationPath={["plugins", "scm-webhook-plugin.config.form.webhooks.configuration"]}
           >
