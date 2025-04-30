@@ -15,7 +15,7 @@
  */
 
 import React, { FC, useMemo, useState } from "react";
-import { Notification, Subtitle, useDocumentTitle } from "@scm-manager/ui-core";
+import { Notification, Subtitle } from "@scm-manager/ui-core";
 import { useTranslation } from "react-i18next";
 import { WebhookConfiguration } from "./extensionPoints";
 import PrimaryInformation from "./PrimaryInformation";
@@ -37,10 +37,6 @@ type Props = {
 const Overview: FC<Props> = ({ repository, webhooks, webhookMap, typeOptions, isReadOnly, onDelete }) => {
   const [t] = useTranslation("plugins");
   const [type, setType] = useState("ALL");
-
-  // We can't use useDocumentTitleForRepository here since this would mean conditional hooks.
-  // TODO Needs to be fixed with a future SCM-Core version.
-  useDocumentTitle(t("scm-webhook-plugin.config.title"));
 
   const filteredWebhooks = useMemo(
     () => (type === "ALL" ? webhooks : webhooks.filter((webhook) => webhook.name === type)),
