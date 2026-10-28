@@ -15,8 +15,7 @@
  */
 
 import React, { FC } from "react";
-import { Form } from "@scm-manager/ui-forms";
-import { Icon } from "@scm-manager/ui-components";
+import { Form, Icon } from "@scm-manager/ui-core";
 import { useTranslation } from "react-i18next";
 
 export type SimpleWebHookConfiguration = {
@@ -37,7 +36,7 @@ type Props = { webhook: SimpleWebHookConfiguration };
 
 const SimpleWebHookConfigurationForm: FC<Props> = ({ webhook }) => {
   const [t] = useTranslation("plugins", {
-    keyPrefix: "scm-webhook-plugin"
+    keyPrefix: "scm-webhook-plugin",
   });
 
   return (
@@ -49,7 +48,7 @@ const SimpleWebHookConfigurationForm: FC<Props> = ({ webhook }) => {
             { value: "GET", label: "GET" },
             { value: "POST", label: "POST" },
             { value: "AUTO", label: "AUTO" },
-            { value: "PUT", label: "PUT" }
+            { value: "PUT", label: "PUT" },
           ]}
         />
       </Form.Row>
@@ -72,10 +71,23 @@ const SimpleWebHookConfigurationForm: FC<Props> = ({ webhook }) => {
               <Form.Table withDelete>
                 <Form.Table.Column name="key" />
                 <Form.Table.Column name="value">
-                  {({ concealed, value }) => (concealed ? "●●●●●●●●●●●" : value)}
+                  {(row) => {
+                    const item = row as WebhookHeader;
+                    return item.concealed ? "●●●●●●●●●●●" : item.value;
+                  }}
                 </Form.Table.Column>
                 <Form.Table.Column name="concealed">
-                  {({ concealed }) => (concealed ? <Icon name="check" /> : null)}
+                  {(row) => {
+                    const item = row as WebhookHeader;
+                    return item.concealed ? (
+                      <Icon
+                        aria-hidden={false}
+                        aria-label={t("config.form.webhooks.configuration.headers.concealed.label")}
+                      >
+                        check
+                      </Icon>
+                    ) : null;
+                  }}
                 </Form.Table.Column>
               </Form.Table>
               <Form.AddListEntryForm defaultValues={{ key: "", value: "", concealed: false }}>
@@ -83,8 +95,8 @@ const SimpleWebHookConfigurationForm: FC<Props> = ({ webhook }) => {
                   <Form.Input
                     name="key"
                     rules={{
-                      validate: newKey => !webhook.headers.some(({ key }) => newKey === key),
-                      required: true
+                      validate: (newKey) => !webhook.headers.some(({ key }) => newKey === key),
+                      required: true,
                     }}
                   />
                 </Form.Row>

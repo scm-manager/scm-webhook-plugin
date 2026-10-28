@@ -15,7 +15,7 @@
  */
 
 import React, { FC, useCallback, useMemo } from "react";
-import { Route, Switch } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import Overview from "./Overview";
 import CreatePage from "./CreatePage";
 import { useBinder } from "@scm-manager/ui-extensions";
@@ -43,10 +43,14 @@ const MasterDetailsView: FC<Props> = ({ repository, link, title, baseRoute }) =>
 
   const create = useCallback(
     (name: string, configuration: unknown) => {
+      if (!initialConfiguration) {
+        return Promise.resolve();
+      }
       const newWebhook = {
         name,
         configuration,
       } as WebHookConfiguration;
+
       initialConfiguration.webhooks.push(newWebhook);
       return update(initialConfiguration);
     },
@@ -55,6 +59,9 @@ const MasterDetailsView: FC<Props> = ({ repository, link, title, baseRoute }) =>
 
   const updateWebhook = useCallback(
     (webhook: WebHookConfiguration) => {
+      if (!initialConfiguration) {
+        return Promise.resolve();
+      }
       initialConfiguration.webhooks[initialConfiguration.webhooks.findIndex((wh) => wh.id === webhook.id)] = webhook;
       return update(initialConfiguration);
     },
@@ -63,6 +70,9 @@ const MasterDetailsView: FC<Props> = ({ repository, link, title, baseRoute }) =>
 
   const deleteWebhook = useCallback(
     (webhook: WebHookConfiguration) => {
+      if (!initialConfiguration) {
+        return Promise.resolve();
+      }
       initialConfiguration.webhooks.splice(
         initialConfiguration.webhooks.findIndex((wh) => wh.id === webhook.id),
         1,
@@ -74,7 +84,7 @@ const MasterDetailsView: FC<Props> = ({ repository, link, title, baseRoute }) =>
 
   const webhookMap = useMemo<Record<string, WebhookConfiguration["type"]>>(
     () =>
-      allWebHooks.reduce((prev, cur) => {
+      allWebHooks.reduce<Record<string, WebhookConfiguration["type"]>>((prev, cur) => {
         prev[cur.name] = cur;
         return prev;
       }, {}),
@@ -97,30 +107,39 @@ const MasterDetailsView: FC<Props> = ({ repository, link, title, baseRoute }) =>
   return (
     <>
       {title ? <Title>{title}</Title> : null}
-      <Switch>
-        <Route path={`${baseRoute}/add`}>
-          <CreatePage webhookMap={webhookMap} typeOptions={typeOptions} onCreate={create} baseRoute={baseRoute} />
-        </Route>
-        <Route path={`${baseRoute}/:id`}>
-          <EditPage
-            webhooks={initialConfiguration.webhooks}
-            webhookMap={webhookMap}
-            onUpdate={updateWebhook}
-            baseRoute={baseRoute}
-            onDelete={deleteWebhook}
-          />
-        </Route>
-        <Route path={baseRoute} exact>
-          <Overview
-            repository={repository}
-            webhooks={initialConfiguration.webhooks}
-            webhookMap={webhookMap}
-            typeOptions={typeOptions}
-            isReadOnly={isReadOnly}
-            onDelete={deleteWebhook}
-          />
-        </Route>
-      </Switch>
+      <Routes>
+        <Route
+          index
+          element={
+            <Overview
+              repository={repository}
+              webhooks={initialConfiguration?.webhooks || []}
+              webhookMap={webhookMap}
+              typeOptions={typeOptions}
+              isReadOnly={isReadOnly}
+              onDelete={deleteWebhook}
+            />
+          }
+        ></Route>
+        <Route
+          path={`/add`}
+          element={
+            <CreatePage webhookMap={webhookMap} typeOptions={typeOptions} onCreate={create} baseRoute={baseRoute} />
+          }
+        />
+        <Route
+          path={`/:id`}
+          element={
+            <EditPage
+              webhooks={initialConfiguration?.webhooks || []}
+              webhookMap={webhookMap}
+              onUpdate={updateWebhook}
+              baseRoute={baseRoute}
+              onDelete={deleteWebhook}
+            />
+          }
+        />
+      </Routes>
     </>
   );
 };

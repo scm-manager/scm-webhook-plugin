@@ -15,13 +15,12 @@
  */
 
 import { WebhookConfiguration } from "./extensionPoints";
-import { ConfigurationBinder as cfgBinder } from "@scm-manager/ui-components";
-import GlobalWebhookConfiguration from "./GlobalWebhookConfiguration";
-import RepositoryWebhookConfigurationComponent from "./RepositoryWebhookConfiguration";
+import { Repository } from "@scm-manager/ui-types";
 import { binder } from "@scm-manager/ui-extensions";
 import SimpleWebHookConfigurationForm, { SimpleWebHookConfiguration } from "./SimpleWebHookConfigurationForm";
 import SimpleWebhookOverviewCardTop from "./SimpleWebhookOverviewCardTop";
 import SimpleWebhookOverviewCardBottom from "./SimpleWebhookOverviewCardBottom";
+import { AdminNavLink, AdminRoute, RepositoryNavLink, RepositoryRoute } from "./Routes";
 
 binder.bind<WebhookConfiguration<SimpleWebHookConfiguration>>("webhook.configuration", {
   name: "SimpleWebHook",
@@ -30,22 +29,23 @@ binder.bind<WebhookConfiguration<SimpleWebHookConfiguration>>("webhook.configura
     executeOnEveryCommit: false,
     sendCommitData: false,
     method: "AUTO",
-    headers: []
+    headers: [],
   },
   FormComponent: SimpleWebHookConfigurationForm,
   OverviewCardTop: SimpleWebhookOverviewCardTop,
-  OverviewCardBottom: SimpleWebhookOverviewCardBottom
+  OverviewCardBottom: SimpleWebhookOverviewCardBottom,
 });
 
+const webhookSupportedPredicate = (props: { repository: Repository }) => {
+  return props.repository && !!props.repository._links.webHookConfig;
+};
 
+binder.bind("admin.setting", AdminNavLink);
 
-cfgBinder.bindGlobal("/webhook", "scm-webhook-plugin.nav-link", "webHookConfig", GlobalWebhookConfiguration);
+binder.bind("admin.settings.route", AdminRoute);
 
-cfgBinder.bindRepositorySetting(
-  "/webhook",
-  "scm-webhook-plugin.nav-link",
-  "webHookConfig",
-  RepositoryWebhookConfigurationComponent
-);
+binder.bind("repository.setting", RepositoryNavLink, webhookSupportedPredicate);
+
+binder.bind("repo-config.route", RepositoryRoute);
 
 export { WebhookConfiguration } from "./extensionPoints";

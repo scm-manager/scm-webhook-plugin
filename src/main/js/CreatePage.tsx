@@ -14,13 +14,12 @@
  * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
-import { Form, SelectField } from "@scm-manager/ui-forms";
 import React, { FC, useMemo, useState } from "react";
 import { WebhookConfiguration } from "./extensionPoints";
-import { useHistory } from "react-router-dom";
-import { Subtitle, useDocumentTitle } from "@scm-manager/ui-core";
+import { Subtitle, useDocumentTitle, Form, SelectField } from "@scm-manager/ui-core";
 import { useTranslation } from "react-i18next";
 import { useRepositoryContext } from "@scm-manager/ui-api";
+import { useNavigate } from "react-router";
 
 type Props = {
   webhookMap: Record<string, WebhookConfiguration["type"]>;
@@ -33,14 +32,12 @@ const CreatePage: FC<Props> = ({ webhookMap, onCreate, typeOptions, baseRoute })
   const [t] = useTranslation("plugins");
   const [type, setType] = useState("");
   const extension = useMemo(() => webhookMap[type], [type, webhookMap]);
-  const history = useHistory();
+  const navigate = useNavigate();
   const repository = useRepositoryContext();
 
   // We can't use useDocumentTitleForRepository here since this would mean conditional hooks.
   // TODO Needs to be fixed with a future SCM-Core version.
-  useDocumentTitle(
-    t("scm-webhook-plugin.config.createSubtitle"),
-  );
+  useDocumentTitle(t("scm-webhook-plugin.config.createSubtitle"));
 
   const options = useMemo(() => [{ label: "", value: "" }, ...typeOptions], [typeOptions]);
 
@@ -57,7 +54,7 @@ const CreatePage: FC<Props> = ({ webhookMap, onCreate, typeOptions, baseRoute })
         <>
           <hr />
           <Form
-            onSubmit={(formValue) => onCreate(type, formValue).then(() => history.push(baseRoute))}
+            onSubmit={(formValue) => onCreate(type, formValue).then(() => navigate(baseRoute))}
             defaultValues={extension.defaultConfiguration}
             translationPath={["plugins", "scm-webhook-plugin.config.form.webhooks.configuration"]}
           >

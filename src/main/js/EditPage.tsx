@@ -14,15 +14,13 @@
  * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
-import { Form } from "@scm-manager/ui-forms";
 import React, { FC, useMemo } from "react";
 import { WebhookConfiguration } from "./extensionPoints";
 import { WebHookConfiguration } from "./types";
-import { useHistory, useParams } from "react-router-dom";
-import { Subtitle, useDocumentTitle } from "@scm-manager/ui-core";
+import { useParams } from "react-router-dom";
+import { Subtitle, useDocumentTitle, Button, Form } from "@scm-manager/ui-core";
 import { useTranslation } from "react-i18next";
-import { Button } from "@scm-manager/ui-buttons";
-import { useRepositoryContext } from "@scm-manager/ui-api";
+import { useNavigate } from "react-router";
 
 type Props = {
   webhookMap: Record<string, WebhookConfiguration["type"]>;
@@ -37,20 +35,17 @@ const EditPage: FC<Props> = ({ webhookMap, webhooks, onUpdate, onDelete, baseRou
   const { id } = useParams<{ id: string }>();
   const webhook = useMemo(() => webhooks.find((wh) => wh.id === id), [id, webhooks]);
   const extension = useMemo(() => webhookMap[webhook.name], [webhook.name, webhookMap]);
-  const history = useHistory();
-  const repository = useRepositoryContext();
+  const navigate = useNavigate();
 
   // We can't use useDocumentTitleForRepository here since this would mean conditional hooks.
   // TODO Needs to be fixed with a future SCM-Core version.
-  useDocumentTitle(
-    t("scm-webhook-plugin.config.editSubtitle", { name: webhook.name })
-  );
+  useDocumentTitle(t("scm-webhook-plugin.config.editSubtitle", { name: webhook.name }));
 
   return (
     <>
       <Subtitle>{t("scm-webhook-plugin.config.editSubtitle", { name: webhook.name })}</Subtitle>
       <Form
-        onSubmit={(formValue) => onUpdate({ ...webhook, configuration: formValue }).then(() => history.push(baseRoute))}
+        onSubmit={(formValue) => onUpdate({ ...webhook, configuration: formValue }).then(() => navigate(baseRoute))}
         defaultValues={webhook.configuration}
         translationPath={["plugins", "scm-webhook-plugin.config.form.webhooks.configuration"]}
       >
@@ -58,7 +53,7 @@ const EditPage: FC<Props> = ({ webhookMap, webhooks, onUpdate, onDelete, baseRou
       </Form>
       <hr />
       <div className="level-right">
-        <Button variant="signal" onClick={() => onDelete(webhook).then(() => history.push(baseRoute))}>
+        <Button variant="signal" onClick={() => onDelete(webhook).then(() => navigate(baseRoute))}>
           {t("Delete webhook")}
         </Button>
       </div>

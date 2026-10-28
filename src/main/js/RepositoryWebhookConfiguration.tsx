@@ -15,19 +15,24 @@
  */
 
 import React, { FC } from "react";
-import { Repository } from "@scm-manager/ui-types";
 import MasterDetailsView from "./MasterDetailsView";
+import { Link } from "@scm-manager/ui-types";
+import { Loading, useRepositoryFromParams } from "@scm-manager/ui-core";
 
-type Props = {
-  link: string;
-  repository: Repository;
+const RepositoryWebhookConfiguration: FC = (props) => {
+  const repository = useRepositoryFromParams();
+  const link = (repository._links.webHookConfig as Link).href;
+
+  if (!link || !repository) {
+    return <Loading />;
+  }
+  return (
+    <MasterDetailsView
+      baseRoute={`/repo/${repository.namespace}/${repository.name}/settings/webhook`}
+      link={link}
+      {...props}
+    />
+  );
 };
-
-const RepositoryWebhookConfiguration: FC<Props> = props => (
-  <MasterDetailsView
-    baseRoute={`/repo/${props.repository.namespace}/${props.repository.name}/settings/webhook`}
-    {...props}
-  />
-);
 
 export default RepositoryWebhookConfiguration;

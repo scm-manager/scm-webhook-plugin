@@ -14,15 +14,12 @@
  * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
-import React, { FC, useMemo, useState } from "react";
-import { Notification, Subtitle } from "@scm-manager/ui-core";
+import React, { ComponentType, FC, Fragment, useMemo, useState } from "react";
+import { Notification, Subtitle, Menu, Select, Icon, LinkButton } from "@scm-manager/ui-core";
 import { useTranslation } from "react-i18next";
 import { WebhookConfiguration } from "./extensionPoints";
 import PrimaryInformation from "./PrimaryInformation";
 import { WebHookConfiguration } from "./types";
-import { Select } from "@scm-manager/ui-forms";
-import { Icon, LinkButton } from "@scm-manager/ui-buttons";
-import { Menu } from "@scm-manager/ui-overlays";
 import { Repository } from "@scm-manager/ui-types";
 
 type Props = {
@@ -58,7 +55,7 @@ const Overview: FC<Props> = ({ repository, webhooks, webhookMap, typeOptions, is
         </div>
         {!isReadOnly ? (
           <div className="column is-flex is-justify-content-flex-end">
-            <LinkButton variant="primary" to="webhook/add">
+            <LinkButton variant="primary" to="add">
               {t("scm-webhook-plugin.config.button.add")}
             </LinkButton>
           </div>
@@ -66,44 +63,39 @@ const Overview: FC<Props> = ({ repository, webhooks, webhookMap, typeOptions, is
       </div>
       <div className="box">
         {filteredWebhooks?.length > 0 ? (
-          filteredWebhooks.map((webhook, idx) => (
-            <>
-              {idx > 0 ? <hr className="my-3" /> : null}
-              {webhook.name in webhookMap ? (
-                <div className="is-flex is-flex-direction-column">
-                  <div className="mb-1 is-flex is-justify-content-space-between">
-                    <div className="is-flex is-align-items-center">
-                      <PrimaryInformation>{webhook.name}</PrimaryInformation>
-                      {webhookMap[webhook.name].OverviewCardTop
-                        ? React.createElement(webhookMap[webhook.name].OverviewCardTop, {
-                            webhook: webhook.configuration,
-                          })
-                        : null}
+          filteredWebhooks.map((webhook, idx) => {
+            const configType = webhookMap[webhook.name];
+            const TopComponent = configType?.OverviewCardTop as ComponentType<{ webhook: any }> | undefined;
+            const BottomComponent = configType?.OverviewCardBottom as ComponentType<{ webhook: any }> | undefined;
+            return (
+              <Fragment key={webhook.id || idx}>
+                {idx > 0 ? <hr className="my-3" /> : null}
+                {webhook.name in webhookMap ? (
+                  <div className="is-flex is-flex-direction-column">
+                    <div className="mb-1 is-flex is-justify-content-space-between">
+                      <div className="is-flex is-align-items-center">
+                        <PrimaryInformation>{webhook.name}</PrimaryInformation>
+                        {TopComponent && <TopComponent webhook={webhook.configuration} />}
+                      </div>
+                      <Menu>
+                        <Menu.Link to={`${webhook.id}`}>
+                          <Icon>edit</Icon>
+                          {t("scm-webhook-plugin.config.button.edit")}
+                        </Menu.Link>
+                        <Menu.Button onSelect={() => onDelete(webhook)}>
+                          <Icon>trash</Icon>
+                          {t("scm-webhook-plugin.config.button.delete")}
+                        </Menu.Button>
+                      </Menu>
                     </div>
-                    <Menu>
-                      <Menu.Link to={`webhook/${webhook.id}`}>
-                        <Icon>edit</Icon>
-                        {t("scm-webhook-plugin.config.button.edit")}
-                      </Menu.Link>
-                      <Menu.Button onSelect={() => onDelete(webhook)}>
-                        <Icon>trash</Icon>
-                        {t("scm-webhook-plugin.config.button.delete")}
-                      </Menu.Button>
-                    </Menu>
+                    <div>{BottomComponent && <BottomComponent webhook={webhook.configuration} />}</div>
                   </div>
-                  <div>
-                    {webhookMap[webhook.name].OverviewCardBottom
-                      ? React.createElement(webhookMap[webhook.name].OverviewCardBottom, {
-                          webhook: webhook.configuration,
-                        })
-                      : null}
-                  </div>
-                </div>
-              ) : (
-                <Notification type="warning">{t("scm-webhook-plugin.config.unknownConfigurationType")}</Notification>
-              )}
-            </>
-          ))
+                ) : (
+                  <Notification type="warning">{t("scm-webhook-plugin.config.unknownConfigurationType")}</Notification>
+                )}
+              </Fragment>
+            );
+          })
         ) : (
           <Notification type="info">
             {t(

@@ -17,16 +17,24 @@
 import React, { FC } from "react";
 import MasterDetailsView from "./MasterDetailsView";
 import { useTranslation } from "react-i18next";
+import { useIndexLink } from "@scm-manager/ui-api";
+import { Loading } from "@scm-manager/ui-core";
 
-type Props = {
-  link: string;
-};
-
-const GlobalWebhookConfiguration: FC<Props> = (props) => {
+const GlobalWebhookConfiguration: FC = (props) => {
   const [t] = useTranslation("plugins");
+  const link = useIndexLink("webHookConfig");
+
+  if (!link) {
+    return <Loading />;
+  }
 
   return (
-    <MasterDetailsView title={t("scm-webhook-plugin.config.title")} baseRoute="/admin/settings/webhook" {...props} />
+    <MasterDetailsView
+      title={t("scm-webhook-plugin.config.title")}
+      baseRoute="/admin/settings/webhook"
+      link={link}
+      {...props}
+    />
   );
 };
 

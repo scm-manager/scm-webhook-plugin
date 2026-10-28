@@ -14,9 +14,11 @@
  * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
-import React, { FC } from "react";
+import React, {FC, PropsWithChildren} from "react";
 
-const PrimaryInformation: FC = ({children}) => {
+
+
+const PrimaryInformation: FC<PropsWithChildren> = ({children}) => {
   return <span className="has-text-weight-bold px-2">{children}</span>
 }
 
